@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
     //after page loaded
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       // final snackBar = SnackBar(content: Text('Yay! A SnackBar!'));
-      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      // ScaffoldMessenger.of(context).showSnackBar(snackBar);;
     });
     super.initState();
   }
