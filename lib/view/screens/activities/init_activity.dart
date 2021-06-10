@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/screens/fragments/categories_fragment.dart';
 import 'package:virtual_ggroceries/view/screens/fragments/home.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -12,7 +13,7 @@ class InitActivity extends StatefulWidget {
 class _InitActivityState extends State<InitActivity> {
   List<Widget> fragments = [
     Home(),
-    Home(),
+    CategoryFragment(),
     Home(),
     Home(),
   ];

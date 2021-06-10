@@ -4,14 +4,27 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 
 import 'horizontal_widget.dart';
 
-class TabbedButtons extends StatelessWidget {
+class TabbedButtons extends StatefulWidget {
   final AsyncSnapshot<CategoryModel> snapshot;
-  TabbedButtons(this.snapshot);
+  final Function(int) onSelectionUpdated;
+  final int selectedIndex;
 
+  TabbedButtons({
+    required this.snapshot,
+    required this.onSelectionUpdated,
+    required this.selectedIndex,
+  });
+
+  @override
+  _TabbedButtonsState createState() => _TabbedButtonsState();
+}
+
+class _TabbedButtonsState extends State<TabbedButtons> {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgetList = [];
-    var modelData = snapshot.data!.categoryModelList;
+    var currentIndex = 0;
+    var modelData = widget.snapshot.data!.categoryModelList;
 
     for (var data in modelData) {
       var design = Container(
@@ -21,10 +34,15 @@ class TabbedButtons extends StatelessWidget {
             minWidth: 80,
           ),
           child: Material(
-            color: kDarkCardBackground,
+            color: _colorPicker(
+              currentIndex: currentIndex,
+              selectedIndex: widget.selectedIndex,
+            ),
             borderRadius: BorderRadius.circular(8),
             child: InkWell(
-              onTap: () {},
+              onTap: () async {
+                _updateSelection(data.id);
+              },
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Center(
@@ -36,8 +54,24 @@ class TabbedButtons extends StatelessWidget {
         ),
       );
       widgetList.add(design);
+      currentIndex++;
     }
+
     var horizontalList = horizontalWidgetBuilder(widgetList);
     return horizontalList;
+  }
+
+  _updateSelection(int index) {
+    setState(() {
+      widget.onSelectionUpdated(index);
+    });
+  }
+
+  _colorPicker({required int currentIndex, required int selectedIndex}) {
+    if (currentIndex == selectedIndex) {
+      return kAccentColor;
+    } else {
+      return kDarkCardBackground;
+    }
   }
 }

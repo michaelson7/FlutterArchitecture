@@ -35,7 +35,7 @@ class ImageProviders extends ChangeNotifier {
   ];
 
   String getRandomImage() {
-    var num = randomBetween(0, _imgPaths.length);
+    var num = randomBetween(0, _imgPaths.length - 1);
     return _imgPaths[num];
   }
 }

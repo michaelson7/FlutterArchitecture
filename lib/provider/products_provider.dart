@@ -20,4 +20,8 @@ class ProductsProvider extends ChangeNotifier {
   void endStream() {
     _streamController.close();
   }
+
+  Future<void> refreshProducts() async {
+    await getProducts();
+  }
 }

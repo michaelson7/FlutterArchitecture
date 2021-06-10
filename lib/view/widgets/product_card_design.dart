@@ -2,11 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/screens/activities/product_details.dart';
 
 class ProductCardDesign extends StatelessWidget {
   final ProductsModelList data;
-  bool isGrid = false;
-  ProductCardDesign({required this.data, required this.isGrid});
+  final bool isGrid;
+  ProductCardDesign({
+    required this.data,
+    this.isGrid = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +19,12 @@ class ProductCardDesign extends StatelessWidget {
       height: 260,
       width: 180,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProductsDetails(data)),
+          );
+        },
         child: Card(
           color: kDarkCardBackground,
           child: Column(
