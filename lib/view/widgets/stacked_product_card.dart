@@ -29,7 +29,7 @@ class StackedProductCard extends StatelessWidget {
               child: Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(15.0),
+                    padding: const EdgeInsets.all(10.0),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: CachedNetworkImage(
@@ -42,7 +42,7 @@ class StackedProductCard extends StatelessWidget {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(right: 5),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -55,6 +55,8 @@ class StackedProductCard extends StatelessWidget {
                           Text(
                             modelData[index].description,
                             style: kTextStyleFaint,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           SizedBox(height: 10),
                           Row(

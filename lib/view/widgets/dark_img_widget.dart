@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 class DarkImageWidget extends StatelessWidget {
-  final imgPath;
+  final String imgPath;
   final borderRadius;
-  final width;
-  final height;
+  final double width;
+  final double height;
   final child;
 
   DarkImageWidget({
     required this.imgPath,
     this.borderRadius,
-    this.width,
-    this.height,
+    this.width = 0,
+    this.height = 0,
     this.child,
   });
 
@@ -26,7 +26,7 @@ class DarkImageWidget extends StatelessWidget {
           image: NetworkImage(imgPath),
           fit: BoxFit.cover,
           colorFilter: new ColorFilter.mode(
-            Colors.black.withOpacity(0.4),
+            Colors.black.withOpacity(0.5),
             BlendMode.dstATop,
           ),
         ),

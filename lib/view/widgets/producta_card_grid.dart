@@ -20,6 +20,7 @@ class ProductCardGrid extends StatelessWidget {
       ),
       itemCount: snapshot.data!.size,
       shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(4.0),
       itemBuilder: (BuildContext context, int index) {
         return ProductCardDesign(

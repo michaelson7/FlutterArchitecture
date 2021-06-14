@@ -64,7 +64,7 @@ class _HomeState extends State<Home> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Welcome to\nVirtual Groceries $streamIndex',
+            'Welcome to\nVirtual Groceries',
             style: kTextStyleHeader,
           ),
           SizedBox(height: 15),
@@ -95,7 +95,7 @@ class _HomeState extends State<Home> {
               builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
                 updateStreamIndex(snapshot);
                 print(snapshot.connectionState);
-                return SnaphotHandler(
+                return SnapShotBuilder(
                   snapshot: snapshot,
                   widget: TabbedButtons(
                     snapshot: snapshot,
@@ -119,7 +119,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnaphotHandler(
+                return SnapShotBuilder(
                   snapshot: snapshot,
                   widget: ProductsCardHorizontal(snapshot),
                 );
@@ -132,7 +132,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _adsProvider.getStream,
               builder: (context, AsyncSnapshot<AdsModel> snapshot) {
-                return SnaphotHandler(
+                return SnapShotBuilder(
                   snapshot: snapshot,
                   widget: AdsCard(snapshot),
                 );
@@ -149,7 +149,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnaphotHandler(
+                return SnapShotBuilder(
                   snapshot: snapshot,
                   widget: ProductsCardHorizontal(snapshot),
                 );
@@ -162,7 +162,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _adsProvider.getStream,
               builder: (context, AsyncSnapshot<AdsModel> snapshot) {
-                return SnaphotHandler(
+                return SnapShotBuilder(
                   snapshot: snapshot,
                   widget: AdsCard(snapshot),
                 );
@@ -179,7 +179,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnaphotHandler(
+                return SnapShotBuilder(
                   snapshot: snapshot,
                   widget: ProductsCardHorizontal(snapshot),
                 );
@@ -196,7 +196,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnaphotHandler(
+                return SnapShotBuilder(
                   snapshot: snapshot,
                   widget: StackedProductCard(snapshot),
                 );
@@ -213,7 +213,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnaphotHandler(
+                return SnapShotBuilder(
                   snapshot: snapshot,
                   widget: ProductCardGrid(
                     snapshot: snapshot,

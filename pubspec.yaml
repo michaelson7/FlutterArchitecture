@@ -23,7 +23,7 @@ dependencies:
   random_string: ^2.1.0
   random_words: ^1.0.2
   font_awesome_flutter: ^9.0.0
-#  toggle_bar: ^1.0.0
+  carousel_slider: ^3.0.0
 
 dev_dependencies:
   flutter_test:
