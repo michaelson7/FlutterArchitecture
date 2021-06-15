@@ -45,7 +45,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
       body: StreamBuilder(
         stream: _productsProvider.getStream,
         builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-          return SnapShotBuilder(
+          return snapShotBuilder(
             snapshot: snapshot,
             widget: MainInterface(
               categoryModel: _categoryModel,

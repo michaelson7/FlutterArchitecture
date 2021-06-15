@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-dynamic SnapShotBuilder({required dynamic snapshot, required dynamic widget}) {
+dynamic snapShotBuilder({required dynamic snapshot, required dynamic widget}) {
   if (snapshot.hasData) {
     return widget;
   } else if (snapshot.hasError) {

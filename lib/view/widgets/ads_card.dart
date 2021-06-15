@@ -19,23 +19,27 @@ class AdsCard extends StatelessWidget {
           height: 250,
           width: double.infinity,
           imgPath: modelData[index].imgPath,
-          child: Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    modelData[index].header,
-                    style: kTextStyleHeader,
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        modelData[index].header,
+                        style: kTextStyleHeader,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        modelData[index].subHeader,
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    modelData[index].subHeader,
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         );
       },

@@ -36,7 +36,7 @@ class _CategoryFragmentState extends State<CategoryFragment> {
       child: StreamBuilder(
           stream: _categoryProvider.getStream,
           builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
-            return SnapShotBuilder(
+            return snapShotBuilder(
               snapshot: snapshot,
               widget: CategoryGrid(snapshot),
             );
@@ -77,13 +77,17 @@ class CategoryGrid extends StatelessWidget {
             child: DarkImageWidget(
               imgPath: data[index].imgPath,
               borderRadius: kBorderRadiusCircular,
-              child: Expanded(
-                child: Center(
-                  child: Text(
-                    data[index].name,
-                    style: kTextStyleHeader,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        data[index].name,
+                        style: kTextStyleHeader,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );

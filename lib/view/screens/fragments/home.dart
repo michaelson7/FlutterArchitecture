@@ -8,6 +8,7 @@ import 'package:virtual_ggroceries/provider/category_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/ads_card.dart';
+import 'package:virtual_ggroceries/view/widgets/max.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/products_card_horizontal.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
@@ -19,7 +20,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   CategoryProvider _categoryProvider = CategoryProvider();
   ProductsProvider _productsProvider = ProductsProvider();
   AdsProvider _adsProvider = AdsProvider();
@@ -35,12 +36,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     initProviders();
-    //after page loaded
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      // final snackBar = SnackBar(content: Text(streamIndex.toString()));
-      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      ;
-    });
     super.initState();
   }
 
@@ -51,14 +46,25 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
-  void updateStreamIndex(dynamic snapshot) {
-    if (snapshot.connectionState == ConnectionState.active) {
-      streamIndex++;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: buildSingleChildScrollView(),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        print(snapshot.connectionState);
+        if (snapshot.hasData) {
+          return snapshot.data;
+        } else if (snapshot.hasError) {
+          return Center(child: Text('hasNoData'));
+        }
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+  }
+
+  Future<SingleChildScrollView> buildSingleChildScrollView() async {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,9 +99,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _categoryProvider.getStream,
               builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
-                updateStreamIndex(snapshot);
-                print(snapshot.connectionState);
-                return SnapShotBuilder(
+                return snapShotBuilder(
                   snapshot: snapshot,
                   widget: TabbedButtons(
                     snapshot: snapshot,
@@ -119,7 +123,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnapShotBuilder(
+                return snapShotBuilder(
                   snapshot: snapshot,
                   widget: ProductsCardHorizontal(snapshot),
                 );
@@ -132,7 +136,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _adsProvider.getStream,
               builder: (context, AsyncSnapshot<AdsModel> snapshot) {
-                return SnapShotBuilder(
+                return snapShotBuilder(
                   snapshot: snapshot,
                   widget: AdsCard(snapshot),
                 );
@@ -149,7 +153,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnapShotBuilder(
+                return snapShotBuilder(
                   snapshot: snapshot,
                   widget: ProductsCardHorizontal(snapshot),
                 );
@@ -162,7 +166,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _adsProvider.getStream,
               builder: (context, AsyncSnapshot<AdsModel> snapshot) {
-                return SnapShotBuilder(
+                return snapShotBuilder(
                   snapshot: snapshot,
                   widget: AdsCard(snapshot),
                 );
@@ -179,7 +183,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnapShotBuilder(
+                return snapShotBuilder(
                   snapshot: snapshot,
                   widget: ProductsCardHorizontal(snapshot),
                 );
@@ -196,7 +200,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnapShotBuilder(
+                return snapShotBuilder(
                   snapshot: snapshot,
                   widget: StackedProductCard(snapshot),
                 );
@@ -213,7 +217,7 @@ class _HomeState extends State<Home> {
             child: StreamBuilder(
               stream: _productsProvider.getStream,
               builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                return SnapShotBuilder(
+                return snapShotBuilder(
                   snapshot: snapshot,
                   widget: ProductCardGrid(
                     snapshot: snapshot,
@@ -225,5 +229,26 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    // TODO: implement afterFirstLayout
+    showHelloWorld();
+  }
+
+  void showHelloWorld() {
+    // showDialog(
+    //   context: context,
+    //   builder: (context) => new AlertDialog(
+    //     content: new Text('Hello World'),
+    //     actions: <Widget>[
+    //       new FlatButton(
+    //         child: new Text('DISMISS'),
+    //         onPressed: () => Navigator.of(context).pop(),
+    //       )
+    //     ],
+    //   ),
+    // );
   }
 }
