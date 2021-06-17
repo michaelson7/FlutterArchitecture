@@ -7,8 +7,15 @@ import 'package:virtual_ggroceries/provider/category_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
+import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/slide_show_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
+import 'package:virtual_ggroceries/view/widgets/tabbed_buttons.dart';
+
+CategoryProvider _categoryProvider = CategoryProvider();
+ProductsProvider _productsProvider = ProductsProvider();
+int currentIndex = 0;
+int streamIndex = 0;
 
 class CategoryProducts extends StatefulWidget {
   final CategoryModelList _categoryModel;
@@ -21,10 +28,6 @@ class CategoryProducts extends StatefulWidget {
 
 class _CategoryProductsState extends State<CategoryProducts> {
   final CategoryModelList _categoryModel;
-  CategoryProvider _categoryProvider = CategoryProvider();
-  ProductsProvider _productsProvider = ProductsProvider();
-  int currentIndex = 0;
-  int streamIndex = 0;
 
   _CategoryProductsState(this._categoryModel);
 
@@ -58,27 +61,32 @@ class _CategoryProductsState extends State<CategoryProducts> {
   }
 }
 
-class MainInterface extends StatelessWidget {
+class MainInterface extends StatefulWidget {
   const MainInterface({
     Key? key,
     required CategoryModelList categoryModel,
     required this.snapshot,
-  })  : _categoryModel = categoryModel,
+  })   : _categoryModel = categoryModel,
         super(key: key);
 
   final CategoryModelList _categoryModel;
   final AsyncSnapshot<ProductsModel> snapshot;
 
   @override
+  _MainInterfaceState createState() => _MainInterfaceState();
+}
+
+class _MainInterfaceState extends State<MainInterface> {
+  @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
           pinned: true,
-          expandedHeight: 350.0,
+          expandedHeight: 400.0,
           flexibleSpace: FlexibleSpaceBar(
-            title: Text(_categoryModel.name),
-            background: SlideShowWidget(snapshot: snapshot),
+            title: Text(widget._categoryModel.name),
+            background: SlideShowWidget(snapshot: widget.snapshot),
           ),
         ),
         SliverToBoxAdapter(
@@ -89,32 +97,46 @@ class MainInterface extends StatelessWidget {
               children: [
                 SizedBox(height: 10),
                 Text(
-                  'ZMW ',
-                  style: TextStyle(color: kAccentColor),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Availability: ',
+                  'Sub Categories',
+                  style: kTextStyleHeader,
                 ),
                 SizedBox(height: 15),
-                Text(
-                  'vsdvsdv',
-                  style: kTextStyleFaint,
-                ),
-                SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Text(
-                        'Add To Cart',
-                        style: kTextStyleSubHeader,
-                      ),
-                    ),
+                Container(
+                  child: StreamBuilder(
+                    stream: _categoryProvider.getStream,
+                    builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
+                      return snapShotBuilder(
+                        snapshot: snapshot,
+                        widget: TabbedButtons(
+                          snapshot: snapshot,
+                          onSelectionUpdated: (index) async {
+                            await _productsProvider.refreshProducts();
+                            setState(
+                              () {
+                                currentIndex = index;
+                              },
+                            );
+                          },
+                          selectedIndex: currentIndex,
+                        ),
+                      );
+                    },
                   ),
-                )
+                ),
+                SizedBox(height: 15),
+                Container(
+                  child: StreamBuilder(
+                    stream: _productsProvider.getStream,
+                    builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+                      return snapShotBuilder(
+                        snapshot: snapshot,
+                        widget: ProductCardGrid(
+                          snapshot: snapshot,
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
           ),

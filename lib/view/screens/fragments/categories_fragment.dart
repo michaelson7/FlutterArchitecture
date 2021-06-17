@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/provider/category_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
-import 'package:virtual_ggroceries/view/screens/activities/category_products.dart';
+import 'package:virtual_ggroceries/view/screens/activities/category_products_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 

@@ -1,7 +1,9 @@
 import 'package:virtual_ggroceries/provider/adsProvider.dart';
+import 'package:virtual_ggroceries/provider/cart_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/screens/activities/cart_activity.dart';
 
 import '../../provider/account_provider.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,8 @@ class initScreen extends StatelessWidget {
             create: (BuildContext context) => ProductsProvider()),
         ChangeNotifierProvider(
             create: (BuildContext context) => SharedPreferenceProvider()),
+        ChangeNotifierProvider(
+            create: (BuildContext context) => CartProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -60,6 +64,7 @@ class initScreen extends StatelessWidget {
         initialRoute: InitActivity.id,
         routes: {
           InitActivity.id: (context) => InitActivity(),
+          CartActivity.id: (context) => CartActivity(),
         },
       ),
     );

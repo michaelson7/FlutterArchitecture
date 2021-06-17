@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
+import 'package:virtual_ggroceries/provider/cart_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
+import 'package:get/get.dart';
+import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class ProductsDetails extends StatelessWidget {
-  static final String id = "ProductsDetails";
   final ProductsModelList _model;
   ProductsDetails(this._model);
 
@@ -47,7 +50,16 @@ class ProductsDetails extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        var message;
+                        if (Provider.of<CartProvider>(context, listen: false)
+                            .addToCart(_model)) {
+                          message = '${_model.name}added to cart';
+                        } else {
+                          message = 'error, check logs';
+                        }
+                        snackBarBuilder(message: message, context: context);
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(

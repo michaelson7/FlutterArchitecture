@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/screens/activities/cart_activity.dart';
 import 'package:virtual_ggroceries/view/screens/fragments/categories_fragment.dart';
-import 'package:virtual_ggroceries/view/screens/fragments/home.dart';
+import 'package:virtual_ggroceries/view/screens/fragments/home_fragment.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:virtual_ggroceries/view/screens/fragments/profile_fragment.dart';
+import 'package:virtual_ggroceries/view/screens/fragments/wishlist_fragment.dart';
 
 class InitActivity extends StatefulWidget {
   static String id = "HomeActivity";
@@ -14,8 +17,8 @@ class _InitActivityState extends State<InitActivity> {
   List<Widget> fragments = [
     Home(),
     CategoryFragment(),
-    Home(),
-    Home(),
+    WishListFragment(),
+    ProfileFragment(),
   ];
   int _selectedIndex = 0;
 
@@ -33,6 +36,12 @@ class _InitActivityState extends State<InitActivity> {
         actions: [
           IconButton(
             onPressed: () {},
+            icon: Icon(Icons.search),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, CartActivity.id);
+            },
             icon: Icon(Icons.shopping_bag),
           ),
         ],
