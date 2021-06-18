@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
@@ -207,17 +208,6 @@ class _CartActivityState extends State<CartActivity> {
     } else {
       return Center(child: Text('No Item Added To Cart'));
     }
-  }
-
-  Material materialButtonDesign({required Widget child}) {
-    return Material(
-      color: Colors.grey[900],
-      borderRadius: kBorderRadiusCircular,
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: child,
-      ),
-    );
   }
 
   Padding paddedDivider() {

@@ -20,6 +20,34 @@ class SharedPreferenceProvider extends ChangeNotifier {
     }
   }
 
+  //setDarkMode
+  setTheme({required bool isDarkTheme}) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isDarkTheme', isDarkTheme);
+      print("Shared Preferences Updated");
+      notifyListeners();
+    } catch (e) {
+      print("Error on sharedPreferences: $e");
+    }
+  }
+
+  //get theme
+  Future<bool?> isDarkMode() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool? spItem = prefs.getBool('isDarkTheme');
+      print('Theme data is: $spItem');
+      if (spItem == null) {
+        return false;
+      } else {
+        return spItem;
+      }
+    } catch (e) {
+      print("Error on sharedPreferences: $e");
+    }
+  }
+
   //getting
   Future<String?> getStringValue(String value) async {
     try {

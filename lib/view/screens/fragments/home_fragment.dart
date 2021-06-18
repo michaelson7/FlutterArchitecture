@@ -7,6 +7,7 @@ import 'package:virtual_ggroceries/provider/adsProvider.dart';
 import 'package:virtual_ggroceries/provider/category_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/screens/activities/search_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/ads_card.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/products_card_horizontal.dart';
@@ -72,7 +73,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
       inAsyncCall: isLoading,
       opacity: 1,
       progressIndicator: CircularProgressIndicator(),
-      color: Color(0xff151515),
+      color: kScaffoldColor,
       child: Visibility(
         maintainAnimation: true,
         maintainState: true,
@@ -88,9 +89,11 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               SizedBox(height: 15),
               //search field
               Material(
-                color: kDarkCardBackground,
+                color: kCardBackground,
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(context, SearchActivity.id);
+                  },
                   child: ListTile(
                     leading: Icon(Icons.search),
                     title: Text(

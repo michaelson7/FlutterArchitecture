@@ -3,6 +3,7 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 
 class PaddedContainer extends StatelessWidget {
   final Widget child;
+
   const PaddedContainer({
     Key? key,
     required this.child,
@@ -13,7 +14,7 @@ class PaddedContainer extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: kDarkCardBackground,
+        color: kCardBackground,
         borderRadius: kBorderRadiusCircular,
       ),
       child: Padding(

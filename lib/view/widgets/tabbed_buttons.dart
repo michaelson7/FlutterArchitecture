@@ -71,7 +71,7 @@ class _TabbedButtonsState extends State<TabbedButtons> {
     if (currentIndex == selectedIndex) {
       return kAccentColor;
     } else {
-      return kDarkCardBackground;
+      return kCardBackground;
     }
   }
 }

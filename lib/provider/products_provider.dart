@@ -17,11 +17,16 @@ class ProductsProvider extends ChangeNotifier {
     _streamController.add(helperResult);
   }
 
-  void endStream() {
-    _streamController.close();
+  Future<void> searchForProduct({required String searchTerm}) async {
+    var helperResult = await _apiHelper.searchProduct(searchTerm: searchTerm);
+    _streamController.add(helperResult);
   }
 
   Future<void> refreshProducts() async {
     await getProducts();
+  }
+
+  void endStream() {
+    _streamController.close();
   }
 }

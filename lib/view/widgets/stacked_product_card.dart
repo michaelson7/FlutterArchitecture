@@ -22,7 +22,7 @@ class StackedProductCard extends StatelessWidget {
           margin: EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: kDarkCardBackgroundFaint,
+            color: kCardBackgroundFaint,
           ),
           child: Flex(
             direction: Axis.vertical,

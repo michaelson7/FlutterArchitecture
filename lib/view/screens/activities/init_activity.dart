@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/cart_activity.dart';
+import 'package:virtual_ggroceries/view/screens/activities/search_activity.dart';
 import 'package:virtual_ggroceries/view/screens/fragments/categories_fragment.dart';
 import 'package:virtual_ggroceries/view/screens/fragments/home_fragment.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -35,7 +36,9 @@ class _InitActivityState extends State<InitActivity> {
         title: Text("Virtual Groceries"),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, SearchActivity.id);
+            },
             icon: Icon(Icons.search),
           ),
           IconButton(

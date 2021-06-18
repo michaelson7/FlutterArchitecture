@@ -37,7 +37,7 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
           );
         },
         child: Card(
-          color: kDarkCardBackground,
+          color: kCardBackground,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

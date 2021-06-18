@@ -1,5 +1,6 @@
 class SharedPreferenceModel {
   late String _userId, _userName, _userEmail;
+  late bool _isDarkMode;
 
   SharedPreferenceModel() {
     _userId = "userId";
@@ -12,4 +13,9 @@ class SharedPreferenceModel {
   get userName => _userName;
 
   String get userId => _userId;
+
+  bool get isLightMode => _isDarkMode;
+  set isLightMode(bool value) {
+    _isDarkMode = value;
+  }
 }

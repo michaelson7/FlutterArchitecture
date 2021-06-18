@@ -96,6 +96,30 @@ class ApiHelper {
     }
   }
 
+  //search for product
+  Future<ProductsModel> searchProduct({required String searchTerm}) async {
+    try {
+      List<ProductsModelList> model = [];
+      for (int i = 0; i < 6; i++) {
+        model.add(ProductsModelList(
+            id: i,
+            categoryId: i,
+            quantity: i,
+            price: randomBetween(10, 200),
+            rating: 3,
+            name: '$searchTerm ${generateAdjective().take(1).first.toString()}',
+            imgPath: _imageProviders.getRandomImage(),
+            description: randomString(100),
+            status: randomString(5),
+            timestamp: randomString(12)));
+      }
+      ProductsModel finalModel = ProductsModel.testJson(model);
+      return finalModel;
+    } catch (e) {
+      throw Exception('Error while passing to searchProduct: $e');
+    }
+  }
+
   //user order
   Future<UserOrderModel> getUserOrders() async {
     try {
