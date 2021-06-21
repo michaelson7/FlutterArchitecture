@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
+import 'package:virtual_ggroceries/view/constants/constants.dart';
 
 import 'product_card_design.dart';
 
@@ -26,6 +27,7 @@ class ProductCardGrid extends StatelessWidget {
         return ProductCardDesign(
           data: snapshot.data!.productsModelList[index],
           isGrid: true,
+          color: kIconColor,
         );
       },
     );

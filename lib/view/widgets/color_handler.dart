@@ -17,7 +17,7 @@ class ColorHandler {
 
   Color get cardBackground {
     var darkTheme = Color(0x1bffffff);
-    var lightTheme = Color(0xFFCACACA);
+    var lightTheme = Color(0x9AD4D4D4);
     return _isDarkMode ? darkTheme : lightTheme;
   }
 
@@ -36,6 +36,12 @@ class ColorHandler {
   get textFaintColor {
     var darkTheme = Color(0x5bffffff);
     var lightTheme = Color(0x99000000);
+    return _isDarkMode ? darkTheme : lightTheme;
+  }
+
+  get iconColor {
+    const darkTheme = Color(0x5bffffff);
+    const lightTheme = Color(0xE2000000);
     return _isDarkMode ? darkTheme : lightTheme;
   }
 

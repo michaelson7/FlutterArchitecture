@@ -19,6 +19,7 @@ class AdsCard extends StatelessWidget {
           height: 250,
           width: double.infinity,
           imgPath: modelData[index].imgPath,
+          borderRadius: kBorderRadiusCircular,
           child: Column(
             children: [
               Expanded(
@@ -29,11 +30,14 @@ class AdsCard extends StatelessWidget {
                     children: [
                       Text(
                         modelData[index].header,
-                        style: kTextStyleHeader,
+                        style: kTextStyleHeader.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                       SizedBox(height: 10),
                       Text(
                         modelData[index].subHeader,
+                        style: TextStyle(color: Colors.white),
                       ),
                     ],
                   ),

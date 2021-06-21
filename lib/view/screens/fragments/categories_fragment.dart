@@ -83,7 +83,7 @@ class CategoryGrid extends StatelessWidget {
                     child: Center(
                       child: Text(
                         data[index].name,
-                        style: kTextStyleHeader,
+                        style: kTextStyleHeader.copyWith(color: Colors.white),
                       ),
                     ),
                   ),

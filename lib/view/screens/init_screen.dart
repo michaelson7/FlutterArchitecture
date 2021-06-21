@@ -10,6 +10,7 @@ import '../../provider/account_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'activities/checkout_activity.dart';
 import 'activities/init_activity.dart';
 import 'activities/login_activity.dart';
 import 'activities/registration_activity.dart';
@@ -77,6 +78,7 @@ class _initScreenState extends State<initScreen> {
           SearchActivity.id: (context) => SearchActivity(),
           LoginActivity.id: (context) => LoginActivity(),
           RegistrationActivity.id: (context) => RegistrationActivity(),
+          CheckOutActivity.id: (context) => CheckOutActivity(),
         },
       ),
     );

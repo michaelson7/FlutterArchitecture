@@ -19,6 +19,7 @@ class _SearchActivityState extends State<SearchActivity> {
   ProductsProvider _productsProvider = ProductsProvider();
   late SearchBar searchBar;
   bool isSearching = false;
+  String _toolbarSearchTerm = 'Search Bar Demo';
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   _SearchActivityState() {
@@ -37,7 +38,7 @@ class _SearchActivityState extends State<SearchActivity> {
 
   AppBar buildAppBar(BuildContext context) {
     return new AppBar(
-        title: new Text('Search Bar Demo'),
+        title: new Text(_toolbarSearchTerm),
         actions: [searchBar.getSearchAction(context)]);
   }
 
@@ -45,6 +46,7 @@ class _SearchActivityState extends State<SearchActivity> {
     setState(() {
       isSearching = true;
       _productsProvider.searchForProduct(searchTerm: value);
+      _toolbarSearchTerm = '$value...';
     });
   }
 

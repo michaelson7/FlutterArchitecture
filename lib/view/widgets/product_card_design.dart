@@ -8,12 +8,12 @@ import 'package:virtual_ggroceries/view/screens/activities/product_details_activ
 class ProductCardDesign extends StatefulWidget {
   final ProductsModelList data;
   final bool isGrid;
-  Color color;
+  late final Color color;
 
   ProductCardDesign({
     required this.data,
     this.isGrid = false,
-    this.color = Colors.white,
+    required this.color,
   });
 
   @override
@@ -38,6 +38,8 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
         },
         child: Card(
           color: kCardBackground,
+          elevation: 5,
+          shadowColor: Color(0xfffff),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -85,7 +87,7 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
                               content: Text(
                                   '${widget.data.name}  Removed From Wishlist'),
                             );
-                            widget.color = Colors.white;
+                            widget.color = kIconColor;
                           }
                         });
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);

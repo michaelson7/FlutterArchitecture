@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/screens/activities/checkout_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
@@ -62,7 +63,9 @@ class _CartActivityState extends State<CartActivity> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, CheckOutActivity.id);
+                    },
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Text('CHECKOUT'),

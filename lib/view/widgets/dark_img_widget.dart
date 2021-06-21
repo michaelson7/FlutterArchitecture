@@ -21,6 +21,7 @@ class DarkImageWidget extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
+        color: const Color(0xc3000000),
         borderRadius: borderRadius,
         image: DecorationImage(
           image: NetworkImage(imgPath),

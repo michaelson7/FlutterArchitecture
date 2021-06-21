@@ -4,8 +4,10 @@ import 'package:virtual_ggroceries/view/widgets/color_handler.dart';
 //colors
 ColorHandler _themeData = ColorHandler();
 
-const kAccentColor = Color(0xFF755A8C);
-const kPrimaryColor = Color(0xff3c415c);
+const kAccentColor = Color(0xff264653);
+const kPrimaryColor = Color(0xff264653);
+
+Color kIconColor = _themeData.iconColor;
 Color kCardBackground = _themeData.cardBackground;
 Color kCardBackgroundFaint = _themeData.cardBackgroundFaint;
 Color kScaffoldColor = _themeData.scaffoldColor;

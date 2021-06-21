@@ -7,6 +7,7 @@ import 'horizontal_widget.dart';
 
 class ProductsCardHorizontal extends StatelessWidget {
   final AsyncSnapshot<ProductsModel> snapshot;
+  late final Color color;
   ProductsCardHorizontal(this.snapshot);
 
   @override
@@ -18,6 +19,7 @@ class ProductsCardHorizontal extends StatelessWidget {
       var interface = ProductCardDesign(
         data: data,
         isGrid: false,
+        color: kIconColor,
       );
       widgetList.add(interface);
     }
