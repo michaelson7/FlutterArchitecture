@@ -1,3 +1,4 @@
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
@@ -5,6 +6,7 @@ import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/login_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
+import 'package:virtual_ggroceries/view/widgets/color_handler.dart';
 
 class ProfileFragment extends StatefulWidget {
   const ProfileFragment({Key? key}) : super(key: key);
@@ -50,6 +52,98 @@ class _ProfileFragmentState extends State<ProfileFragment> {
   }
 
   Container supportCard() {
+    Future<void> _handleClickMe(DialogTerms term) async {
+      var content;
+
+      Column contactContent() {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Center(
+              child: Text(
+                'Our Contact',
+                style: kTextStyleSubHeader,
+              ),
+            ),
+            SizedBox(height: 20),
+            Text('Woodlands Chalala 34th Street\n 0978905095')
+          ],
+        );
+      }
+
+      Column problemsContent() {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Center(
+              child: Text(
+                'Report a problem ',
+                style: kTextStyleSubHeader,
+              ),
+            ),
+            SizedBox(height: 20),
+            PaddedContainer(
+              child: Column(
+                children: [
+                  materialCard(
+                    child: TextField(
+                      decoration: InputDecoration(
+                          hintText: 'Enter Email', border: InputBorder.none),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  materialCard(
+                    child: TextField(
+                      decoration: InputDecoration(
+                          hintText: 'Enter Issue', border: InputBorder.none),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Submit Issue'),
+                ),
+              ),
+            )
+          ],
+        );
+      }
+
+      switch (term) {
+        case DialogTerms.Problem:
+          content = problemsContent();
+          break;
+        case DialogTerms.Contact:
+          content = contactContent();
+          break;
+        case DialogTerms.FAQ:
+          break;
+      }
+
+      return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            // title: Text('Success!'),
+            content: content,
+          );
+        },
+      );
+    }
+
     return Container(
       child: Container(
         width: double.infinity,
@@ -62,41 +156,26 @@ class _ProfileFragmentState extends State<ProfileFragment> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CardItem(
+              cardItem(
                 header: 'FAQ',
                 cardFunction: () {
                   _handleClickMe(DialogTerms.FAQ);
                 },
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Divider(
-                  color: Colors.grey,
-                ),
-              ),
-              CardItem(
+              dividerPadded(),
+              cardItem(
                 header: 'Terms Of Service',
                 cardFunction: () {},
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Divider(
-                  color: Colors.grey,
-                ),
-              ),
-              CardItem(
+              dividerPadded(),
+              cardItem(
                 header: 'Contact',
                 cardFunction: () {
                   _handleClickMe(DialogTerms.Contact);
                 },
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Divider(
-                  color: Colors.grey,
-                ),
-              ),
-              CardItem(
+              dividerPadded(),
+              cardItem(
                 header: 'Report a Problem',
                 cardFunction: () {
                   _handleClickMe(DialogTerms.Problem);
@@ -110,6 +189,28 @@ class _ProfileFragmentState extends State<ProfileFragment> {
   }
 
   Container interfaceCard() {
+    //setting  theme
+    setTheme(BuildContext context) {
+      isDarkMode = !isDarkMode;
+      ThemeSwitcher.of(context)!.changeTheme(
+        theme: ThemeProvider.of(context)!.brightness == Brightness.light
+            ? themeState(isDark: true)
+            : themeState(isDark: false),
+      );
+    }
+
+    //switcher widget
+    Switch switchBuilder(
+        {required bool boolValue, required Function(bool) switchFunction}) {
+      return Switch(
+        value: boolValue,
+        onChanged: (value) {
+          switchFunction(value);
+        },
+        activeColor: kAccentColor,
+      );
+    }
+
     return Container(
       child: Container(
         width: double.infinity,
@@ -122,7 +223,7 @@ class _ProfileFragmentState extends State<ProfileFragment> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CardItem(
+              cardItem(
                 header: 'Notifications',
                 cardFunction: () {
                   setState(() {
@@ -139,28 +240,28 @@ class _ProfileFragmentState extends State<ProfileFragment> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Divider(
-                  color: Colors.grey,
-                ),
-              ),
-              CardItem(
-                header: 'Dark Mode',
-                cardFunction: () {
-                  setState(() {
-                    isDarkMode = !isDarkMode;
-                  });
+              dividerPadded(),
+              ThemeSwitcher(
+                clipper: ThemeSwitcherCircleClipper(),
+                builder: (context) {
+                  return cardItem(
+                    header: 'Dark Mode',
+                    cardFunction: () {
+                      setState(() {
+                        setTheme(context);
+                      });
+                    },
+                    rightWidget: switchBuilder(
+                      boolValue: isDarkMode,
+                      switchFunction: (value) {
+                        print(value);
+                        setState(() {
+                          setTheme(context);
+                        });
+                      },
+                    ),
+                  );
                 },
-                rightWidget: switchBuilder(
-                  boolValue: isDarkMode,
-                  switchFunction: (value) {
-                    print(value);
-                    setState(() {
-                      isDarkMode = !isDarkMode;
-                    });
-                  },
-                ),
               ),
             ],
           ),
@@ -182,20 +283,15 @@ class _ProfileFragmentState extends State<ProfileFragment> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CardItem(
+              cardItem(
                 header: 'Not SIgned In',
                 subHeader: 'Click to sign in',
                 cardFunction: () {
                   Navigator.pushNamed(context, LoginActivity.id);
                 },
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Divider(
-                  color: Colors.grey,
-                ),
-              ),
-              CardItem(
+              dividerPadded(),
+              cardItem(
                 header: 'My Orders',
                 cardFunction: () {},
               ),
@@ -206,114 +302,17 @@ class _ProfileFragmentState extends State<ProfileFragment> {
     );
   }
 
-  Future<void> _handleClickMe(DialogTerms term) async {
-    var content;
-
-    Column contactContent() {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Center(
-            child: Text(
-              'Our Contact',
-              style: kTextStyleSubHeader,
-            ),
-          ),
-          SizedBox(height: 20),
-          Text('Woodlands Chalala 34th Street\n 0978905095')
-        ],
-      );
-    }
-
-    Column problemsContent() {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Center(
-            child: Text(
-              'Report a problem ',
-              style: kTextStyleSubHeader,
-            ),
-          ),
-          SizedBox(height: 20),
-          PaddedContainer(
-            child: Column(
-              children: [
-                materialButtonDesign(
-                  child: TextField(
-                    decoration: InputDecoration(
-                        hintText: 'Enter Email', border: InputBorder.none),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                materialButtonDesign(
-                  child: TextField(
-                    decoration: InputDecoration(
-                        hintText: 'Enter Issue', border: InputBorder.none),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('Submit Issue'),
-              ),
-            ),
-          )
-        ],
-      );
-    }
-
-    switch (term) {
-      case DialogTerms.Problem:
-        content = problemsContent();
-        break;
-      case DialogTerms.Contact:
-        content = contactContent();
-        break;
-      case DialogTerms.FAQ:
-        break;
-    }
-
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          // title: Text('Success!'),
-          content: content,
-        );
-      },
-    );
-  }
-}
-
-class CardItem extends StatelessWidget {
-  final Function cardFunction;
-  final String header, subHeader;
-  final Widget rightWidget;
-  List<Widget> widgetTexts = [];
-
-  CardItem({
-    required this.cardFunction,
-    required this.header,
-    this.subHeader = '',
-    this.rightWidget = const Icon(
+  Container cardItem({
+    required Function cardFunction,
+    required String header,
+    String? subHeader,
+    Widget rightWidget = const Icon(
       Icons.keyboard_arrow_right,
     ),
   }) {
-    if (subHeader != '') {
+    List<Widget> widgetTexts = [];
+
+    if (subHeader != null) {
       widgetTexts = [
         Text(header),
         SizedBox(height: 10),
@@ -325,15 +324,12 @@ class CardItem extends StatelessWidget {
     } else {
       widgetTexts = [Text(header)];
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Container(
       child: InkWell(
         onTap: () => cardFunction(),
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(4.0),
           child: Row(
             children: [
               Expanded(
@@ -349,15 +345,13 @@ class CardItem extends StatelessWidget {
       ),
     );
   }
-}
 
-Switch switchBuilder(
-    {required bool boolValue, required Function(bool) switchFunction}) {
-  return Switch(
-    value: boolValue,
-    onChanged: (value) {
-      switchFunction(value);
-    },
-    activeColor: kAccentColor,
-  );
+  Padding dividerPadded() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: Divider(
+        color: Colors.grey,
+      ),
+    );
+  }
 }

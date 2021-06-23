@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,57 +23,59 @@ class CartActivity extends StatefulWidget {
 class _CartActivityState extends State<CartActivity> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Cart'),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Selected Items',
-                  style: kTextStyleSubHeader,
-                ),
-                SizedBox(height: 10),
-                PaddedContainer(
-                  child: cartItemList(context),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Personal Information',
-                  style: kTextStyleSubHeader,
-                ),
-                SizedBox(height: 10),
-                PaddedContainer(
-                  child: personalInfoCard(),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Checkout',
-                  style: kTextStyleSubHeader,
-                ),
-                SizedBox(height: 10),
-                Container(
-                  child: costSection(),
-                ),
-                SizedBox(height: 25),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, CheckOutActivity.id);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text('CHECKOUT'),
+    return ThemeSwitchingArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Cart'),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Selected Items',
+                    style: kTextStyleSubHeader,
+                  ),
+                  SizedBox(height: 10),
+                  PaddedContainer(
+                    child: cartItemList(context),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Personal Information',
+                    style: kTextStyleSubHeader,
+                  ),
+                  SizedBox(height: 10),
+                  PaddedContainer(
+                    child: personalInfoCard(),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Checkout',
+                    style: kTextStyleSubHeader,
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    child: costSection(),
+                  ),
+                  SizedBox(height: 25),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, CheckOutActivity.id);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text('CHECKOUT'),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -111,7 +114,7 @@ class _CartActivityState extends State<CartActivity> {
             style: kTextStyleFaint,
           ),
           SizedBox(height: 5),
-          materialButtonDesign(
+          materialCard(
             child: TextField(
               decoration: InputDecoration(
                   border: InputBorder.none, hintText: 'Enter Names'),
@@ -123,7 +126,7 @@ class _CartActivityState extends State<CartActivity> {
             style: kTextStyleFaint,
           ),
           SizedBox(height: 5),
-          materialButtonDesign(
+          materialCard(
             child: TextField(
               decoration: InputDecoration(
                   border: InputBorder.none, hintText: 'Enter Email'),
@@ -135,7 +138,7 @@ class _CartActivityState extends State<CartActivity> {
             style: kTextStyleFaint,
           ),
           SizedBox(height: 5),
-          materialButtonDesign(
+          materialCard(
             child: TextField(
               decoration: InputDecoration(
                   border: InputBorder.none, hintText: 'Enter Location'),

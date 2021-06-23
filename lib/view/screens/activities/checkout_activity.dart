@@ -1,8 +1,10 @@
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class CheckOutActivity extends StatefulWidget {
@@ -19,55 +21,57 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Checkout'),
-      ),
-      body: Container(
-        child: Column(
-          children: [
-            Expanded(
-              child: Stepper(
-                type: stepperType,
-                physics: ScrollPhysics(),
-                currentStep: _currentStep,
-                onStepTapped: (step) => tapped(step),
-                onStepContinue: continued,
-                onStepCancel: cancel,
-                steps: <Step>[
-                  Step(
-                    title: Text('Shipping'),
-                    content: shippingContainer(),
-                    isActive: _currentStep == 0,
-                    state: _currentStep >= 0
-                        ? StepState.complete
-                        : StepState.disabled,
-                  ),
-                  Step(
-                    title: new Text('Address'),
-                    content: paymentContainer(),
-                    isActive: _currentStep == 1,
-                    state: _currentStep >= 1
-                        ? StepState.complete
-                        : StepState.disabled,
-                  ),
-                  Step(
-                    title: new Text('Confirm'),
-                    content: confirmationSection(context),
-                    isActive: _currentStep == 2,
-                    state: _currentStep >= 2
-                        ? StepState.complete
-                        : StepState.disabled,
-                  ),
-                ],
-              ),
-            ),
-          ],
+    return ThemeSwitchingArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Checkout'),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.list),
-        onPressed: switchStepsType,
+        body: Container(
+          child: Column(
+            children: [
+              Expanded(
+                child: Stepper(
+                  type: stepperType,
+                  physics: ScrollPhysics(),
+                  currentStep: _currentStep,
+                  onStepTapped: (step) => tapped(step),
+                  onStepContinue: continued,
+                  onStepCancel: cancel,
+                  steps: <Step>[
+                    Step(
+                      title: Text('Shipping'),
+                      content: shippingContainer(),
+                      isActive: _currentStep == 0,
+                      state: _currentStep >= 0
+                          ? StepState.complete
+                          : StepState.disabled,
+                    ),
+                    Step(
+                      title: Text('Address'),
+                      content: paymentContainer(),
+                      isActive: _currentStep == 1,
+                      state: _currentStep >= 1
+                          ? StepState.complete
+                          : StepState.disabled,
+                    ),
+                    Step(
+                      title: Text('Confirm'),
+                      content: confirmationSection(context),
+                      isActive: _currentStep == 2,
+                      state: _currentStep >= 2
+                          ? StepState.complete
+                          : StepState.disabled,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.list),
+          onPressed: switchStepsType,
+        ),
       ),
     );
   }
@@ -195,24 +199,17 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
                           Text(data.name),
                           SizedBox(height: 10),
                           Text(
-                            'ZMW ${data.price} $index',
+                            data.quantity.toString(),
                             style: kTextStyleFaint,
-                          ),
+                          )
                         ],
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: IconButton(
-                        onPressed: () {
-                          if (Provider.of<CartProvider>(context, listen: false)
-                              .removeFromCart(index)) {
-                            snackBarBuilder(
-                                context: context,
-                                message: '${data.name} removed from cart');
-                          }
-                        },
-                        icon: Icon(Icons.delete),
+                      child: Text(
+                        'ZMW ${data.price} $index',
+                        style: TextStyle(color: kAccentColor),
                       ),
                     ),
                   ],
@@ -254,7 +251,9 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
           SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: cartItemList(),
+            child: materialCard(
+              child: cartItemList(),
+            ),
           ),
           SizedBox(height: 10),
           Row(

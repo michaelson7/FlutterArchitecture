@@ -1,3 +1,4 @@
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/cart_activity.dart';
@@ -31,53 +32,55 @@ class _InitActivityState extends State<InitActivity> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Virtual Groceries"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, SearchActivity.id);
-            },
-            icon: Icon(Icons.search),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, CartActivity.id);
-            },
-            icon: Icon(Icons.shopping_bag),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: fragments[_selectedIndex],
+    return ThemeSwitchingArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Virtual Groceries"),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, SearchActivity.id);
+              },
+              icon: Icon(Icons.search),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, CartActivity.id);
+              },
+              icon: Icon(Icons.shopping_bag),
+            ),
+          ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: fragments[_selectedIndex],
           ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.boxes),
-            label: 'Category',
-          ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.heart),
-            label: 'Wishlist',
-          ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.userAlt),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: kAccentColor,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.boxes),
+              label: 'Category',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.heart),
+              label: 'Wishlist',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.userAlt),
+              label: 'Profile',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: kAccentColor,
+          unselectedItemColor: Colors.grey,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }

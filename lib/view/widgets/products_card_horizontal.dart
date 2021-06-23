@@ -19,7 +19,7 @@ class ProductsCardHorizontal extends StatelessWidget {
       var interface = ProductCardDesign(
         data: data,
         isGrid: false,
-        color: kIconColor,
+        isSaved: false,
       );
       widgetList.add(interface);
     }

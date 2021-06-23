@@ -90,6 +90,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               //search field
               Material(
                 color: kCardBackground,
+                borderRadius: kBorderRadiusCircular,
                 child: InkWell(
                   onTap: () {
                     Navigator.pushNamed(context, SearchActivity.id);

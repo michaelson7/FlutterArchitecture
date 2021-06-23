@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invert_colors/invert_colors.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 
@@ -46,7 +47,11 @@ class _TabbedButtonsState extends State<TabbedButtons> {
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Center(
-                  child: Text(data.name),
+                  child: _invertTitle(
+                    currentIndex: currentIndex,
+                    selectedIndex: widget.selectedIndex,
+                    title: data.name,
+                  ),
                 ),
               ),
             ),
@@ -72,6 +77,19 @@ class _TabbedButtonsState extends State<TabbedButtons> {
       return kAccentColor;
     } else {
       return kCardBackground;
+    }
+  }
+
+  _invertTitle(
+      {required int currentIndex,
+      required int selectedIndex,
+      required String title}) {
+    if (currentIndex == selectedIndex) {
+      return InvertColors(
+        child: Text(title),
+      );
+    } else {
+      return Text(title);
     }
   }
 }

@@ -4,16 +4,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/product_details_activity.dart';
+import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class ProductCardDesign extends StatefulWidget {
   final ProductsModelList data;
   final bool isGrid;
-  late final Color color;
+  bool isSaved;
 
   ProductCardDesign({
     required this.data,
     this.isGrid = false,
-    required this.color,
+    this.isSaved = false,
   });
 
   @override
@@ -74,29 +75,29 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
                     ),
                     InkWell(
                       onTap: () {
-                        var snackBar;
                         setState(() {
-                          if (widget.color == Colors.white) {
-                            snackBar = SnackBar(
-                              content:
-                                  Text('${widget.data.name} Added to Wishlist'),
+                          if (!widget.isSaved) {
+                            snackBarBuilder(
+                              context: context,
+                              message:
+                                  '${widget.data.name}  Added to  Wishlist',
                             );
-                            widget.color = kAccentColor;
+                            widget.isSaved = !widget.isSaved;
                           } else {
-                            snackBar = SnackBar(
-                              content: Text(
-                                  '${widget.data.name}  Removed From Wishlist'),
+                            snackBarBuilder(
+                              context: context,
+                              message:
+                                  '${widget.data.name}  Removed From Wishlist',
                             );
-                            widget.color = kIconColor;
+                            widget.isSaved = !widget.isSaved;
                           }
                         });
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Icon(
                           FontAwesomeIcons.heart,
-                          color: widget.color,
+                          color: widget.isSaved ? kAccentColor : kIconColor,
                         ),
                       ),
                     )

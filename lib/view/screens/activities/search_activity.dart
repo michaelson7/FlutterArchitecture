@@ -1,3 +1,4 @@
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
@@ -52,10 +53,12 @@ class _SearchActivityState extends State<SearchActivity> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: searchBar.build(context),
-      key: _scaffoldKey,
-      body: SafeArea(child: isSearching ? productInterface() : searchPromt()),
+    return ThemeSwitchingArea(
+      child: Scaffold(
+        appBar: searchBar.build(context),
+        key: _scaffoldKey,
+        body: SafeArea(child: isSearching ? productInterface() : searchPromt()),
+      ),
     );
   }
 

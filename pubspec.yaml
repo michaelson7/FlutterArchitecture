@@ -26,6 +26,8 @@ dependencies:
   after_layout: ^1.1.0
   get: ^4.1.4
   flutter_search_bar: ^2.1.0
+  animated_theme_switcher: ^2.0.1
+  invert_colors: ^0.0.2
 
 dev_dependencies:
   flutter_test:

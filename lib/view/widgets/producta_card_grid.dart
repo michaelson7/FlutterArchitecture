@@ -27,7 +27,7 @@ class ProductCardGrid extends StatelessWidget {
         return ProductCardDesign(
           data: snapshot.data!.productsModelList[index],
           isGrid: true,
-          color: kIconColor,
+          isSaved: false,
         );
       },
     );

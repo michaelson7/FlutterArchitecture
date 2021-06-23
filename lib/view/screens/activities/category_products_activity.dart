@@ -1,3 +1,4 @@
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
@@ -44,18 +45,20 @@ class _CategoryProductsState extends State<CategoryProducts> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder(
-        stream: _productsProvider.getStream,
-        builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-          return snapShotBuilder(
-            snapshot: snapshot,
-            widget: MainInterface(
-              categoryModel: _categoryModel,
+    return ThemeSwitchingArea(
+      child: Scaffold(
+        body: StreamBuilder(
+          stream: _productsProvider.getStream,
+          builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+            return snapShotBuilder(
               snapshot: snapshot,
-            ),
-          );
-        },
+              widget: MainInterface(
+                categoryModel: _categoryModel,
+                snapshot: snapshot,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
