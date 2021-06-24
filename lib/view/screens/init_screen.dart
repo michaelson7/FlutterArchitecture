@@ -23,18 +23,28 @@ class initScreen extends StatefulWidget {
 
 class _initScreenState extends State<initScreen> {
   SharedPreferenceProvider _themeData = SharedPreferenceProvider();
+  Future? currentTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    currentTheme = _checkTheme();
+  }
+
+  _checkTheme() async {
+    return await _themeData.isDarkMode();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _themeData.isDarkMode(),
+      future: currentTheme,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
           var _isDarkMode = snapshot.data;
           var initTheme = _isDarkMode
               ? themeState(isDark: true)
               : themeState(isDark: false);
-          print('theme is $_isDarkMode');
           return initConstructer(initTheme);
         }
         return CircularProgressIndicator();

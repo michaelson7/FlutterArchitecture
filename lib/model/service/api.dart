@@ -5,8 +5,8 @@ import 'network_helper.dart';
 class Api {
   // String baseUrl = "10.0.2.2";
   // String urlPath = "/web_clientProjects/MartinProject/aAPI/API.php";
-  String baseUrl = "mwila-university.000webhostapp.com";
-  String urlPath = "/MartinDB/aAPI/API.php";
+  String baseUrl = "virtualgroceries.net";
+  String urlPath = "/api/API.php";
 
   Future<dynamic> loginUsers(
       {required String email, required String password}) async {
@@ -31,12 +31,16 @@ class Api {
     return await getResponse(uri);
   }
 
+  //categories
+  //fetch categories
   Future<dynamic> getCategory() async {
     final requestParameters = {
-      "apicall": "ProductCategory",
-      "src": "getAll",
+      "apicall": "fetch_category",
     };
     Uri uri = Uri.https(baseUrl, urlPath, requestParameters);
     return await getResponse(uri);
   }
+  //load sub categories based on categoryID
+
+  //
 }

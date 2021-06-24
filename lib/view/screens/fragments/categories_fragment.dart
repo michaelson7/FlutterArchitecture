@@ -36,9 +36,13 @@ class _CategoryFragmentState extends State<CategoryFragment> {
       child: StreamBuilder(
           stream: _categoryProvider.getStream,
           builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
-            return snapShotBuilder(
-              snapshot: snapshot,
-              widget: CategoryGrid(snapshot),
+            if (snapshot.hasData) {
+              return CategoryGrid(snapshot);
+            } else if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+            }
+            return Center(
+              child: CircularProgressIndicator(),
             );
           }),
     );

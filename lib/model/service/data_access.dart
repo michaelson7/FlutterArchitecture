@@ -11,8 +11,7 @@ dynamic getResponse(Uri uri) async {
 }
 
 dynamic postResponse(Uri uri, Map<String, String> body) async {
-  NetworkHelper networkHelper =
-  NetworkHelper(uriPath: uri, requestBody: body);
+  NetworkHelper networkHelper = NetworkHelper(uriPath: uri, requestBody: body);
   try {
     final response = await networkHelper.postResponse();
     return response;

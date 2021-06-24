@@ -15,22 +15,16 @@ class CategoryModel {
   }
 
   CategoryModel.fromJson(Map<String, dynamic> jsonResponse) {
-    if (!jsonResponse['error']) {
-      print("Account model added");
-      _hasError = false;
-      List<dynamic> results = jsonResponse["results"];
+    print("Category model added");
+    _hasError = false;
+    List<dynamic> results = jsonResponse["results"];
 
-      for (int i = 0; i < results.length; i++) {
-        _categoryModelList.add(CategoryModelList(
-          id: results[i]['Id'],
-          name: results[i]['Id'],
-          imgPath: results[i]['Id'],
-        ));
-      }
-    } else {
-      _hasError = true;
-      _errorMessage = jsonResponse['message'];
-      print("Category model failed: $_errorMessage");
+    for (int i = 0; i < results.length; i++) {
+      _categoryModelList.add(CategoryModelList(
+        id: results[i]['prod_cat_id'],
+        name: results[i]['name'],
+        imgPath: results[i]['img_path'],
+      ));
     }
   }
 

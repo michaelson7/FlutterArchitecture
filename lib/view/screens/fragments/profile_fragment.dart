@@ -1,6 +1,7 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/login_activity.dart';
@@ -16,8 +17,23 @@ class ProfileFragment extends StatefulWidget {
 }
 
 class _ProfileFragmentState extends State<ProfileFragment> {
+  SharedPreferenceProvider _themeData = SharedPreferenceProvider();
+
   bool isNotificationSwitched = false;
   bool isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkTheme();
+  }
+
+  _checkTheme() async {
+    var data = await _themeData.isDarkMode();
+    setState(() {
+      isDarkMode = data!;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

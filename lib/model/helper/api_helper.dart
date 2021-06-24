@@ -58,17 +58,11 @@ class ApiHelper {
   //category
   Future<CategoryModel> getCategories() async {
     try {
-      List<CategoryModelList> model = [];
-      for (int i = 0; i < 8; i++) {
-        model.add(CategoryModelList(
-            id: i,
-            name: generateAdjective().take(1).first.toString(),
-            imgPath: _imageProviders.getRandomImage()));
-      }
-      CategoryModel finalModel = CategoryModel.testJson(model);
-      return finalModel;
+      var response = await api.getCategory();
+      CategoryModel model = CategoryModel.fromJson(response);
+      return model;
     } catch (e) {
-      throw Exception('Error while passing to model: $e');
+      throw Exception('Error while passing to Categorymodel: $e');
     }
   }
 

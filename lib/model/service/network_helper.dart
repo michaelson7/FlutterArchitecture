@@ -14,10 +14,10 @@ class NetworkHelper {
         final decodedJson = jsonDecode(responseBody);
         return decodedJson;
       } else {
-        throw Exception('Error while getting response: ${response.statusCode}');
+        throw Exception('Network Error [statuscode]: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error while getting response: $e');
+      throw Exception('Network Error [failure]:  $e');
     }
   }
 

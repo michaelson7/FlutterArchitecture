@@ -41,8 +41,8 @@ class ColorHandler {
 }
 
 ThemeData themeState({required bool isDark}) {
+  SharedPreferenceProvider _themeHandler = SharedPreferenceProvider();
   ColorHandler _themeData = ColorHandler(isDarkModee: isDark);
-
   kCardBackground = _themeData.cardBackground;
   kIconColor = _themeData.iconColor;
   kCardBackground = _themeData.cardBackground;
@@ -50,6 +50,8 @@ ThemeData themeState({required bool isDark}) {
   kScaffoldColor = _themeData.scaffoldColor;
   kTextStyleFaint = TextStyle(color: _themeData.textFaintColor);
 
+  //chnage sp
+  _themeHandler.setTheme(isDarkTheme: isDark);
   return ThemeData(
 //color
     brightness: _themeData.isDarkMode ? Brightness.dark : Brightness.light,

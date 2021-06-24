@@ -28,12 +28,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   int currentIndex = 0;
   int streamIndex = 0;
   bool isLoading = true;
-
-  void initProviders() async {
-    await _categoryProvider.getCategories();
-    await _productsProvider.getProducts();
-    await _adsProvider.getAds();
-  }
+  Future? interface;
 
   @override
   void initState() {
@@ -42,6 +37,12 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
       isLoading = true;
     });
     super.initState();
+  }
+
+  void initProviders() async {
+    await _categoryProvider.getCategories();
+    await _productsProvider.getProducts();
+    await _adsProvider.getAds();
   }
 
   @override
@@ -59,6 +60,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
         if (snapshot.hasData) {
           return snapshot.data;
         } else if (snapshot.hasError) {
+          print('home_frag interface error: ${snapshot.error}');
           return Center(child: Text('hasNoData'));
         }
         return Center(
