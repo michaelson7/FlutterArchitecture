@@ -15,7 +15,6 @@ class CategoryModel {
   }
 
   CategoryModel.fromJson(Map<String, dynamic> jsonResponse) {
-    print("Category model added");
     _hasError = false;
     List<dynamic> results = jsonResponse["results"];
 

@@ -12,7 +12,7 @@ class AdsProvider extends ChangeNotifier {
   }
 
   Future<void> getAds() async {
-    var helperResult = await _apiHelper.getAds();
+    var helperResult = await _apiHelper.getAds(page: 1);
     _streamController.add(helperResult);
   }
 }

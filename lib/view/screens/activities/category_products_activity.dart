@@ -1,13 +1,11 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/category_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
-import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
+import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/slide_show_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
@@ -34,7 +32,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
 
   void initProviders() async {
     await _categoryProvider.getCategories();
-    await _productsProvider.getProducts();
+    await _productsProvider.getProduct();
   }
 
   @override
@@ -69,7 +67,7 @@ class MainInterface extends StatefulWidget {
     Key? key,
     required CategoryModelList categoryModel,
     required this.snapshot,
-  })   : _categoryModel = categoryModel,
+  })  : _categoryModel = categoryModel,
         super(key: key);
 
   final CategoryModelList _categoryModel;

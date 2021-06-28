@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class NetworkHelper {
@@ -8,7 +9,8 @@ class NetworkHelper {
 
   Future getResponse() async {
     try {
-      http.Response response = await http.get(uriPath);
+      final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
+      http.Response response = await http.get(uriPath, headers: headers);
       if (response.statusCode == 200) {
         final responseBody = response.body;
         final decodedJson = jsonDecode(responseBody);

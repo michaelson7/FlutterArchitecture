@@ -3,9 +3,11 @@ import 'package:virtual_ggroceries/model/core/account_model.dart';
 import 'package:virtual_ggroceries/model/core/ads_model.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
+import 'package:virtual_ggroceries/model/core/sub_categories_model.dart';
 import 'package:virtual_ggroceries/model/core/user_order_model.dart';
 import 'package:virtual_ggroceries/provider/image_provider.dart';
 import 'package:random_string/random_string.dart';
+import 'package:virtual_ggroceries/view/constants/enums.dart';
 import '../service/api.dart';
 
 class ApiHelper {
@@ -19,39 +21,48 @@ class ApiHelper {
       AccountModel model = AccountModel.fromJson(response);
       return model;
     } catch (e) {
-      throw Exception('Error while passing to model: $e');
+      throw Exception('Error while passing to loginUsers: $e');
     }
   }
 
-  Future<ProductsModel> getProduct() async {
+  //PRODUCTS
+  Future<ProductsModel> getProducts({
+    required ProductFilters productFilters,
+    int? page,
+    int? categoryId,
+    int? userId,
+    int? subCategoryId,
+    String? sortData,
+    String? searchTerm,
+  }) async {
     try {
-      var response = await api.getProducts();
+      var response = await api.getProducts(
+        productFilters: productFilters,
+        page: page,
+        categoryId: categoryId,
+        userId: userId,
+        subCategoryId: subCategoryId,
+        sortData: sortData,
+        searchTerm: searchTerm,
+      );
       ProductsModel model = ProductsModel.fromJson(response);
       return model;
     } catch (e) {
-      throw Exception('Error while passing to model: $e');
+      throw Exception('Error while passing to getProducts: $e');
     }
   }
 
-  //accountModel
-
 //adsModel
-  Future<AdsModel> getAds() async {
+  Future<AdsModel> getAds({required int page, int? categoryId}) async {
     try {
-      List<AdsModelList> model = [];
-      model.add(
-        AdsModelList(
-          adsId: 5,
-          productId: 3,
-          header: generateAdjective().take(1).first.toString(),
-          subHeader: randomString(15),
-          imgPath: _imageProviders.getRandomImage(),
-        ),
+      var response = await api.getAds(
+        page: page,
+        categoryId: categoryId,
       );
-      AdsModel adsModel = AdsModel.testJson(model);
+      AdsModel adsModel = AdsModel.fromJson(response);
       return adsModel;
     } catch (e) {
-      throw Exception('Error while passing to model: $e');
+      throw Exception('Error while passing to getAds model: $e');
     }
   }
 
@@ -62,55 +73,18 @@ class ApiHelper {
       CategoryModel model = CategoryModel.fromJson(response);
       return model;
     } catch (e) {
-      throw Exception('Error while passing to Categorymodel: $e');
+      throw Exception('Error while passing to getCategories: $e');
     }
   }
 
-  //products
-  Future<ProductsModel> getProducts() async {
+  //subcategory
+  Future<SubCategoryModel> getSubCategories({required int categoryId}) async {
     try {
-      List<ProductsModelList> model = [];
-      for (int i = 0; i < 8; i++) {
-        model.add(ProductsModelList(
-            id: i,
-            categoryId: i,
-            quantity: i,
-            price: randomBetween(10, 200),
-            rating: 3,
-            name: generateAdjective().take(1).first.toString(),
-            imgPath: _imageProviders.getRandomImage(),
-            description: randomString(100),
-            status: randomString(5),
-            timestamp: randomString(12)));
-      }
-      ProductsModel finalModel = ProductsModel.testJson(model);
-      return finalModel;
+      var response = await api.getSubCategories(categoryId: categoryId);
+      SubCategoryModel model = SubCategoryModel.fromJson(response);
+      return model;
     } catch (e) {
-      throw Exception('Error while passing to getProducts: $e');
-    }
-  }
-
-  //search for product
-  Future<ProductsModel> searchProduct({required String searchTerm}) async {
-    try {
-      List<ProductsModelList> model = [];
-      for (int i = 0; i < 6; i++) {
-        model.add(ProductsModelList(
-            id: i,
-            categoryId: i,
-            quantity: i,
-            price: randomBetween(10, 200),
-            rating: 3,
-            name: '$searchTerm ${generateAdjective().take(1).first.toString()}',
-            imgPath: _imageProviders.getRandomImage(),
-            description: randomString(100),
-            status: randomString(5),
-            timestamp: randomString(12)));
-      }
-      ProductsModel finalModel = ProductsModel.testJson(model);
-      return finalModel;
-    } catch (e) {
-      throw Exception('Error while passing to searchProduct: $e');
+      throw Exception('Error while passing to Sub Category model: $e');
     }
   }
 
@@ -131,7 +105,25 @@ class ApiHelper {
       UserOrderModel finalModel = UserOrderModel.testJson(model);
       return finalModel;
     } catch (e) {
-      throw Exception('Error while passing to model: $e');
+      throw Exception('Error while passing to getUSerOrder model: $e');
+    }
+  }
+
+  //set wishList
+  Future<ProductsModel> setWishList(
+      {required WishListFilters wishListFilters,
+      required int userId,
+      required int prodId}) async {
+    try {
+      var response = await api.setWishList(
+        wishListFilters: wishListFilters,
+        userId: userId,
+        prodId: prodId,
+      );
+      ProductsModel model = ProductsModel.fromJson(response);
+      return model;
+    } catch (e) {
+      throw Exception('Error while passing to set wishlist model: $e');
     }
   }
 }

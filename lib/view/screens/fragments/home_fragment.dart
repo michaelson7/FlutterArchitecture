@@ -7,6 +7,7 @@ import 'package:virtual_ggroceries/provider/adsProvider.dart';
 import 'package:virtual_ggroceries/provider/category_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/search_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/ads_card.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
@@ -41,7 +42,11 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
 
   void initProviders() async {
     await _categoryProvider.getCategories();
-    await _productsProvider.getProducts();
+    await _productsProvider.getProduct();
+    await _productsProvider.getRecommendedProducts();
+    await _productsProvider.getNewArrivals();
+    await _productsProvider.getMostPopular();
+    await _productsProvider.getAll();
     await _adsProvider.getAds();
   }
 
@@ -115,7 +120,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
             SizedBox(height: 15),
             //horizontalCardView
             Container(
-              child: await productsBuilder(),
+              child: await productsBuilder(stream: _productsProvider.getStream),
             ),
             SizedBox(height: 15),
             //adsCard
@@ -129,7 +134,8 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               style: kTextStyleSubHeader,
             ),
             Container(
-              child: await productsBuilder(),
+              child: await productsBuilder(
+                  stream: _productsProvider.getRecommended),
             ),
             SizedBox(height: 15),
             //adsCard
@@ -143,7 +149,8 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               style: kTextStyleSubHeader,
             ),
             Container(
-              child: await productsBuilder(),
+              child: await productsBuilder(
+                  stream: _productsProvider.getNewProducts),
             ),
             SizedBox(height: 15),
             //stacked product card
@@ -171,7 +178,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
 
   Future<StreamBuilder<ProductsModel>> productCardGridBuilder() async {
     return StreamBuilder(
-      stream: _productsProvider.getStream,
+      stream: _productsProvider.getAllProducts,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,
@@ -185,7 +192,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
 
   Future<StreamBuilder<ProductsModel>> stackedProductCardBuilder() async {
     return StreamBuilder(
-      stream: _productsProvider.getStream,
+      stream: _productsProvider.getPopularProducts,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,
@@ -207,9 +214,10 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     );
   }
 
-  Future<StreamBuilder<ProductsModel>> productsBuilder() async {
+  Future<StreamBuilder<ProductsModel>> productsBuilder(
+      {required dynamic stream}) async {
     return StreamBuilder(
-      stream: _productsProvider.getStream,
+      stream: stream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,

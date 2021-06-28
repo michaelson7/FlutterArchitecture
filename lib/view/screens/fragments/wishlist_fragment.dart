@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
+import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 
@@ -15,7 +16,7 @@ class _WishListFragmentState extends State<WishListFragment> {
   ProductsProvider _productsProvider = ProductsProvider();
 
   void initProviders() async {
-    await _productsProvider.getProducts();
+    await _productsProvider.getProduct();
   }
 
   @override

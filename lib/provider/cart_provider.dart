@@ -1,10 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:virtual_ggroceries/model/core/ads_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
-import 'package:virtual_ggroceries/model/helper/api_helper.dart';
 
 class CartProvider extends ChangeNotifier {
   List<ProductsModelList> _list = [];
@@ -46,11 +41,11 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  int getTotalCost() {
-    int cost = 0;
+  double getTotalCost() {
+    double cost = 0;
     for (var data in _list) {
       var price = data.price;
-      cost += price;
+      // cost += price;
     }
     return cost;
   }
