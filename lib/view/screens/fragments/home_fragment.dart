@@ -76,178 +76,169 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
       opacity: 1,
       progressIndicator: CircularProgressIndicator(),
       color: kScaffoldColor,
-      child: Visibility(
-        maintainAnimation: true,
-        maintainState: true,
-        visible: !isLoading,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome to\nVirtual Groceries',
-                style: kTextStyleHeader,
-              ),
-              SizedBox(height: 15),
-              //search field
-              Material(
-                color: kCardBackground,
-                borderRadius: kBorderRadiusCircular,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(context, SearchActivity.id);
-                  },
-                  child: ListTile(
-                    leading: Icon(Icons.search),
-                    title: Text(
-                      "Search for products...",
-                      style: kTextStyleFaint,
-                    ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Welcome to\nVirtual Groceries',
+              style: kTextStyleHeader,
+            ),
+            SizedBox(height: 15),
+            //search field
+            Material(
+              color: kCardBackground,
+              borderRadius: kBorderRadiusCircular,
+              child: InkWell(
+                onTap: () {
+                  Navigator.pushNamed(context, SearchActivity.id);
+                },
+                child: ListTile(
+                  leading: Icon(Icons.search),
+                  title: Text(
+                    "Search for products...",
+                    style: kTextStyleFaint,
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              Text(
-                'Featured Products',
-                style: kTextStyleSubHeader,
-              ),
-              SizedBox(height: 20),
-              //category List
-              Container(
-                child: StreamBuilder(
-                  stream: _categoryProvider.getStream,
-                  builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
-                    return snapShotBuilder(
-                      snapshot: snapshot,
-                      widget: TabbedButtons(
-                        snapshot: snapshot,
-                        onSelectionUpdated: (index) async {
-                          await _productsProvider.refreshProducts();
-                          setState(
-                            () {
-                              currentIndex = index;
-                            },
-                          );
-                        },
-                        selectedIndex: currentIndex,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 15),
-              //horizontalCardView
-              Container(
-                child: StreamBuilder(
-                  stream: _productsProvider.getStream,
-                  builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                    return snapShotBuilder(
-                      snapshot: snapshot,
-                      widget: ProductsCardHorizontal(snapshot),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 15),
-              //adsCard
-              Container(
-                child: StreamBuilder(
-                  stream: _adsProvider.getStream,
-                  builder: (context, AsyncSnapshot<AdsModel> snapshot) {
-                    return snapShotBuilder(
-                      snapshot: snapshot,
-                      widget: AdsCard(snapshot),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 15),
-              //horizontalCardView
-              Text(
-                'Recommended',
-                style: kTextStyleSubHeader,
-              ),
-              Container(
-                child: StreamBuilder(
-                  stream: _productsProvider.getStream,
-                  builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                    return snapShotBuilder(
-                      snapshot: snapshot,
-                      widget: ProductsCardHorizontal(snapshot),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 15),
-              //adsCard
-              Container(
-                child: StreamBuilder(
-                  stream: _adsProvider.getStream,
-                  builder: (context, AsyncSnapshot<AdsModel> snapshot) {
-                    return snapShotBuilder(
-                      snapshot: snapshot,
-                      widget: AdsCard(snapshot),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 15),
-              //horizontalCardView
-              Text(
-                'New Arrivals',
-                style: kTextStyleSubHeader,
-              ),
-              Container(
-                child: StreamBuilder(
-                  stream: _productsProvider.getStream,
-                  builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                    return snapShotBuilder(
-                      snapshot: snapshot,
-                      widget: ProductsCardHorizontal(snapshot),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 15),
-              //stacked product card
-              Text(
-                'Most Popular',
-                style: kTextStyleSubHeader,
-              ),
-              Container(
-                child: StreamBuilder(
-                  stream: _productsProvider.getStream,
-                  builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                    return snapShotBuilder(
-                      snapshot: snapshot,
-                      widget: StackedProductCard(snapshot),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 15),
-              //ProductGrid
-              Text(
-                'All Products',
-                style: kTextStyleSubHeader,
-              ),
-              Container(
-                child: StreamBuilder(
-                  stream: _productsProvider.getStream,
-                  builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-                    return snapShotBuilder(
-                      snapshot: snapshot,
-                      widget: ProductCardGrid(
-                        snapshot: snapshot,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Featured Products',
+              style: kTextStyleSubHeader,
+            ),
+            SizedBox(height: 20),
+            //category List
+            Container(
+              child: await categoryBuilder(),
+            ),
+            SizedBox(height: 15),
+            //horizontalCardView
+            Container(
+              child: await productsBuilder(),
+            ),
+            SizedBox(height: 15),
+            //adsCard
+            Container(
+              child: await adsBuilder(),
+            ),
+            SizedBox(height: 15),
+            //horizontalCardView
+            Text(
+              'Recommended',
+              style: kTextStyleSubHeader,
+            ),
+            Container(
+              child: await productsBuilder(),
+            ),
+            SizedBox(height: 15),
+            //adsCard
+            Container(
+              child: await adsBuilder(),
+            ),
+            SizedBox(height: 15),
+            //horizontalCardView
+            Text(
+              'New Arrivals',
+              style: kTextStyleSubHeader,
+            ),
+            Container(
+              child: await productsBuilder(),
+            ),
+            SizedBox(height: 15),
+            //stacked product card
+            Text(
+              'Most Popular',
+              style: kTextStyleSubHeader,
+            ),
+            Container(
+              child: await stackedProductCardBuilder(),
+            ),
+            SizedBox(height: 15),
+            //ProductGrid
+            Text(
+              'All Products',
+              style: kTextStyleSubHeader,
+            ),
+            Container(
+              child: await productCardGridBuilder(),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Future<StreamBuilder<ProductsModel>> productCardGridBuilder() async {
+    return StreamBuilder(
+      stream: _productsProvider.getStream,
+      builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+        return snapShotBuilder(
+          snapshot: snapshot,
+          widget: ProductCardGrid(
+            snapshot: snapshot,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<StreamBuilder<ProductsModel>> stackedProductCardBuilder() async {
+    return StreamBuilder(
+      stream: _productsProvider.getStream,
+      builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+        return snapShotBuilder(
+          snapshot: snapshot,
+          widget: StackedProductCard(snapshot),
+        );
+      },
+    );
+  }
+
+  Future<StreamBuilder<AdsModel>> adsBuilder() async {
+    return StreamBuilder(
+      stream: _adsProvider.getStream,
+      builder: (context, AsyncSnapshot<AdsModel> snapshot) {
+        return snapShotBuilder(
+          snapshot: snapshot,
+          widget: AdsCard(snapshot),
+        );
+      },
+    );
+  }
+
+  Future<StreamBuilder<ProductsModel>> productsBuilder() async {
+    return StreamBuilder(
+      stream: _productsProvider.getStream,
+      builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+        return snapShotBuilder(
+          snapshot: snapshot,
+          widget: ProductsCardHorizontal(snapshot),
+        );
+      },
+    );
+  }
+
+  Future<StreamBuilder<CategoryModel>> categoryBuilder() async {
+    return StreamBuilder(
+      stream: _categoryProvider.getStream,
+      builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
+        return snapShotBuilder(
+          snapshot: snapshot,
+          widget: TabbedButtons(
+            snapshot: snapshot,
+            onSelectionUpdated: (index) async {
+              await _productsProvider.refreshProducts();
+              setState(
+                () {
+                  currentIndex = index;
+                },
+              );
+            },
+            selectedIndex: currentIndex,
+          ),
+        );
+      },
     );
   }
 }

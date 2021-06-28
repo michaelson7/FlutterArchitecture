@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/product_details_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
@@ -96,7 +97,9 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Icon(
-                          FontAwesomeIcons.heart,
+                          widget.isSaved
+                              ? FontAwesomeIcons.solidHeart
+                              : FontAwesomeIcons.heart,
                           color: widget.isSaved ? kAccentColor : kIconColor,
                         ),
                       ),
