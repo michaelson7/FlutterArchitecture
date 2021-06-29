@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
@@ -44,9 +45,10 @@ class _SearchActivityState extends State<SearchActivity> {
   }
 
   void onSubmitted(String value) {
-    setState(() {
+    setState(() async {
       isSearching = true;
-      _productsProvider.searchForProduct(searchTerm: value);
+      await _productsProvider.getProducts(
+          filter: ProductFilters.search_term, searchTerm: value);
       _toolbarSearchTerm = '$value...';
     });
   }
@@ -65,7 +67,7 @@ class _SearchActivityState extends State<SearchActivity> {
   Widget productInterface() {
     return Container(
       child: StreamBuilder(
-        stream: _productsProvider.getStream,
+        stream: _productsProvider.getSearchProductsStream,
         builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
           return snapShotBuilder(
             snapshot: snapshot,

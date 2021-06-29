@@ -12,6 +12,7 @@ import 'package:virtual_ggroceries/view/screens/activities/search_activity.dart'
 import 'package:virtual_ggroceries/view/widgets/ads_card.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/products_card_horizontal.dart';
+import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 import 'package:virtual_ggroceries/view/widgets/stacked_product_card.dart';
 import 'package:virtual_ggroceries/view/widgets/tabbed_buttons.dart';
@@ -30,6 +31,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   int streamIndex = 0;
   bool isLoading = true;
   Future? interface;
+  var buileme;
 
   @override
   void initState() {
@@ -42,11 +44,8 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
 
   void initProviders() async {
     await _categoryProvider.getCategories();
-    await _productsProvider.getProduct();
-    await _productsProvider.getRecommendedProducts();
-    await _productsProvider.getNewArrivals();
-    await _productsProvider.getMostPopular();
-    await _productsProvider.getAll();
+    await _productsProvider.getProducts();
+    await _productsProvider.getProducts(filter: ProductFilters.new_arrival);
     await _adsProvider.getAds();
   }
 
@@ -60,10 +59,35 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: buildSingleChildScrollView(),
+      future: Future.wait([
+        categoryBuilder(),
+        productsBuilder(
+          stream: _productsProvider.getAllProductsStream,
+        ),
+        adsBuilder(),
+        productsBuilder(
+          stream: _productsProvider.getNewProductsStream,
+        ),
+        productCardGridBuilder(),
+        stackedProductCardBuilder(),
+      ]),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
-          return snapshot.data;
+          var categorySnapshot = snapshot.data[0];
+          var productsAllSnapshot = snapshot.data[1];
+          var adsSnapshot = snapshot.data[2];
+          var productsNewSnapshot = snapshot.data[3];
+          var productGridSnapshot = snapshot.data[4];
+          var stackedProduct = snapshot.data[5];
+
+          return mainInterface(
+              context,
+              categorySnapshot,
+              productsAllSnapshot,
+              adsSnapshot,
+              productsNewSnapshot,
+              stackedProduct,
+              productGridSnapshot);
         } else if (snapshot.hasError) {
           print('home_frag interface error: ${snapshot.error}');
           return Center(child: Text('hasNoData'));
@@ -75,7 +99,14 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     );
   }
 
-  Future<ModalProgressHUD> buildSingleChildScrollView() async {
+  ModalProgressHUD mainInterface(
+      BuildContext context,
+      categorySnapshot,
+      productsAllSnapshot,
+      adsSnapshot,
+      productsNewSnapshot,
+      stackedProduct,
+      productGridSnapshot) {
     return ModalProgressHUD(
       inAsyncCall: isLoading,
       opacity: 1,
@@ -115,17 +146,17 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
             SizedBox(height: 20),
             //category List
             Container(
-              child: await categoryBuilder(),
+              child: categorySnapshot,
             ),
             SizedBox(height: 15),
             //horizontalCardView
             Container(
-              child: await productsBuilder(stream: _productsProvider.getStream),
+              child: productsAllSnapshot,
             ),
             SizedBox(height: 15),
             //adsCard
             Container(
-              child: await adsBuilder(),
+              child: adsSnapshot,
             ),
             SizedBox(height: 15),
             //horizontalCardView
@@ -134,13 +165,12 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               style: kTextStyleSubHeader,
             ),
             Container(
-              child: await productsBuilder(
-                  stream: _productsProvider.getRecommended),
+              child: productsNewSnapshot,
             ),
             SizedBox(height: 15),
             //adsCard
             Container(
-              child: await adsBuilder(),
+              child: adsSnapshot,
             ),
             SizedBox(height: 15),
             //horizontalCardView
@@ -149,8 +179,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               style: kTextStyleSubHeader,
             ),
             Container(
-              child: await productsBuilder(
-                  stream: _productsProvider.getNewProducts),
+              child: productsNewSnapshot,
             ),
             SizedBox(height: 15),
             //stacked product card
@@ -159,7 +188,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               style: kTextStyleSubHeader,
             ),
             Container(
-              child: await stackedProductCardBuilder(),
+              child: stackedProduct,
             ),
             SizedBox(height: 15),
             //ProductGrid
@@ -168,7 +197,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               style: kTextStyleSubHeader,
             ),
             Container(
-              child: await productCardGridBuilder(),
+              child: productGridSnapshot,
             ),
           ],
         ),
@@ -178,13 +207,17 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
 
   Future<StreamBuilder<ProductsModel>> productCardGridBuilder() async {
     return StreamBuilder(
-      stream: _productsProvider.getAllProducts,
+      stream: _productsProvider.getStream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-        return snapShotBuilder(
-          snapshot: snapshot,
-          widget: ProductCardGrid(
+        if (snapshot.hasData) {
+          return ProductCardGrid(
             snapshot: snapshot,
-          ),
+          );
+        } else if (snapshot.hasError) {
+          return Text(snapshot.error.toString());
+        }
+        return Center(
+          child: CircularProgressIndicator(),
         );
       },
     );
@@ -192,7 +225,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
 
   Future<StreamBuilder<ProductsModel>> stackedProductCardBuilder() async {
     return StreamBuilder(
-      stream: _productsProvider.getPopularProducts,
+      stream: _productsProvider.getStream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,
@@ -215,7 +248,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   }
 
   Future<StreamBuilder<ProductsModel>> productsBuilder(
-      {required dynamic stream}) async {
+      {required var stream}) async {
     return StreamBuilder(
       stream: stream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {

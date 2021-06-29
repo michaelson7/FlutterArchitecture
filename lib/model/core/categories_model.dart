@@ -8,7 +8,7 @@ class CategoryModel {
     for (int i = 0; i < model.length; i++) {
       _categoryModelList.add(CategoryModelList(
         id: model[i].id,
-        name: model[i].name,
+        title: model[i].title,
         imgPath: model[i].imgPath,
       ));
     }
@@ -21,7 +21,7 @@ class CategoryModel {
     for (int i = 0; i < results.length; i++) {
       _categoryModelList.add(CategoryModelList(
         id: results[i]['prod_cat_id'],
-        name: results[i]['name'],
+        title: results[i]['name'],
         imgPath: results[i]['img_path'],
       ));
     }
@@ -35,11 +35,11 @@ class CategoryModel {
 
 class CategoryModelList {
   late final int id;
-  late final String name, imgPath;
+  late final String title, imgPath;
 
   CategoryModelList({
     required this.id,
-    required this.name,
+    required this.title,
     required this.imgPath,
   });
 }

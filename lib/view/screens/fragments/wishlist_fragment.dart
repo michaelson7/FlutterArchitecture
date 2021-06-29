@@ -16,7 +16,7 @@ class _WishListFragmentState extends State<WishListFragment> {
   ProductsProvider _productsProvider = ProductsProvider();
 
   void initProviders() async {
-    await _productsProvider.getProduct();
+    await _productsProvider.getProducts();
   }
 
   @override
@@ -27,19 +27,22 @@ class _WishListFragmentState extends State<WishListFragment> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        child: StreamBuilder(
-          stream: _productsProvider.getStream,
-          builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-            return snapShotBuilder(
+    return Container(
+      child: StreamBuilder(
+        stream: _productsProvider.getStream,
+        builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+          if (snapshot.hasData) {
+            return ProductCardGrid(
               snapshot: snapshot,
-              widget: ProductCardGrid(
-                snapshot: snapshot,
-              ),
+              shouldScroll: true,
             );
-          },
-        ),
+          } else if (snapshot.hasError) {
+            return Text(snapshot.error.toString());
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
       ),
     );
   }

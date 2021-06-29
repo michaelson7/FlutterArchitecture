@@ -88,7 +88,7 @@ class CategoryGrid extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          data[index].name,
+                          data[index].title,
                           style: kTextStyleHeader.copyWith(color: Colors.white),
                           textAlign: TextAlign.center,
                         ),

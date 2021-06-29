@@ -3,14 +3,37 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
+import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
 import 'package:get/get.dart';
+import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
+import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
+import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 
-class ProductsDetails extends StatelessWidget {
+class ProductsDetails extends StatefulWidget {
   final ProductsModelList _model;
   ProductsDetails(this._model);
+
+  @override
+  _ProductsDetailsState createState() => _ProductsDetailsState();
+}
+
+class _ProductsDetailsState extends State<ProductsDetails> {
+  ProductsProvider _productsProvider = ProductsProvider();
+
+  void initProviders() async {
+    await _productsProvider.getProducts(
+        filter: ProductFilters.cat_prod, categoryId: widget._model.categoryId);
+  }
+
+  @override
+  void initState() {
+    initProviders();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +45,9 @@ class ProductsDetails extends StatelessWidget {
               pinned: true,
               expandedHeight: 350.0,
               flexibleSpace: FlexibleSpaceBar(
-                title: Text(_model.name),
+                title: Text(widget._model.name),
                 background: DarkImageWidget(
-                  imgPath: _model.imgPath,
+                  imgPath: widget._model.imgPath,
                 ),
               ),
             ),
@@ -36,40 +59,33 @@ class ProductsDetails extends StatelessWidget {
                   children: [
                     SizedBox(height: 10),
                     Text(
-                      'ZMW ${_model.price}',
-                      style: TextStyle(color: kAccentColor),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Availability: ${_model.quantity}',
+                      '${widget._model.description}',
                     ),
                     SizedBox(height: 15),
                     Text(
-                      '${_model.description}',
+                      '${widget._model.quantity} left',
                       style: kTextStyleFaint,
                     ),
-                    SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          var message;
-                          if (Provider.of<CartProvider>(context, listen: false)
-                              .addToCart(_model)) {
-                            message = '${_model.name}added to cart';
-                          } else {
-                            message = 'error, check logs';
-                          }
-                          snackBarBuilder(message: message, context: context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                            'Add To Cart',
-                            style: kTextStyleSubHeader,
-                          ),
-                        ),
+                    SizedBox(height: 30),
+                    Center(
+                      child: Text(
+                        'Similar Products',
+                        style:
+                            kTextStyleSubHeader.copyWith(color: kAccentColor),
                       ),
+                    ),
+                    SizedBox(height: 15),
+                    StreamBuilder(
+                      stream: _productsProvider.getCategoryProductsStream,
+                      builder:
+                          (context, AsyncSnapshot<ProductsModel> snapshot) {
+                        return snapShotBuilder(
+                          snapshot: snapshot,
+                          widget: ProductCardGrid(
+                            snapshot: snapshot,
+                          ),
+                        );
+                      },
                     )
                   ],
                 ),
@@ -77,6 +93,46 @@ class ProductsDetails extends StatelessWidget {
             ),
           ],
         ),
+        persistentFooterButtons: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'ZMW ${widget._model.price.toString()}',
+                style: TextStyle(color: kAccentColor),
+              ),
+              Container(
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {},
+                    ),
+                    Text("1"),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () {
+                  var message;
+                  if (Provider.of<CartProvider>(context, listen: false)
+                      .addToCart(widget._model)) {
+                    message = '${widget._model.name}added to cart';
+                  } else {
+                    message = 'error, check logs';
+                  }
+                  snackBarBuilder(message: message, context: context);
+                },
+              )
+            ],
+          )
+        ],
       ),
     );
   }

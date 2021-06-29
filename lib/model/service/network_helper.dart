@@ -9,8 +9,7 @@ class NetworkHelper {
 
   Future getResponse() async {
     try {
-      final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-      http.Response response = await http.get(uriPath, headers: headers);
+      http.Response response = await http.get(uriPath);
       if (response.statusCode == 200) {
         final responseBody = response.body;
         final decodedJson = jsonDecode(responseBody);

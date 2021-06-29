@@ -37,7 +37,7 @@ class Api {
   Future<dynamic> getSubCategories({required int categoryId}) async {
     final requestParameters = {
       "apicall": "fetchCategorySub",
-      "Id": categoryId,
+      "Id": categoryId.toString(),
     };
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
     return await getResponse(uri);
@@ -68,6 +68,7 @@ class Api {
     };
 
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
+    print('URI: $uri');
     return await getResponse(uri);
   }
 

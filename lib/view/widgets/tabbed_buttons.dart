@@ -6,7 +6,7 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'horizontal_widget.dart';
 
 class TabbedButtons extends StatefulWidget {
-  final AsyncSnapshot<CategoryModel> snapshot;
+  final AsyncSnapshot<dynamic> snapshot;
   final Function(int) onSelectionUpdated;
   final int selectedIndex;
 
@@ -50,7 +50,7 @@ class _TabbedButtonsState extends State<TabbedButtons> {
                   child: _invertTitle(
                     currentIndex: currentIndex,
                     selectedIndex: widget.selectedIndex,
-                    title: data.name,
+                    title: data.title,
                   ),
                 ),
               ),

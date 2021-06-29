@@ -6,9 +6,11 @@ import 'product_card_design.dart';
 
 class ProductCardGrid extends StatelessWidget {
   final AsyncSnapshot<ProductsModel> snapshot;
+  final bool shouldScroll;
   const ProductCardGrid({
     Key? key,
     required this.snapshot,
+    this.shouldScroll = false,
   }) : super(key: key);
 
   @override
@@ -21,7 +23,9 @@ class ProductCardGrid extends StatelessWidget {
       ),
       itemCount: snapshot.data!.size,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: shouldScroll
+          ? AlwaysScrollableScrollPhysics()
+          : NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(4.0),
       itemBuilder: (BuildContext context, int index) {
         return ProductCardDesign(
