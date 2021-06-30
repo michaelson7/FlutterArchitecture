@@ -17,7 +17,8 @@ class InitActivity extends StatefulWidget {
 
 class _InitActivityState extends State<InitActivity> {
   List<Widget> fragments = [
-    Home(),
+    // Home(),
+    WishListFragment(),
     CategoryFragment(),
     WishListFragment(),
     ProfileFragment(),
@@ -34,28 +35,35 @@ class _InitActivityState extends State<InitActivity> {
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text("Virtual Groceries"),
-          actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, SearchActivity.id);
-              },
-              icon: Icon(Icons.search),
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              title: Text('Virtual Groceries'),
+              floating: true,
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, SearchActivity.id);
+                  },
+                  icon: Icon(Icons.search),
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, CartActivity.id);
+                  },
+                  icon: Icon(Icons.shopping_bag),
+                ),
+              ],
             ),
-            IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, CartActivity.id);
-              },
-              icon: Icon(Icons.shopping_bag),
+            SliverToBoxAdapter(
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: fragments[_selectedIndex],
+                ),
+              ),
             ),
           ],
-        ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: fragments[_selectedIndex],
-          ),
         ),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[

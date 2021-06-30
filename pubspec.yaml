@@ -28,11 +28,36 @@ dependencies:
   flutter_search_bar: ^2.1.0
   animated_theme_switcher: ^2.0.1
   invert_colors: ^0.0.2
+  flutter_native_splash: ^1.2.0
+  shimmer: ^2.0.0
+
+flutter_native_splash:
+  # run this command to build splash each time app is loaded
+  # flutter clean && flutter pub get && flutter pub run flutter_native_splash:create
+  # To restore Flutter's default white splash screen, run the following command in the terminal:
+  # flutter pub run flutter_native_splash:remove
+
+  #light mode
+  color: "#42a5f5"
+  image: assets/images/background.png
+
+  #dark theme
+  color_dark: "#042a49"
+  image_dark: assets/images/background.png
+
+  #splash screen supported platfomrs
+  android: true
+  ios: true
+  web: true
+
+  #android 12 support
+  android12: true
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
 flutter:
-
   uses-material-design: true
+
+

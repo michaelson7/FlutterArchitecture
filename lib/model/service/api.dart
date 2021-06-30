@@ -10,15 +10,31 @@ class Api {
   String baseUrl = "virtualgroceries.net";
   String urlPath = "/api/API.php";
 
-  Future<dynamic> loginUsers(
-      {required String email, required String password}) async {
+  Future<dynamic> loginUsers({required String email}) async {
     final requestParameters = {
-      "apicall": "account",
+      "apicall": "account_handler",
       "src": "login",
     };
     final body = {
-      'Email': email,
-      'Password': password,
+      'email': email,
+    };
+    Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
+    return await postResponse(uri, body);
+  }
+
+  Future<dynamic> registerUser({
+    required String email,
+    required String password,
+    required String names,
+  }) async {
+    final requestParameters = {
+      "apicall": "account_handler",
+      "src": "register",
+    };
+    final body = {
+      'email': email,
+      'password': password,
+      'names': names,
     };
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
     return await postResponse(uri, body);
@@ -68,7 +84,6 @@ class Api {
     };
 
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
-    print('URI: $uri');
     return await getResponse(uri);
   }
 

@@ -5,23 +5,42 @@ import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/model/core/sub_categories_model.dart';
 import 'package:virtual_ggroceries/model/core/user_order_model.dart';
-import 'package:virtual_ggroceries/provider/image_provider.dart';
 import 'package:random_string/random_string.dart';
+import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import '../service/api.dart';
 
 class ApiHelper {
-  Api api = Api();
-  ImageProviders _imageProviders = ImageProviders();
+  Api _api = Api();
 
-  Future<AccountModel> loginUsers(
-      {required String email, required String password}) async {
+  Future<AccountModel> loginUsers({
+    required String email,
+    required String password,
+  }) async {
     try {
-      dynamic response = await api.loginUsers(email: email, password: password);
+      dynamic response = await _api.loginUsers(email: email);
       AccountModel model = AccountModel.fromJson(response);
       return model;
     } catch (e) {
-      throw Exception('Error while passing to loginUsers: $e');
+      throw Exception('Error while passing to loginUsers in Api_helper: $e');
+    }
+  }
+
+  Future<AccountModel> registerUser({
+    required String email,
+    required String password,
+    required String names,
+  }) async {
+    try {
+      dynamic response = await _api.registerUser(
+        email: email,
+        names: names,
+        password: password,
+      );
+      AccountModel model = AccountModel.fromJson(response);
+      return model;
+    } catch (e) {
+      throw Exception('Error while passing to RegisterUsers in Api_helper: $e');
     }
   }
 
@@ -36,7 +55,7 @@ class ApiHelper {
     String? searchTerm,
   }) async {
     try {
-      var response = await api.getProducts(
+      var response = await _api.getProducts(
         productFilters: productFilters,
         page: page,
         categoryId: categoryId,
@@ -55,7 +74,7 @@ class ApiHelper {
 //adsModel
   Future<AdsModel> getAds({required int page, int? categoryId}) async {
     try {
-      var response = await api.getAds(
+      var response = await _api.getAds(
         page: page,
         categoryId: categoryId,
       );
@@ -69,7 +88,7 @@ class ApiHelper {
   //category
   Future<CategoryModel> getCategories() async {
     try {
-      var response = await api.getCategory();
+      var response = await _api.getCategory();
       CategoryModel model = CategoryModel.fromJson(response);
       return model;
     } catch (e) {
@@ -80,7 +99,7 @@ class ApiHelper {
   //subcategory
   Future<SubCategoryModel> getSubCategories({required int categoryId}) async {
     try {
-      var response = await api.getSubCategories(categoryId: categoryId);
+      var response = await _api.getSubCategories(categoryId: categoryId);
       SubCategoryModel model = SubCategoryModel.fromJson(response);
       return model;
     } catch (e) {
@@ -115,7 +134,7 @@ class ApiHelper {
       required int userId,
       required int prodId}) async {
     try {
-      var response = await api.setWishList(
+      var response = await _api.setWishList(
         wishListFilters: wishListFilters,
         userId: userId,
         prodId: prodId,

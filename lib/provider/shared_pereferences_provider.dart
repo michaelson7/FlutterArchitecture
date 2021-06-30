@@ -53,7 +53,6 @@ class SharedPreferenceProvider extends ChangeNotifier {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? spItem = prefs.getString(value);
-      print(spItem);
       return spItem;
     } catch (e) {
       print("Error on sharedPreferences: $e");
