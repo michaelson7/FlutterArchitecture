@@ -84,6 +84,10 @@ class Api {
     };
 
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
+
+    if (productFilters == ProductFilters.wish_list) {
+      print(uri);
+    }
     return await getResponse(uri);
   }
 
@@ -109,8 +113,8 @@ class Api {
     String filterValue = getEnumValue(wishListFilters);
     final requestParameters = {
       "apicall": "handle_wish_list",
-      "user_id": userId,
-      "prod_id": prodId,
+      "user_id": userId.toString(),
+      "prod_id": prodId.toString(),
       "src": filterValue,
     };
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);

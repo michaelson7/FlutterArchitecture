@@ -59,7 +59,9 @@ class _SearchActivityState extends State<SearchActivity> {
       child: Scaffold(
         appBar: searchBar.build(context),
         key: _scaffoldKey,
-        body: SafeArea(child: isSearching ? productInterface() : searchPromt()),
+        body: SafeArea(
+          child: isSearching ? productInterface() : searchPromt(),
+        ),
       ),
     );
   }

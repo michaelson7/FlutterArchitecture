@@ -2,15 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
+import 'package:virtual_ggroceries/provider/wishListProvider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
-import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/product_details_activity.dart';
+import 'package:virtual_ggroceries/view/screens/fragments/wishlist_fragment.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class ProductCardDesign extends StatefulWidget {
   final ProductsModelList data;
   final bool isGrid;
   bool isSaved;
+  WishListProvider _wishListProvider = WishListProvider();
 
   ProductCardDesign({
     required this.data,
@@ -76,23 +79,7 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
                     ),
                     InkWell(
                       onTap: () {
-                        setState(() {
-                          if (!widget.isSaved) {
-                            snackBarBuilder(
-                              context: context,
-                              message:
-                                  '${widget.data.name}  Added to  Wishlist',
-                            );
-                            widget.isSaved = !widget.isSaved;
-                          } else {
-                            snackBarBuilder(
-                              context: context,
-                              message:
-                                  '${widget.data.name}  Removed From Wishlist',
-                            );
-                            widget.isSaved = !widget.isSaved;
-                          }
-                        });
+                        wishListHandler(context);
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -111,6 +98,40 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> wishListHandler(BuildContext context) async {
+    if (!widget.isSaved) {
+      bool data = await widget._wishListProvider.wishListHandler(
+        wishListFilters: WishListFilters.add_wish,
+        prodId: widget.data.id,
+      );
+      responseHandler(data, 'Added To WIshlist');
+    } else {
+      bool data = await widget._wishListProvider.wishListHandler(
+        wishListFilters: WishListFilters.add_wish,
+        prodId: widget.data.id,
+      );
+      responseHandler(data, ' Removed From Wish List');
+    }
+  }
+
+  void responseHandler(bool data, message) {
+    if (data) {
+      _snack('${widget.data.name} $message');
+      setState(() {
+        widget.isSaved = !widget.isSaved;
+      });
+    } else {
+      _snack('Please sign in');
+    }
+  }
+
+  _snack(String message) {
+    snackBarBuilder(
+      context: context,
+      message: message,
     );
   }
 }

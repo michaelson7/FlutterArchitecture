@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'activities/checkout_activity.dart';
+import 'activities/flutter_wave.dart';
 import 'activities/init_activity.dart';
 import 'activities/login_activity.dart';
 import 'activities/registration_activity.dart';
@@ -80,6 +81,7 @@ class _initScreenState extends State<initScreen> {
               LoginActivity.id: (context) => LoginActivity(),
               RegistrationActivity.id: (context) => RegistrationActivity(),
               CheckOutActivity.id: (context) => CheckOutActivity(),
+              PaymentWidget.id: (context) => PaymentWidget(),
             },
           );
         },

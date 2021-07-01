@@ -178,6 +178,7 @@ class _LoginActivityState extends State<LoginActivity> {
       );
       if (isSignedIn) {
         snackBarBuilder(context: context, message: "Login Successful");
+        Navigator.pop(context);
       } else {
         snackBarBuilder(context: context, message: "Account does not exist");
       }

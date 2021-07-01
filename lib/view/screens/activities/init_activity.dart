@@ -17,8 +17,7 @@ class InitActivity extends StatefulWidget {
 
 class _InitActivityState extends State<InitActivity> {
   List<Widget> fragments = [
-    // Home(),
-    WishListFragment(),
+    Home(),
     CategoryFragment(),
     WishListFragment(),
     ProfileFragment(),

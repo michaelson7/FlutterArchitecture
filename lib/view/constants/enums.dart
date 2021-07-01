@@ -3,6 +3,7 @@ enum DialogTerms {
   Problem,
   Contact,
 }
+
 enum ProductFilters {
   recommendation,
   new_arrival,
@@ -17,6 +18,12 @@ enum ProductFilters {
 enum WishListFilters {
   add_wish,
   remove_wish,
+}
+
+enum UserDetails {
+  userName,
+  userEmail,
+  userId,
 }
 
 String getEnumValue(var enumValue) {

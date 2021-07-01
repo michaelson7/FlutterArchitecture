@@ -1,6 +1,7 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
@@ -17,21 +18,40 @@ class ProfileFragment extends StatefulWidget {
 }
 
 class _ProfileFragmentState extends State<ProfileFragment> {
-  SharedPreferenceProvider _themeData = SharedPreferenceProvider();
+  SharedPreferenceProvider _sp = SharedPreferenceProvider();
+  AccountProvider _accountProvider = AccountProvider();
 
   bool isNotificationSwitched = false;
   bool isDarkMode = false;
+  bool isSignedIn = false;
+
+  String? userName, userEmail;
+  int? userId;
 
   @override
   void initState() {
     super.initState();
-    _checkTheme();
+    _checkState();
   }
 
-  _checkTheme() async {
-    var data = await _themeData.isDarkMode();
+  _checkState() async {
+    var themData = await _sp.isDarkMode();
+    var signedData = await _sp.isLoggedIn();
+
+    //get user data
+    var tempName, tempEmail, tempId;
+    if (signedData) {
+      tempName = await _accountProvider.getUserName();
+      tempEmail = await _accountProvider.getUserEmail();
+      tempId = await _accountProvider.getUserId();
+    }
+
     setState(() {
-      isDarkMode = data!;
+      isDarkMode = themData!;
+      isSignedIn = signedData;
+      userEmail = tempEmail;
+      userName = tempName;
+      userId = tempId;
     });
   }
 
@@ -300,8 +320,8 @@ class _ProfileFragmentState extends State<ProfileFragment> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               cardItem(
-                header: 'Not SIgned In',
-                subHeader: 'Click to sign in',
+                header: isSignedIn ? userName! : 'Not SIgned In',
+                subHeader: isSignedIn ? userEmail! : 'Click to sign in',
                 cardFunction: () {
                   Navigator.pushNamed(context, LoginActivity.id);
                 },

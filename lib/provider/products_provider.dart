@@ -12,6 +12,7 @@ class ProductsProvider extends ChangeNotifier {
   final _categoryProductsStream = BehaviorSubject<ProductsModel>();
   final _subCategoryProductsStream = BehaviorSubject<ProductsModel>();
   final _searchProductsStream = BehaviorSubject<ProductsModel>();
+  final _wishListProductsStream = BehaviorSubject<ProductsModel>();
 
   Stream<ProductsModel> get getStream {
     return _allProductsStream.stream;
@@ -22,17 +23,21 @@ class ProductsProvider extends ChangeNotifier {
   get getCategoryProductsStream => _categoryProductsStream;
   get getSubCategoryProductsStream => _subCategoryProductsStream;
   get getSearchProductsStream => _searchProductsStream;
+  get getWishListProductsStream => _wishListProductsStream;
 
   Future<void> getProducts(
       {ProductFilters filter = ProductFilters.all_products,
       int? categoryId,
       int? subCategoryId,
+      int? userId,
       String? searchTerm}) async {
     var helperResult = await _apiHelper.getProducts(
-        productFilters: filter,
-        categoryId: categoryId,
-        searchTerm: searchTerm,
-        subCategoryId: subCategoryId);
+      productFilters: filter,
+      categoryId: categoryId,
+      searchTerm: searchTerm,
+      userId: userId,
+      subCategoryId: subCategoryId,
+    );
 
     switch (filter) {
       case ProductFilters.recommendation:
@@ -51,6 +56,9 @@ class ProductsProvider extends ChangeNotifier {
         break;
       case ProductFilters.search_term:
         _searchProductsStream.add(helperResult);
+        break;
+      case ProductFilters.wish_list:
+        _wishListProductsStream.add(helperResult);
         break;
     }
   }

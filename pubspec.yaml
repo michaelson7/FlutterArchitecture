@@ -30,6 +30,7 @@ dependencies:
   invert_colors: ^0.0.2
   flutter_native_splash: ^1.2.0
   shimmer: ^2.0.0
+  flutterwave: ^0.0.2
 
 flutter_native_splash:
   # run this command to build splash each time app is loaded
@@ -38,20 +39,20 @@ flutter_native_splash:
   # flutter pub run flutter_native_splash:remove
 
   #light mode
-  color: "#42a5f5"
+  color: "#264653"
   image: assets/images/background.png
 
   #dark theme
-  color_dark: "#042a49"
+  color_dark: "#264653"
   image_dark: assets/images/background.png
 
   #splash screen supported platfomrs
   android: true
   ios: true
-  web: true
+  web: false
 
   #android 12 support
-  android12: true
+  android12: false
 
 dev_dependencies:
   flutter_test:

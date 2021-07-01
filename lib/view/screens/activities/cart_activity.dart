@@ -4,10 +4,11 @@ import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_ggroceries/model/core/products_model.dart';
+import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/checkout_activity.dart';
+import 'package:virtual_ggroceries/view/widgets/custome_input_form.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
@@ -21,6 +22,33 @@ class CartActivity extends StatefulWidget {
 }
 
 class _CartActivityState extends State<CartActivity> {
+  final _formKey = GlobalKey<FormState>();
+  AccountProvider _accountProvider = AccountProvider();
+  late String names, email, location, userId;
+
+  @override
+  void initState() {
+    _getUserData();
+    super.initState();
+  }
+
+  _getUserData() async {
+    var signedData = await _accountProvider.isSignedIn();
+    var tempName, tempEmail, tempId;
+    if (signedData) {
+      tempName = await _accountProvider.getUserName();
+      tempEmail = await _accountProvider.getUserEmail();
+      tempId = await _accountProvider.getUserId();
+    }
+
+    setState(() {
+      names = tempName!;
+      email = tempEmail;
+      tempEmail = tempEmail;
+      userId = tempId;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
@@ -106,45 +134,51 @@ class _CartActivityState extends State<CartActivity> {
 
   Container personalInfoCard() {
     return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Names',
-            style: kTextStyleFaint,
-          ),
-          SizedBox(height: 5),
-          materialCard(
-            child: TextField(
-              decoration: InputDecoration(
-                  border: InputBorder.none, hintText: 'Enter Names'),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Names',
+              style: kTextStyleFaint,
             ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Email',
-            style: kTextStyleFaint,
-          ),
-          SizedBox(height: 5),
-          materialCard(
-            child: TextField(
-              decoration: InputDecoration(
-                  border: InputBorder.none, hintText: 'Enter Email'),
+            SizedBox(height: 5),
+            materialCard(
+              child: CustomInputForm(
+                hintText: 'Enter Names',
+                errorText: 'Please enter Names',
+                returnedParameter: (value) {
+                  names = value;
+                },
+              ),
             ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Location',
-            style: kTextStyleFaint,
-          ),
-          SizedBox(height: 5),
-          materialCard(
-            child: TextField(
-              decoration: InputDecoration(
-                  border: InputBorder.none, hintText: 'Enter Location'),
+            SizedBox(height: 10),
+            Text(
+              'Email',
+              style: kTextStyleFaint,
             ),
-          )
-        ],
+            SizedBox(height: 5),
+            materialCard(
+              child: TextField(
+                decoration: InputDecoration(
+                    border: InputBorder.none, hintText: 'Enter Email'),
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Location',
+              style: kTextStyleFaint,
+            ),
+            SizedBox(height: 5),
+            materialCard(
+              child: TextField(
+                decoration: InputDecoration(
+                    border: InputBorder.none, hintText: 'Enter Location'),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

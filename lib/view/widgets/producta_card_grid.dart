@@ -7,10 +7,13 @@ import 'product_card_design.dart';
 class ProductCardGrid extends StatelessWidget {
   final AsyncSnapshot<ProductsModel> snapshot;
   final bool shouldScroll;
+  final bool isSaved;
+
   const ProductCardGrid({
     Key? key,
     required this.snapshot,
     this.shouldScroll = false,
+    this.isSaved = false,
   }) : super(key: key);
 
   @override
@@ -31,7 +34,7 @@ class ProductCardGrid extends StatelessWidget {
         return ProductCardDesign(
           data: snapshot.data!.productsModelList[index],
           isGrid: true,
-          isSaved: false,
+          isSaved: isSaved,
         );
       },
     );

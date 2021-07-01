@@ -129,18 +129,17 @@ class ApiHelper {
   }
 
   //set wishList
-  Future<ProductsModel> setWishList(
-      {required WishListFilters wishListFilters,
-      required int userId,
-      required int prodId}) async {
+  void setWishList({
+    required WishListFilters wishListFilters,
+    required int userId,
+    required int prodId,
+  }) async {
     try {
-      var response = await _api.setWishList(
+      await _api.setWishList(
         wishListFilters: wishListFilters,
         userId: userId,
         prodId: prodId,
       );
-      ProductsModel model = ProductsModel.fromJson(response);
-      return model;
     } catch (e) {
       throw Exception('Error while passing to set wishlist model: $e');
     }
