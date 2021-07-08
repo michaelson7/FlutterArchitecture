@@ -6,6 +6,8 @@ import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/login_activity.dart';
+import 'package:virtual_ggroceries/view/screens/activities/profile_activity.dart';
+import 'package:virtual_ggroceries/view/screens/activities/user_order_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/color_handler.dart';
@@ -323,13 +325,17 @@ class _ProfileFragmentState extends State<ProfileFragment> {
                 header: isSignedIn ? userName! : 'Not SIgned In',
                 subHeader: isSignedIn ? userEmail! : 'Click to sign in',
                 cardFunction: () {
-                  Navigator.pushNamed(context, LoginActivity.id);
+                  isSignedIn
+                      ? Navigator.pushNamed(context, ProfileActivity.id)
+                      : Navigator.pushNamed(context, LoginActivity.id);
                 },
               ),
               dividerPadded(),
               cardItem(
                 header: 'My Orders',
-                cardFunction: () {},
+                cardFunction: () {
+                  Navigator.pushNamed(context, UserOrderActivity.id);
+                },
               ),
             ],
           ),

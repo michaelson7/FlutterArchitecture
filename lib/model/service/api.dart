@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 
 import 'data_access.dart';
@@ -116,6 +117,58 @@ class Api {
       "user_id": userId.toString(),
       "prod_id": prodId.toString(),
       "src": filterValue,
+    };
+    Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
+    return await getResponse(uri);
+  }
+
+  Future<dynamic> updateUserPurchase({
+    required int userId,
+    required int distId,
+    required String address,
+    required List<ProductsModelList> productList,
+    required String email,
+    required String name,
+    required String amount,
+    required String phoneNumber,
+    required String transId,
+  }) async {
+    //get  product ids
+    int size = productList.length;
+    final requestParameters = {
+      "apicall": "update_purchase",
+      "array_size": size.toString(),
+    };
+
+    final body = {
+      "user_id": userId.toString(),
+      "total": amount,
+      "address": address,
+      "dist_id": distId.toString(),
+      "user_name": name,
+      "user_phone": phoneNumber,
+      "trans_id": transId,
+      "email": email,
+    };
+
+    int num = 0;
+    for (var data in productList) {
+      body['productId($num)'] = data.id.toString();
+      num++;
+    }
+
+    print('requestParameters: $requestParameters \nbody: $body');
+
+    Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
+    return await postResponse(uri, body);
+  }
+
+  //get user orders
+  Future<dynamic> getUserOrders({required int userId}) async {
+    final requestParameters = {
+      "apicall": "fetchUserOrders",
+      "user_id": userId.toString(),
+      "src": 'fetchUserOrders',
     };
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
     return await getResponse(uri);

@@ -35,18 +35,20 @@ class _WishListFragmentState extends State<WishListFragment> {
     return StreamBuilder(
       stream: _productsProvider.getWishListProductsStream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-        if (snapshot.hasData) {
-          return ProductCardGrid(
-            snapshot: snapshot,
-            shouldScroll: false,
-          );
-        } else if (!snapshot.hasData) {
-          return Text('No data');
-        } else if (snapshot.hasError) {
-          return Text(snapshot.error.toString());
+        if (snapshot.connectionState == ConnectionState.active) {
+          if (snapshot.hasData) {
+            return ProductCardGrid(
+              snapshot: snapshot,
+              shouldScroll: false,
+            );
+          } else if (!snapshot.hasData) {
+            return Text('No data');
+          } else if (snapshot.hasError) {
+            return Text(snapshot.error.toString());
+          }
         }
         return Center(
-          child: Text('loading stream'),
+          child: CircularProgressIndicator(),
         );
       },
     );

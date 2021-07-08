@@ -108,20 +108,10 @@ class ApiHelper {
   }
 
   //user order
-  Future<UserOrderModel> getUserOrders() async {
+  Future<UserOrderModel> getUserOrders({required int userId}) async {
     try {
-      List<UserOrderModelList> model = [];
-      for (int i = 0; i < 8; i++) {
-        model.add(
-          UserOrderModelList(
-              transId: randomBetween(10000, 20000).toString(),
-              total: randomBetween(10, 200).toString(),
-              status: generateAdjective().take(1).first.toString(),
-              timeSTamp: randomString(15),
-              address: randomString(15)),
-        );
-      }
-      UserOrderModel finalModel = UserOrderModel.testJson(model);
+      var response = await _api.getUserOrders(userId: userId);
+      UserOrderModel finalModel = UserOrderModel.fromJson(response);
       return finalModel;
     } catch (e) {
       throw Exception('Error while passing to getUSerOrder model: $e');
@@ -144,4 +134,34 @@ class ApiHelper {
       throw Exception('Error while passing to set wishlist model: $e');
     }
   }
+
+  updateUserPurchase({
+    required int userId,
+    required int distId,
+    required String address,
+    required List<ProductsModelList> productList,
+    required String email,
+    required String name,
+    required String amount,
+    required String phoneNumber,
+    required String transId,
+  }) async {
+    try {
+      await _api.updateUserPurchase(
+        userId: userId,
+        distId: distId,
+        address: address,
+        productList: productList,
+        email: email,
+        name: name,
+        amount: amount,
+        phoneNumber: phoneNumber,
+        transId: transId,
+      );
+    } catch (e) {
+      throw Exception('Error while passing to Update User Purchase model: $e');
+    }
+  }
+
+  //
 }

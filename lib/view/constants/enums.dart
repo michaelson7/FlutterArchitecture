@@ -13,6 +13,7 @@ enum ProductFilters {
   subProducts,
   wish_list,
   search_term,
+  mostPopular
 }
 
 enum WishListFilters {

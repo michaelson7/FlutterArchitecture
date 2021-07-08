@@ -31,6 +31,11 @@ dependencies:
   flutter_native_splash: ^1.2.0
   shimmer: ^2.0.0
   flutterwave: ^0.0.2
+  secure_random: ^1.0.0
+  intl: ^0.16.1
+  geolocator: ^7.2.0+1
+  geocoder: ^0.2.1
+
 
 flutter_native_splash:
   # run this command to build splash each time app is loaded

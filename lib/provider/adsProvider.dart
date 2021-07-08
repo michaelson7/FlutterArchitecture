@@ -11,7 +11,7 @@ class AdsProvider extends ChangeNotifier {
     return _streamController.stream;
   }
 
-  Future<void> getAds() async {
+  Future<void> getAds({int page = 1}) async {
     var helperResult = await _apiHelper.getAds(page: 1);
     _streamController.add(helperResult);
   }

@@ -9,9 +9,12 @@ import 'package:virtual_ggroceries/provider/cart_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/checkout_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/custome_input_form.dart';
+import 'package:virtual_ggroceries/view/widgets/get_location.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoder/geocoder.dart';
 
 class CartActivity extends StatefulWidget {
   static final String id = "CartActivity";
@@ -24,7 +27,12 @@ class CartActivity extends StatefulWidget {
 class _CartActivityState extends State<CartActivity> {
   final _formKey = GlobalKey<FormState>();
   AccountProvider _accountProvider = AccountProvider();
-  late String names, email, location, userId;
+  var locationController = TextEditingController(),
+      namesController = TextEditingController(),
+      emailController = TextEditingController();
+  late int userId;
+  late bool isSignedIn = false;
+  Address? addressData;
 
   @override
   void initState() {
@@ -42,9 +50,9 @@ class _CartActivityState extends State<CartActivity> {
     }
 
     setState(() {
-      names = tempName!;
-      email = tempEmail;
-      tempEmail = tempEmail;
+      isSignedIn = signedData;
+      namesController.text = tempName!;
+      emailController.text = tempEmail;
       userId = tempId;
     });
   }
@@ -94,7 +102,20 @@ class _CartActivityState extends State<CartActivity> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, CheckOutActivity.id);
+                        if (addressData == null) {
+                          snackBarBuilder(
+                              context: context,
+                              message: 'Please select location');
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CheckOutActivity(
+                                addressData: addressData!,
+                              ),
+                            ),
+                          );
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(10.0),
@@ -125,8 +146,7 @@ class _CartActivityState extends State<CartActivity> {
           paddedDivider(),
           Text('Discounts: 3%'),
           paddedDivider(),
-          Text(
-              'Overall Cost: ZMW ${provider.getTotalCost() + rng.nextInt(300)}')
+          Text('Overall Cost: ZMW ${provider.getTotalCost()}')
         ],
       ),
     );
@@ -148,9 +168,8 @@ class _CartActivityState extends State<CartActivity> {
               child: CustomInputForm(
                 hintText: 'Enter Names',
                 errorText: 'Please enter Names',
-                returnedParameter: (value) {
-                  names = value;
-                },
+                controller: namesController,
+                returnedParameter: (value) {},
               ),
             ),
             SizedBox(height: 10),
@@ -160,9 +179,11 @@ class _CartActivityState extends State<CartActivity> {
             ),
             SizedBox(height: 5),
             materialCard(
-              child: TextField(
-                decoration: InputDecoration(
-                    border: InputBorder.none, hintText: 'Enter Email'),
+              child: CustomInputForm(
+                hintText: 'Enter Names',
+                errorText: 'Please enter Email',
+                controller: emailController,
+                returnedParameter: (value) {},
               ),
             ),
             SizedBox(height: 10),
@@ -171,11 +192,32 @@ class _CartActivityState extends State<CartActivity> {
               style: kTextStyleFaint,
             ),
             SizedBox(height: 5),
-            materialCard(
-              child: TextField(
-                decoration: InputDecoration(
-                    border: InputBorder.none, hintText: 'Enter Location'),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: materialCard(
+                    child: CustomInputForm(
+                      hintText: 'Enter Location',
+                      errorText: 'Please enter location',
+                      controller: locationController,
+                      returnedParameter: (value) {},
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Material(
+                    color: kCardBackground,
+                    borderRadius: kBorderRadiusCircular,
+                    child: IconButton(
+                      onPressed: () async {
+                        _getCoordinates();
+                      },
+                      icon: Icon(Icons.my_location),
+                    ),
+                  ),
+                )
+              ],
             )
           ],
         ),
@@ -248,6 +290,26 @@ class _CartActivityState extends State<CartActivity> {
     } else {
       return Center(child: Text('No Item Added To Cart'));
     }
+  }
+
+  void _getCoordinates() async {
+    getUserCoordinates().then((value) async {
+      _getActualLocation(value);
+    }).catchError((error) {
+      print('Coordinates ERROR: $error');
+      snackBarBuilder(context: context, message: error.toString());
+    });
+  }
+
+  _getActualLocation(var coordinates) {
+    getActualLocation(coordinates).then((value) async {
+      var fullAdress = "${value.featureName} : ${value.addressLine}";
+      locationController.text = fullAdress;
+      addressData = value;
+    }).catchError((error) {
+      print('LOCATION ERROR: $error');
+      snackBarBuilder(context: context, message: error.toString());
+    });
   }
 
   Padding paddedDivider() {

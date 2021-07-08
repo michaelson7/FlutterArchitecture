@@ -96,17 +96,23 @@ class _ProductsDetailsState extends State<ProductsDetails> {
         persistentFooterButtons: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 'ZMW ${widget._model.price.toString()}',
                 style: TextStyle(color: kAccentColor),
               ),
               Container(
+                decoration: BoxDecoration(
+                  borderRadius: kBorderRadiusCircular,
+                  border: Border.all(
+                    color: kCardBackground,
+                    width: 3,
+                  ),
+                ),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.add),
+                      icon: Icon(Icons.arrow_right_alt),
                       onPressed: () {},
                     ),
                     Text("1"),

@@ -13,6 +13,8 @@ class ProductsProvider extends ChangeNotifier {
   final _subCategoryProductsStream = BehaviorSubject<ProductsModel>();
   final _searchProductsStream = BehaviorSubject<ProductsModel>();
   final _wishListProductsStream = BehaviorSubject<ProductsModel>();
+  final _recommendedProductsStream = BehaviorSubject<ProductsModel>();
+  final _mostViewedStream = BehaviorSubject<ProductsModel>();
 
   Stream<ProductsModel> get getStream {
     return _allProductsStream.stream;
@@ -24,12 +26,15 @@ class ProductsProvider extends ChangeNotifier {
   get getSubCategoryProductsStream => _subCategoryProductsStream;
   get getSearchProductsStream => _searchProductsStream;
   get getWishListProductsStream => _wishListProductsStream;
+  get getRecommndedProductsStream => _recommendedProductsStream;
+  get getMostPopularStream => _mostViewedStream;
 
   Future<void> getProducts(
       {ProductFilters filter = ProductFilters.all_products,
       int? categoryId,
       int? subCategoryId,
       int? userId,
+      int? page,
       String? searchTerm}) async {
     var helperResult = await _apiHelper.getProducts(
       productFilters: filter,
@@ -40,13 +45,17 @@ class ProductsProvider extends ChangeNotifier {
     );
 
     switch (filter) {
+      case ProductFilters.mostPopular:
       case ProductFilters.recommendation:
+        getRecommndedProductsStream.add(helperResult);
+        _mostViewedStream.add(helperResult);
         break;
       case ProductFilters.new_arrival:
         _newProductsStream.add(helperResult);
         break;
       case ProductFilters.all_products:
         _allProductsStream.add(helperResult);
+        _categoryProductsStream.add(helperResult);
         break;
       case ProductFilters.cat_prod:
         _categoryProductsStream.add(helperResult);
@@ -69,6 +78,13 @@ class ProductsProvider extends ChangeNotifier {
 
   void endStream() {
     _allProductsStream.close();
+    _newProductsStream.close();
+    _categoryProductsStream.close();
+    _subCategoryProductsStream.close();
+    _searchProductsStream.close();
+    _wishListProductsStream.close();
+    _recommendedProductsStream.close();
+    _mostViewedStream.close();
   }
 }
 

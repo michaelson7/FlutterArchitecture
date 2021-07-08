@@ -42,11 +42,18 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _productsProvider.dispose();
+    super.dispose();
+  }
+
   void initProviders() async {
     await _categoryProvider.getCategories();
     await _productsProvider.getProducts();
     await _productsProvider.getProducts(filter: ProductFilters.new_arrival);
     await _adsProvider.getAds();
+    await _productsProvider.getProducts(filter: ProductFilters.recommendation);
   }
 
   @override
@@ -60,34 +67,45 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Future.wait([
+        // tabbed categories
         categoryBuilder(),
-        productsBuilder(
-          stream: _productsProvider.getAllProductsStream,
-        ),
+        //featured categories strea,
+        productsBuilder(stream: _productsProvider.getCategoryProductsStream),
+        //ads stream
         adsBuilder(),
+        //recommended card builder
+        productsBuilder(
+          stream: _productsProvider.getRecommndedProductsStream,
+        ),
+        //new arrivals
         productsBuilder(
           stream: _productsProvider.getNewProductsStream,
         ),
         productCardGridBuilder(),
-        stackedProductCardBuilder(),
+        //
+        mostPopularstackedProductCardBuilder(),
       ]),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
           var categorySnapshot = snapshot.data[0];
-          var productsAllSnapshot = snapshot.data[1];
+          var featuredCategoriesStream = snapshot.data[1];
           var adsSnapshot = snapshot.data[2];
-          var productsNewSnapshot = snapshot.data[3];
-          var productGridSnapshot = snapshot.data[4];
-          var stackedProduct = snapshot.data[5];
+          var recommendedProductStreams = snapshot.data[3];
+          var newProductsStream = snapshot.data[4];
+          var productGridSnapshot = snapshot.data[5];
+          var mostPopulatStream = snapshot.data[6];
 
           return mainInterface(
-              context,
-              categorySnapshot,
-              productsAllSnapshot,
-              adsSnapshot,
-              productsNewSnapshot,
-              stackedProduct,
-              productGridSnapshot);
+            context: context,
+            categorySnapshot: categorySnapshot,
+            featuredCategoriesStream: featuredCategoriesStream,
+            adsSnapshot: adsSnapshot,
+            recommendedProductStreams: recommendedProductStreams,
+            mostPopulatStream: mostPopulatStream,
+            productGridSnapshot: productGridSnapshot,
+            productsAllSnapshot: null,
+            productsNewSnapshot: newProductsStream,
+          );
         } else if (snapshot.hasError) {
           print('home_frag interface error: ${snapshot.error}');
           return Center(child: Text('hasNoData'));
@@ -99,14 +117,17 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     );
   }
 
-  ModalProgressHUD mainInterface(
-      BuildContext context,
-      categorySnapshot,
-      productsAllSnapshot,
-      adsSnapshot,
-      productsNewSnapshot,
-      stackedProduct,
-      productGridSnapshot) {
+  ModalProgressHUD mainInterface({
+    required BuildContext context,
+    required categorySnapshot,
+    required productsAllSnapshot,
+    required adsSnapshot,
+    required productsNewSnapshot,
+    required mostPopulatStream,
+    required productGridSnapshot,
+    required featuredCategoriesStream,
+    required recommendedProductStreams,
+  }) {
     return ModalProgressHUD(
       inAsyncCall: isLoading,
       opacity: 1,
@@ -151,7 +172,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
             SizedBox(height: 15),
             //horizontalCardView
             Container(
-              child: productsAllSnapshot,
+              child: featuredCategoriesStream,
             ),
             SizedBox(height: 15),
             //adsCard
@@ -165,7 +186,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               style: kTextStyleSubHeader,
             ),
             Container(
-              child: productsNewSnapshot,
+              child: recommendedProductStreams,
             ),
             SizedBox(height: 15),
             //adsCard
@@ -188,7 +209,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               style: kTextStyleSubHeader,
             ),
             Container(
-              child: stackedProduct,
+              child: mostPopulatStream,
             ),
             SizedBox(height: 15),
             //ProductGrid
@@ -202,6 +223,32 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<StreamBuilder<CategoryModel>> categoryBuilder() async {
+    return StreamBuilder(
+      stream: _categoryProvider.getStream,
+      builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
+        return snapShotBuilder(
+          snapshot: snapshot,
+          widget: TabbedButtons(
+            snapshot: snapshot,
+            onSelectionUpdated: (index) async {
+              await _productsProvider.getProducts(
+                filter: ProductFilters.cat_prod,
+                categoryId: index,
+              );
+              setState(
+                () {
+                  currentIndex = index;
+                },
+              );
+            },
+            selectedIndex: currentIndex,
+          ),
+        );
+      },
     );
   }
 
@@ -223,9 +270,11 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     );
   }
 
-  Future<StreamBuilder<ProductsModel>> stackedProductCardBuilder() async {
+  //TODO: create get most popular function in api
+  Future<StreamBuilder<ProductsModel>>
+      mostPopularstackedProductCardBuilder() async {
     return StreamBuilder(
-      stream: _productsProvider.getStream,
+      stream: _productsProvider.getRecommndedProductsStream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,
@@ -235,7 +284,13 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     );
   }
 
-  Future<StreamBuilder<AdsModel>> adsBuilder() async {
+  Future<StreamBuilder<AdsModel>> adsBuilder({
+    Function? function,
+    bool hasFunction = false,
+  }) async {
+    if (hasFunction) {
+      function!();
+    }
     return StreamBuilder(
       stream: _adsProvider.getStream,
       builder: (context, AsyncSnapshot<AdsModel> snapshot) {
@@ -247,37 +302,21 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     );
   }
 
-  Future<StreamBuilder<ProductsModel>> productsBuilder(
-      {required var stream}) async {
+  // product Cards
+  Future<StreamBuilder<ProductsModel>> productsBuilder({
+    required var stream,
+    Function? function,
+    bool hasFunction = false,
+  }) async {
+    if (hasFunction) {
+      function!();
+    }
     return StreamBuilder(
       stream: stream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,
           widget: ProductsCardHorizontal(snapshot),
-        );
-      },
-    );
-  }
-
-  Future<StreamBuilder<CategoryModel>> categoryBuilder() async {
-    return StreamBuilder(
-      stream: _categoryProvider.getStream,
-      builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
-        return snapShotBuilder(
-          snapshot: snapshot,
-          widget: TabbedButtons(
-            snapshot: snapshot,
-            onSelectionUpdated: (index) async {
-              await _productsProvider.refreshProducts();
-              setState(
-                () {
-                  currentIndex = index;
-                },
-              );
-            },
-            selectedIndex: currentIndex,
-          ),
         );
       },
     );

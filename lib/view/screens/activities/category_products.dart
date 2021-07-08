@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/category_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
-import 'package:virtual_ggroceries/view/constants/constants.dart';
-import 'package:virtual_ggroceries/view/constants/enums.dart';
-import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
 
 class CategoryProducts extends StatefulWidget {
   final int categoryId;

@@ -65,6 +65,7 @@ class CategoryGrid extends StatelessWidget {
         ),
         itemCount: data.length,
         shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(4.0),
         itemBuilder: (BuildContext context, int index) {
           return InkWell(

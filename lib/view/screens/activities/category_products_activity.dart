@@ -40,6 +40,12 @@ class _CategoryProductsState extends State<CategoryProducts> {
   }
 
   @override
+  void dispose() {
+    _productsProvider.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     initProviders();
     super.initState();
@@ -71,7 +77,7 @@ class MainInterface extends StatefulWidget {
     Key? key,
     required CategoryModelList categoryModel,
     required this.snapshot,
-  })   : _categoryModel = categoryModel,
+  })  : _categoryModel = categoryModel,
         super(key: key);
 
   final CategoryModelList _categoryModel;

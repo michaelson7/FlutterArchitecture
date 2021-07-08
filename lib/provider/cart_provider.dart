@@ -45,7 +45,7 @@ class CartProvider extends ChangeNotifier {
     double cost = 0;
     for (var data in _list) {
       var price = data.price;
-      // cost += price;
+      cost += price;
     }
     return cost;
   }

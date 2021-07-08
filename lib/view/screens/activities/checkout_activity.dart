@@ -1,23 +1,69 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:provider/provider.dart';
+import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
+import 'package:virtual_ggroceries/provider/payment_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/widgets/flutterwave_checkout.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class CheckOutActivity extends StatefulWidget {
   static final String id = "CheckOutActivity";
-  const CheckOutActivity({Key? key}) : super(key: key);
+  final Address addressData;
+
+  const CheckOutActivity({
+    Key? key,
+    required this.addressData,
+  }) : super(key: key);
 
   @override
   _CheckOutActivityState createState() => _CheckOutActivityState();
 }
 
 class _CheckOutActivityState extends State<CheckOutActivity> {
+  final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
   StepperType stepperType = StepperType.horizontal;
+  AccountProvider _accountProvider = AccountProvider();
+  var locationController = TextEditingController(),
+      namesController = TextEditingController(),
+      emailController = TextEditingController();
+  String names = '',
+      email = '',
+      location = '',
+      phoneNumber = '',
+      province = '',
+      address = '';
+  int userId = 0;
+
+  @override
+  void initState() {
+    _getUserData();
+    super.initState();
+  }
+
+  _getUserData() async {
+    var signedData = await _accountProvider.isSignedIn();
+    var tempName, tempEmail, tempId;
+
+    if (signedData) {
+      tempName = await _accountProvider.getUserName();
+      tempEmail = await _accountProvider.getUserEmail();
+      tempId = await _accountProvider.getUserId();
+    }
+
+    setState(() {
+      names = tempName!;
+      email = tempEmail;
+      userId = tempId;
+      namesController.text = tempName!;
+      emailController.text = tempEmail;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,18 +93,10 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
                           : StepState.disabled,
                     ),
                     Step(
-                      title: Text('Address'),
-                      content: paymentContainer(),
-                      isActive: _currentStep == 1,
-                      state: _currentStep >= 1
-                          ? StepState.complete
-                          : StepState.disabled,
-                    ),
-                    Step(
                       title: Text('Confirm'),
                       content: confirmationSection(context),
-                      isActive: _currentStep == 2,
-                      state: _currentStep >= 2
+                      isActive: _currentStep == 1,
+                      state: _currentStep >= 1
                           ? StepState.complete
                           : StepState.disabled,
                     ),
@@ -78,96 +116,92 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
 
   Container shippingContainer() {
     return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'CONTACT DETAILS',
-            style: kTextStyleSubHeader,
-          ),
-          SizedBox(height: 10),
-          borderCard(
-            title: 'Email Address',
-          ),
-          SizedBox(height: 8),
-          borderCard(
-            title: 'Password',
-          ),
-          SizedBox(height: 8),
-          borderCard(
-            title: 'Phone Number',
-          ),
-          SizedBox(height: 15),
-          Text(
-            'Shipping Address',
-            style: kTextStyleSubHeader,
-          ),
-          SizedBox(height: 10),
-          borderCard(
-            title: 'Address',
-          ),
-          SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: borderCard(
-                  title: 'Province',
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'CONTACT DETAILS',
+              style: kTextStyleSubHeader,
+            ),
+            SizedBox(height: 10),
+            borderCard(
+              title: 'Email Address',
+              controller: emailController,
+              errorText: 'please enter email',
+              returnedParameter: (value) {
+                email = value;
+              },
+            ),
+            SizedBox(height: 8),
+            borderCard(
+              title: 'Name',
+              controller: namesController,
+              errorText: 'please enter name',
+              returnedParameter: (value) {
+                names = value;
+              },
+            ),
+            SizedBox(height: 8),
+            borderCard(
+              title: 'Phone Number',
+              controller: null,
+              errorText: 'please enter phoneNumber',
+              returnedParameter: (value) {
+                phoneNumber = value;
+              },
+            ),
+            SizedBox(height: 15),
+            Text(
+              'Shipping Address',
+              style: kTextStyleSubHeader,
+            ),
+            SizedBox(height: 10),
+            borderCard(
+              title: 'Address',
+              controller: null,
+              errorText: 'please enter address',
+              initialValue: widget.addressData.addressLine,
+              returnedParameter: (value) {
+                address = value;
+              },
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: borderCard(
+                    title: 'Country',
+                    controller: null,
+                    initialValue: widget.addressData.countryName,
+                    errorText: 'please enter province',
+                    returnedParameter: (value) {
+                      province = value;
+                    },
+                  ),
                 ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: borderCard(
-                  title: 'ZIP CODE',
+                SizedBox(width: 8),
+                Expanded(
+                  child: borderCard(
+                    title: 'ZIP CODE',
+                    controller: null,
+                    initialValue: widget.addressData.postalCode,
+                    errorText: 'please enter zip code',
+                    returnedParameter: (value) {},
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Container paymentContainer() {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(child: Container()),
-              Text('VISA'),
-            ],
-          ),
-          SizedBox(height: 10),
-          borderCard(title: 'Visa Express'),
-          SizedBox(height: 10),
-          borderCard(title: 'Card Number'),
-          SizedBox(height: 10),
-          borderCard(title: 'Name'),
-          SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: borderCard(
-                  title: 'Expire Date',
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: borderCard(
-                  title: 'Csv',
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Container confirmationSection(BuildContext context) {
+    var provider = Provider.of<CartProvider>(context, listen: true);
     Widget cartItemList() {
-      var provider = Provider.of<CartProvider>(context, listen: true);
       if (provider.hasData()) {
         return ListView.builder(
           shrinkWrap: true,
@@ -231,20 +265,6 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SHIPPING TO:',
-            style: kTextStyleFaint,
-          ),
-          SizedBox(height: 10),
-          borderCard(title: ''),
-          SizedBox(height: 10),
-          Text(
-            'PAYMENT DETAILS:',
-            style: kTextStyleFaint,
-          ),
-          SizedBox(height: 10),
-          borderCard(title: ''),
-          SizedBox(height: 10),
-          Text(
             'PRODUCT ORDER:',
             style: kTextStyleFaint,
           ),
@@ -264,7 +284,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
                   style: kTextStyleFaint,
                 ),
               ),
-              Text('ZMW 123.50'),
+              Text('ZMW ${provider.getTotalCost()}'),
             ],
           ),
           SizedBox(height: 10),
@@ -272,11 +292,11 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
             children: [
               Expanded(
                 child: Text(
-                  'Order Cost',
+                  'Delivery Cost',
                   style: kTextStyleFaint,
                 ),
               ),
-              Text('ZMW 193.50'),
+              Text('ZMW 20.50'),
             ],
           ),
         ],
@@ -284,7 +304,12 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
     );
   }
 
-  Container borderCard({required String title}) {
+  Container borderCard(
+      {required String title,
+      required String errorText,
+      String? initialValue,
+      required Function(String) returnedParameter,
+      required final controller}) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: kBorderRadiusCircular,
@@ -295,11 +320,20 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: TextFormField(
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            labelText: title,
-          ),
-        ),
+            controller: controller,
+            initialValue: initialValue,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              labelText: title,
+            ),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return errorText;
+              } else {
+                returnedParameter(value);
+              }
+              return null;
+            }),
       ),
     );
   }
@@ -314,8 +348,27 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
     setState(() => _currentStep = step);
   }
 
-  continued() {
-    _currentStep < 2 ? setState(() => _currentStep += 1) : null;
+  continued() async {
+    if (_currentStep < 1) {
+      if (_formKey.currentState!.validate()) {
+        setState(() => _currentStep += 1);
+      }
+    } else if (_currentStep == 1) {
+      var provider = Provider.of<CartProvider>(context, listen: false);
+      FlutterWaveCheckout _flutterCheckout = FlutterWaveCheckout(
+        name: names,
+        email: email,
+        phoneNumber: phoneNumber,
+        amount: provider.getTotalCost().toString(),
+        context: context,
+        userId: userId,
+        productList: provider.list,
+        distId: 2,
+        address: address,
+      );
+
+      await _flutterCheckout.beginPayment();
+    }
   }
 
   cancel() {

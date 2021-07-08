@@ -1,7 +1,9 @@
 import 'package:virtual_ggroceries/provider/adsProvider.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
+import 'package:virtual_ggroceries/provider/payment_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
+import 'package:virtual_ggroceries/provider/user_orders_provider.dart';
 import 'package:virtual_ggroceries/view/screens/activities/cart_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/color_handler.dart';
 
@@ -10,12 +12,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'activities/checkout_activity.dart';
-import 'activities/flutter_wave.dart';
 import 'activities/init_activity.dart';
 import 'activities/login_activity.dart';
+import 'activities/profile_activity.dart';
 import 'activities/registration_activity.dart';
 import 'activities/search_activity.dart';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
+
+import 'activities/user_order_activity.dart';
+import 'activities/user_order_details.dart';
 
 class initScreen extends StatefulWidget {
   @override
@@ -67,6 +72,10 @@ class _initScreenState extends State<initScreen> {
             create: (BuildContext context) => SharedPreferenceProvider()),
         ChangeNotifierProvider(
             create: (BuildContext context) => CartProvider()),
+        ChangeNotifierProvider(
+            create: (BuildContext context) => PaymentProvider()),
+        ChangeNotifierProvider(
+            create: (BuildContext context) => UserOrdersProvider()),
       ],
       child: ThemeProvider(
         initTheme: initTheme,
@@ -80,8 +89,8 @@ class _initScreenState extends State<initScreen> {
               SearchActivity.id: (context) => SearchActivity(),
               LoginActivity.id: (context) => LoginActivity(),
               RegistrationActivity.id: (context) => RegistrationActivity(),
-              CheckOutActivity.id: (context) => CheckOutActivity(),
-              PaymentWidget.id: (context) => PaymentWidget(),
+              UserOrderActivity.id: (context) => UserOrderActivity(),
+              ProfileActivity.id: (context) => ProfileActivity(),
             },
           );
         },

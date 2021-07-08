@@ -38,7 +38,8 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ProductsDetails(widget.data)),
+              builder: (context) => ProductsDetails(widget.data),
+            ),
           );
         },
         child: Card(
