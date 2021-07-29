@@ -15,6 +15,7 @@ import 'activities/checkout_activity.dart';
 import 'activities/init_activity.dart';
 import 'activities/login_activity.dart';
 import 'activities/profile_activity.dart';
+import 'activities/profile_update_activity.dart';
 import 'activities/registration_activity.dart';
 import 'activities/search_activity.dart';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
@@ -91,6 +92,7 @@ class _initScreenState extends State<initScreen> {
               RegistrationActivity.id: (context) => RegistrationActivity(),
               UserOrderActivity.id: (context) => UserOrderActivity(),
               ProfileActivity.id: (context) => ProfileActivity(),
+              ProfileUpdateActivity.id: (context) => ProfileUpdateActivity(),
             },
           );
         },

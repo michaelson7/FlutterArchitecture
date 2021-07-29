@@ -44,6 +44,26 @@ class ApiHelper {
     }
   }
 
+  //update user
+  Future<void> updateUserAccount({
+    required String userName,
+    required String userAddress,
+    required String userContact,
+    required String userEmail,
+  }) async {
+    try {
+      await _api.updateUserAccount(
+        userName: userName,
+        userEmail: userEmail,
+        userAddress: userAddress,
+        userContact: userContact,
+      );
+    } catch (e) {
+      throw Exception(
+          'Error while passing to updateUserAccount in Api_helper: $e');
+    }
+  }
+
   //PRODUCTS
   Future<ProductsModel> getProducts({
     required ProductFilters productFilters,

@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
-
 import 'data_access.dart';
 
 class Api {
@@ -36,6 +33,27 @@ class Api {
       'email': email,
       'password': password,
       'names': names,
+    };
+    Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
+    return await postResponse(uri, body);
+  }
+
+  //update user
+  Future<dynamic> updateUserAccount({
+    required String userName,
+    required String userAddress,
+    required String userContact,
+    required String userEmail,
+  }) async {
+    final requestParameters = {
+      "apicall": "account_handler",
+      "src": "update_user",
+      "name": userName,
+      "address": userAddress,
+      "contact": userContact,
+    };
+    final body = {
+      'email': userEmail,
     };
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
     return await postResponse(uri, body);
@@ -174,5 +192,4 @@ class Api {
     return await getResponse(uri);
   }
 
-//
 }

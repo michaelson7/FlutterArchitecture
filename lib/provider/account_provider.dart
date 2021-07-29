@@ -51,6 +51,20 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> updateUserAccount({
+    required String userName,
+    required String userAddress,
+    required String userContact,
+    required String userEmail,
+  }) async {
+    await _apiHelper.updateUserAccount(
+      userAddress: userAddress,
+      userContact: userContact,
+      userEmail: userEmail,
+      userName: userName,
+    );
+  }
+
   Future<bool> isSignedIn() async {
     var signedData = await _sp.isLoggedIn();
     return signedData;

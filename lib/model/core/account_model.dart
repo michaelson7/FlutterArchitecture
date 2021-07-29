@@ -1,7 +1,6 @@
 class AccountModel {
   String _errorMessage = "";
   bool _hasError = false;
-  int _size = 0;
   AccountModelList? _accountModelList;
 
   AccountModel.fromJson(Map<String, dynamic> jsonResponse) {
@@ -35,12 +34,13 @@ class AccountModelList {
   late final int id;
   late final String names, email, address, imgPath, accType, contact;
 
-  AccountModelList(
-      {required this.id,
-      required this.names,
-      required this.email,
-      required this.address,
-      required this.imgPath,
-      required this.accType,
-      required this.contact});
+  AccountModelList({
+    required this.id,
+    required this.names,
+    required this.email,
+    required this.address,
+    required this.imgPath,
+    required this.accType,
+    required this.contact,
+  });
 }
