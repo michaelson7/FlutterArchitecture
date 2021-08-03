@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
-import 'package:virtual_ggroceries/provider/wishListProvider.dart';
+import 'package:virtual_ggroceries/provider/wishlist_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/product_details_activity.dart';

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:random_string/random_string.dart';
 
 class ImageProviders extends ChangeNotifier {
   //--2056
@@ -35,7 +34,7 @@ class ImageProviders extends ChangeNotifier {
   ];
 
   String getRandomImage() {
-    var num = randomBetween(0, _imgPaths.length - 1);
-    return _imgPaths[num];
+    // var num = randomBetween(0, _imgPaths.length - 1);
+    return _imgPaths[10];
   }
 }

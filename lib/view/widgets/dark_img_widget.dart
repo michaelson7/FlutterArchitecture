@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class DarkImageWidget extends StatelessWidget {
@@ -24,7 +25,7 @@ class DarkImageWidget extends StatelessWidget {
         color: const Color(0xc3000000),
         borderRadius: borderRadius,
         image: DecorationImage(
-          image: NetworkImage(imgPath),
+          image: CachedNetworkImageProvider(imgPath),
           fit: BoxFit.cover,
           colorFilter: new ColorFilter.mode(
             Colors.black.withOpacity(0.5),

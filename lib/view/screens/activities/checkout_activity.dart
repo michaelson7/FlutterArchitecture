@@ -8,16 +8,25 @@ import 'package:virtual_ggroceries/provider/cart_provider.dart';
 import 'package:virtual_ggroceries/provider/payment_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/flutterwave_checkout.dart';
+import 'package:virtual_ggroceries/view/widgets/horizontal_evenly_spaced_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class CheckOutActivity extends StatefulWidget {
   static final String id = "CheckOutActivity";
   final Address addressData;
+  final double productCost, absoluteCost, deliverCost;
+  final bool hasDiscount;
+  final dynamic discountPrice;
 
   const CheckOutActivity({
     Key? key,
     required this.addressData,
+    required this.productCost,
+    required this.absoluteCost,
+    required this.deliverCost,
+    this.hasDiscount = false,
+    this.discountPrice = 0,
   }) : super(key: key);
 
   @override
@@ -26,6 +35,7 @@ class CheckOutActivity extends StatefulWidget {
 
 class _CheckOutActivityState extends State<CheckOutActivity> {
   final _formKey = GlobalKey<FormState>();
+  double finalAbsoluteCost = 0;
   int _currentStep = 0;
   StepperType stepperType = StepperType.horizontal;
   AccountProvider _accountProvider = AccountProvider();
@@ -43,6 +53,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
   @override
   void initState() {
     _getUserData();
+    _calculateDiscountPrice();
     super.initState();
   }
 
@@ -63,6 +74,14 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
       namesController.text = tempName!;
       emailController.text = tempEmail;
     });
+  }
+
+  _calculateDiscountPrice() {
+    if (widget.hasDiscount) {
+      finalAbsoluteCost = widget.absoluteCost - widget.discountPrice;
+    } else {
+      finalAbsoluteCost = widget.absoluteCost;
+    }
   }
 
   @override
@@ -276,32 +295,86 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
             ),
           ),
           SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Product Cost',
-                  style: kTextStyleFaint,
-                ),
-              ),
-              Text('ZMW ${provider.getTotalCost()}'),
-            ],
+          horizontalEvenlySpacedWidget(
+            leftWidget: Text(
+              'Product Cost',
+              style: kTextStyleFaint,
+            ),
+            rightWidget: Text('ZMW ${widget.productCost.toStringAsFixed(2)}'),
           ),
           SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Delivery Cost',
-                  style: kTextStyleFaint,
+          horizontalEvenlySpacedWidget(
+            leftWidget: Text(
+              'Delivery Cost',
+              style: kTextStyleFaint,
+            ),
+            rightWidget: Text('ZMW ${widget.deliverCost.toStringAsFixed(2)}'),
+          ),
+          widget.hasDiscount
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: horizontalEvenlySpacedWidget(
+                    leftWidget: Text(
+                      'Discount',
+                      style: kTextStyleFaint,
+                    ),
+                    rightWidget:
+                        Text('ZMW -${widget.discountPrice.toStringAsFixed(2)}'),
+                  ),
+                )
+              : SizedBox(
+                  height: 10,
                 ),
-              ),
-              Text('ZMW 20.50'),
-            ],
+          horizontalEvenlySpacedWidget(
+            leftWidget: Text(
+              'Total',
+              style: kTextStyleFaint,
+            ),
+            rightWidget: Text('ZMW ${finalAbsoluteCost.toStringAsFixed(2)}'),
           ),
         ],
       ),
     );
+  }
+
+  switchStepsType() {
+    setState(() => stepperType == StepperType.vertical
+        ? stepperType = StepperType.horizontal
+        : stepperType = StepperType.vertical);
+  }
+
+  tapped(int step) {
+    setState(() => _currentStep = step);
+  }
+
+  continued() async {
+    if (_currentStep < 1) {
+      if (_formKey.currentState!.validate()) {
+        setState(() => _currentStep += 1);
+      }
+    } else if (_currentStep == 1) {
+      await initFlutterWave();
+    }
+  }
+
+  Future<void> initFlutterWave() async {
+    var provider = Provider.of<CartProvider>(context, listen: false);
+    FlutterWaveCheckout _flutterCheckout = FlutterWaveCheckout(
+      name: names,
+      email: email,
+      phoneNumber: phoneNumber,
+      amount: finalAbsoluteCost.toStringAsFixed(2),
+      context: context,
+      userId: userId,
+      productList: provider.list,
+      distId: 2,
+      address: address,
+    );
+    await _flutterCheckout.beginPayment();
+  }
+
+  cancel() {
+    _currentStep > 0 ? setState(() => _currentStep -= 1) : null;
   }
 
   Container borderCard(
@@ -336,42 +409,5 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
             }),
       ),
     );
-  }
-
-  switchStepsType() {
-    setState(() => stepperType == StepperType.vertical
-        ? stepperType = StepperType.horizontal
-        : stepperType = StepperType.vertical);
-  }
-
-  tapped(int step) {
-    setState(() => _currentStep = step);
-  }
-
-  continued() async {
-    if (_currentStep < 1) {
-      if (_formKey.currentState!.validate()) {
-        setState(() => _currentStep += 1);
-      }
-    } else if (_currentStep == 1) {
-      var provider = Provider.of<CartProvider>(context, listen: false);
-      FlutterWaveCheckout _flutterCheckout = FlutterWaveCheckout(
-        name: names,
-        email: email,
-        phoneNumber: phoneNumber,
-        amount: provider.getTotalCost().toString(),
-        context: context,
-        userId: userId,
-        productList: provider.list,
-        distId: 2,
-        address: address,
-      );
-
-      await _flutterCheckout.beginPayment();
-    }
-  }
-
-  cancel() {
-    _currentStep > 0 ? setState(() => _currentStep -= 1) : null;
   }
 }

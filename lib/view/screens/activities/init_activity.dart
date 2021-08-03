@@ -67,7 +67,7 @@ class _InitActivityState extends State<InitActivity> {
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
+              icon: Icon(FontAwesomeIcons.home),
               label: 'Home',
             ),
             BottomNavigationBarItem(
@@ -75,7 +75,7 @@ class _InitActivityState extends State<InitActivity> {
               label: 'Category',
             ),
             BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.heart),
+              icon: FaIcon(FontAwesomeIcons.solidHeart),
               label: 'Wishlist',
             ),
             BottomNavigationBarItem(

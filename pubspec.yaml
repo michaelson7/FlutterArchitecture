@@ -18,8 +18,6 @@ dependencies:
   cached_network_image: ^3.0.0
   rxdart: ^0.27.0
   shared_preferences: ^2.0.6
-  random_string: ^2.1.0
-  random_words: ^1.0.2
   font_awesome_flutter: ^9.0.0
   carousel_slider: ^3.0.0
   modal_progress_hud: ^0.1.3
@@ -35,7 +33,7 @@ dependencies:
   intl: ^0.16.1
   geolocator: ^7.2.0+1
   geocoder: ^0.2.1
-
+  mockito: ^5.0.13
 
 flutter_native_splash:
   # run this command to build splash each time app is loaded

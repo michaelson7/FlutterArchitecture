@@ -4,7 +4,7 @@ import 'data_access.dart';
 
 class Api {
   // String baseUrl = "10.0.2.2";
-  // String urlPath = "/web_clientProjects/MartinProject/aAPI/API.php";
+  // String urlPath = "/web_clientProjects/virtualgroceries/api/API.php";
   String baseUrl = "virtualgroceries.net";
   String urlPath = "/api/API.php";
 
@@ -192,4 +192,16 @@ class Api {
     return await getResponse(uri);
   }
 
+  //fetch discount data
+  Future<dynamic> getDiscount({
+    required String discountCode,
+  }) async {
+    final requestParameters = {
+      "apicall": "getDiscounts",
+      "src": "checkCode",
+      "code": discountCode,
+    };
+    Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
+    return await getResponse(uri);
+  }
 }

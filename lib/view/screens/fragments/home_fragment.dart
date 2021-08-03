@@ -1,5 +1,6 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:virtual_ggroceries/model/core/ads_model.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
@@ -27,25 +28,15 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   CategoryProvider _categoryProvider = CategoryProvider();
   ProductsProvider _productsProvider = ProductsProvider();
   AdsProvider _adsProvider = AdsProvider();
+
   int currentIndex = 0;
   int streamIndex = 0;
   bool isLoading = true;
-  Future? interface;
-  var buileme;
 
   @override
   void initState() {
     initProviders();
-    setState(() {
-      isLoading = true;
-    });
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _productsProvider.dispose();
-    super.dispose();
   }
 
   void initProviders() async {
@@ -54,179 +45,117 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     await _productsProvider.getProducts(filter: ProductFilters.new_arrival);
     await _adsProvider.getAds();
     await _productsProvider.getProducts(filter: ProductFilters.recommendation);
-  }
-
-  @override
-  void afterFirstLayout(BuildContext context) {
     setState(() {
       isLoading = false;
     });
   }
 
   @override
+  void afterFirstLayout(BuildContext context) {}
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Future.wait([
-        // tabbed categories
-        categoryBuilder(),
-        //featured categories strea,
-        productsBuilder(stream: _productsProvider.getCategoryProductsStream),
-        //ads stream
-        adsBuilder(),
-        //recommended card builder
-        productsBuilder(
-          stream: _productsProvider.getRecommndedProductsStream,
-        ),
-        //new arrivals
-        productsBuilder(
-          stream: _productsProvider.getNewProductsStream,
-        ),
-        productCardGridBuilder(),
-        //
-        mostPopularstackedProductCardBuilder(),
-      ]),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.hasData) {
-          var categorySnapshot = snapshot.data[0];
-          var featuredCategoriesStream = snapshot.data[1];
-          var adsSnapshot = snapshot.data[2];
-          var recommendedProductStreams = snapshot.data[3];
-          var newProductsStream = snapshot.data[4];
-          var productGridSnapshot = snapshot.data[5];
-          var mostPopulatStream = snapshot.data[6];
-
-          return mainInterface(
-            context: context,
-            categorySnapshot: categorySnapshot,
-            featuredCategoriesStream: featuredCategoriesStream,
-            adsSnapshot: adsSnapshot,
-            recommendedProductStreams: recommendedProductStreams,
-            mostPopulatStream: mostPopulatStream,
-            productGridSnapshot: productGridSnapshot,
-            productsAllSnapshot: null,
-            productsNewSnapshot: newProductsStream,
-          );
-        } else if (snapshot.hasError) {
-          print('home_frag interface error: ${snapshot.error}');
-          return Center(child: Text('hasNoData'));
-        }
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-  }
-
-  ModalProgressHUD mainInterface({
-    required BuildContext context,
-    required categorySnapshot,
-    required productsAllSnapshot,
-    required adsSnapshot,
-    required productsNewSnapshot,
-    required mostPopulatStream,
-    required productGridSnapshot,
-    required featuredCategoriesStream,
-    required recommendedProductStreams,
-  }) {
-    return ModalProgressHUD(
-      inAsyncCall: isLoading,
-      opacity: 1,
-      progressIndicator: CircularProgressIndicator(),
-      color: kScaffoldColor,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome to\nVirtual Groceries',
-              style: kTextStyleHeader,
-            ),
-            SizedBox(height: 15),
-            //search field
-            Material(
-              color: kCardBackground,
-              borderRadius: kBorderRadiusCircular,
-              child: InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, SearchActivity.id);
-                },
-                child: ListTile(
-                  leading: Icon(Icons.search),
-                  title: Text(
-                    "Search for products...",
-                    style: kTextStyleFaint,
+    return isLoading
+        ? Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome to\nVirtual Groceries',
+                  style: kTextStyleHeader,
+                ),
+                SizedBox(height: 15),
+                //search field
+                Material(
+                  color: kCardBackground,
+                  borderRadius: kBorderRadiusCircular,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(context, SearchActivity.id);
+                    },
+                    child: ListTile(
+                      leading: Icon(Icons.search),
+                      title: Text(
+                        "Search for products...",
+                        style: kTextStyleFaint,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                SizedBox(height: 20),
+                Text(
+                  'Featured Products',
+                  style: kTextStyleSubHeader,
+                ),
+                SizedBox(height: 20),
+                //category List
+                Container(
+                  child: categoryBuilder(),
+                ),
+                SizedBox(height: 15),
+                //horizontalCardView
+                Container(
+                  child: productsBuilder(
+                    stream: _productsProvider.getCategoryProductsStream,
+                  ),
+                ),
+                SizedBox(height: 15),
+                //adsCard
+                Container(
+                  child: adsBuilder(),
+                ),
+                SizedBox(height: 15),
+                //horizontalCardView
+                Text(
+                  'Recommended',
+                  style: kTextStyleSubHeader,
+                ),
+                Container(
+                  child: productsBuilder(
+                    stream: _productsProvider.getRecommndedProductsStream,
+                  ),
+                ),
+                SizedBox(height: 15),
+                //adsCard
+                Container(
+                  child: adsBuilder(),
+                ),
+                SizedBox(height: 15),
+                //horizontalCardView
+                Text(
+                  'New Arrivals',
+                  style: kTextStyleSubHeader,
+                ),
+                Container(
+                  child: productsBuilder(
+                    stream: _productsProvider.getNewProductsStream,
+                  ),
+                ),
+                SizedBox(height: 15),
+                //stacked product card
+                Text(
+                  'Most Popular',
+                  style: kTextStyleSubHeader,
+                ),
+                Container(
+                  child: mostPopularstackedProductCardBuilder(),
+                ),
+                SizedBox(height: 15),
+                //ProductGrid
+                Text(
+                  'All Products',
+                  style: kTextStyleSubHeader,
+                ),
+                Container(
+                  child: productCardGridBuilder(),
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            Text(
-              'Featured Products',
-              style: kTextStyleSubHeader,
-            ),
-            SizedBox(height: 20),
-            //category List
-            Container(
-              child: categorySnapshot,
-            ),
-            SizedBox(height: 15),
-            //horizontalCardView
-            Container(
-              child: featuredCategoriesStream,
-            ),
-            SizedBox(height: 15),
-            //adsCard
-            Container(
-              child: adsSnapshot,
-            ),
-            SizedBox(height: 15),
-            //horizontalCardView
-            Text(
-              'Recommended',
-              style: kTextStyleSubHeader,
-            ),
-            Container(
-              child: recommendedProductStreams,
-            ),
-            SizedBox(height: 15),
-            //adsCard
-            Container(
-              child: adsSnapshot,
-            ),
-            SizedBox(height: 15),
-            //horizontalCardView
-            Text(
-              'New Arrivals',
-              style: kTextStyleSubHeader,
-            ),
-            Container(
-              child: productsNewSnapshot,
-            ),
-            SizedBox(height: 15),
-            //stacked product card
-            Text(
-              'Most Popular',
-              style: kTextStyleSubHeader,
-            ),
-            Container(
-              child: mostPopulatStream,
-            ),
-            SizedBox(height: 15),
-            //ProductGrid
-            Text(
-              'All Products',
-              style: kTextStyleSubHeader,
-            ),
-            Container(
-              child: productGridSnapshot,
-            ),
-          ],
-        ),
-      ),
-    );
+          );
   }
 
-  Future<StreamBuilder<CategoryModel>> categoryBuilder() async {
+  StreamBuilder<CategoryModel> categoryBuilder() {
     return StreamBuilder(
       stream: _categoryProvider.getStream,
       builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
@@ -252,7 +181,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     );
   }
 
-  Future<StreamBuilder<ProductsModel>> productCardGridBuilder() async {
+  StreamBuilder<ProductsModel> productCardGridBuilder() {
     return StreamBuilder(
       stream: _productsProvider.getStream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
@@ -271,8 +200,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   }
 
   //TODO: create get most popular function in api
-  Future<StreamBuilder<ProductsModel>>
-      mostPopularstackedProductCardBuilder() async {
+  StreamBuilder<ProductsModel> mostPopularstackedProductCardBuilder() {
     return StreamBuilder(
       stream: _productsProvider.getRecommndedProductsStream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
@@ -284,10 +212,10 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     );
   }
 
-  Future<StreamBuilder<AdsModel>> adsBuilder({
+  StreamBuilder<AdsModel> adsBuilder({
     Function? function,
     bool hasFunction = false,
-  }) async {
+  }) {
     if (hasFunction) {
       function!();
     }
@@ -303,11 +231,11 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
   }
 
   // product Cards
-  Future<StreamBuilder<ProductsModel>> productsBuilder({
+  StreamBuilder<ProductsModel> productsBuilder({
     required var stream,
     Function? function,
     bool hasFunction = false,
-  }) async {
+  }) {
     if (hasFunction) {
       function!();
     }

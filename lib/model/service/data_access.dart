@@ -6,7 +6,7 @@ dynamic getResponse(Uri uri) async {
     final response = await networkHelper.getResponse();
     return response;
   } catch (e) {
-    throw Exception('Error while parsing response: $e');
+    throw Exception('Error while parsing getResponse: $e');
   }
 }
 
@@ -16,6 +16,6 @@ dynamic postResponse(Uri uri, Map<String, String> body) async {
     final response = await networkHelper.postResponse();
     return response;
   } catch (e) {
-    throw Exception('Error while parsing response: $e');
+    throw Exception('Error while parsing postResponse: $e');
   }
 }

@@ -1,11 +1,10 @@
-import 'package:random_words/random_words.dart';
 import 'package:virtual_ggroceries/model/core/account_model.dart';
 import 'package:virtual_ggroceries/model/core/ads_model.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
+import 'package:virtual_ggroceries/model/core/discount_modal.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/model/core/sub_categories_model.dart';
 import 'package:virtual_ggroceries/model/core/user_order_model.dart';
-import 'package:random_string/random_string.dart';
 import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import '../service/api.dart';
@@ -113,6 +112,17 @@ class ApiHelper {
       return model;
     } catch (e) {
       throw Exception('Error while passing to getCategories: $e');
+    }
+  }
+
+  //fetch discount data
+  Future<DiscountModal> getDiscount({required String discountCode}) async {
+    try {
+      var response = await _api.getDiscount(discountCode: discountCode);
+      DiscountModal model = DiscountModal.fromJson(response);
+      return model;
+    } catch (e) {
+      throw Exception('Error while passing to getDiscount: $e');
     }
   }
 

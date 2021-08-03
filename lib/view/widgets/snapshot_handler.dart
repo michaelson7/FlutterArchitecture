@@ -7,8 +7,6 @@ dynamic snapShotBuilder({required dynamic snapshot, required dynamic widget}) {
     return Text(snapshot.error.toString());
   }
   return Center(
-    child: Center(
-      child: CircularProgressIndicator(),
-    ),
+    child: CircularProgressIndicator(),
   );
 }
