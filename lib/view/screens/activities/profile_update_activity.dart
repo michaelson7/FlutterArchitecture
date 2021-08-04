@@ -30,7 +30,7 @@ class _ProfileUpdateActivityState extends State<ProfileUpdateActivity> {
       tempEmail = await _accountProvider.getUserEmail();
       tempName = await _accountProvider.getUserName();
       tempUserId = await _accountProvider.getUserId();
-      tempUserAddress = 'woodlands Chalala';
+      tempUserAddress = 'woodlands Chalalaa';
 
       setState(() {
         emailController.text = tempEmail;
