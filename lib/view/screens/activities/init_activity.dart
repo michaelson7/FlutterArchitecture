@@ -1,5 +1,6 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/cart_activity.dart';
 import 'package:virtual_ggroceries/view/screens/activities/search_activity.dart';
@@ -9,6 +10,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virtual_ggroceries/view/screens/fragments/profile_fragment.dart';
 import 'package:virtual_ggroceries/view/screens/fragments/wishlist_fragment.dart';
 
+import '../fragments/home_fragment.dart';
+
 class InitActivity extends StatefulWidget {
   static String id = "HomeActivity";
   @override
@@ -16,6 +19,7 @@ class InitActivity extends StatefulWidget {
 }
 
 class _InitActivityState extends State<InitActivity> {
+  var logger = Logger();
   List<Widget> fragments = [
     Home(),
     CategoryFragment(),
@@ -23,46 +27,53 @@ class _InitActivityState extends State<InitActivity> {
     ProfileFragment(),
   ];
   int _selectedIndex = 0;
+  PageController _pageController = PageController(
+    initialPage: 0,
+  );
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              title: Text('Virtual Groceries'),
-              floating: true,
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, SearchActivity.id);
-                  },
-                  icon: Icon(Icons.search),
-                ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, CartActivity.id);
-                  },
-                  icon: Icon(Icons.shopping_bag),
-                ),
-              ],
-            ),
-            SliverToBoxAdapter(
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fragments[_selectedIndex],
-                ),
+        body: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              SliverAppBar(
+                title: Text('Virtual Groceries'),
+                floating: true,
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, SearchActivity.id);
+                    },
+                    icon: Icon(Icons.search),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, CartActivity.id);
+                    },
+                    icon: Icon(Icons.shopping_bag),
+                  ),
+                ],
+              ),
+            ];
+          },
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: PageView(
+                physics: NeverScrollableScrollPhysics(),
+                controller: _pageController,
+                children: fragments,
               ),
             ),
-          ],
+          ),
         ),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
@@ -90,5 +101,12 @@ class _InitActivityState extends State<InitActivity> {
         ),
       ),
     );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      _pageController.jumpToPage(index);
+    });
   }
 }

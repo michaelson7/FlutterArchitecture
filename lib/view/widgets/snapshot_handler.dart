@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
+import 'empty_handler.dart';
 
-dynamic snapShotBuilder({required dynamic snapshot, required dynamic widget}) {
+dynamic snapShotBuilder(
+    {required dynamic snapshot,
+    required dynamic widget,
+    Widget? shimmer,
+    String emptyMessage = "No Products Found"}) {
   if (snapshot.hasData) {
-    return widget;
+    //check if  modal s empty
+    if (snapshot.data!.size <= 0) {
+      return emptyHandler(message: emptyMessage);
+    } else {
+      return widget;
+    }
   } else if (snapshot.hasError) {
-    return Text(snapshot.error.toString());
+    return emptyHandler(message: snapshot.error.toString());
   }
-  return Center(
-    child: CircularProgressIndicator(),
-  );
+  if (shimmer == null) {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  } else {
+    return shimmer;
+  }
 }

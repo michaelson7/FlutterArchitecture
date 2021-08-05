@@ -1,8 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+
+import '../../provider/cart_provider.dart';
+import '../screens/activities/product_details_activity.dart';
+import 'snack_bar_builder.dart';
 
 class StackedProductCard extends StatelessWidget {
   final AsyncSnapshot<ProductsModel> snapshot;
@@ -33,13 +39,24 @@ class StackedProductCard extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(10.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: CachedNetworkImage(
-                            imageUrl: modelData[index].imgPath,
-                            fit: BoxFit.cover,
-                            width: 155,
-                            height: 130,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ProductsDetails(modelData[index]),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: CachedNetworkImage(
+                              imageUrl: modelData[index].imgPath,
+                              fit: BoxFit.cover,
+                              width: 155,
+                              height: 130,
+                            ),
                           ),
                         ),
                       ),
@@ -70,10 +87,22 @@ class StackedProductCard extends StatelessWidget {
                                     ),
                                   ),
                                   ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      var message;
+                                      if (Provider.of<CartProvider>(context,
+                                              listen: false)
+                                          .addToCart(modelData[index])) {
+                                        message =
+                                            '${modelData[index].name}added to cart';
+                                      } else {
+                                        message = 'error, check logs';
+                                      }
+                                      snackBarBuilder(
+                                          message: message, context: context);
+                                    },
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
-                                      child: Text('BUY NOW!'),
+                                      child: Text('Add To Cart '),
                                     ),
                                   )
                                 ],

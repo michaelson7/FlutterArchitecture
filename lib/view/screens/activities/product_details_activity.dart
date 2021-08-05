@@ -10,6 +10,7 @@ import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
 import 'package:get/get.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
+import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 
@@ -81,6 +82,7 @@ class _ProductsDetailsState extends State<ProductsDetails> {
                           (context, AsyncSnapshot<ProductsModel> snapshot) {
                         return snapShotBuilder(
                           snapshot: snapshot,
+                          shimmer: productCardGridShimmer(),
                           widget: ProductCardGrid(
                             snapshot: snapshot,
                           ),

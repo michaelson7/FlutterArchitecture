@@ -19,7 +19,11 @@ class ProfileFragment extends StatefulWidget {
   _ProfileFragmentState createState() => _ProfileFragmentState();
 }
 
-class _ProfileFragmentState extends State<ProfileFragment> {
+class _ProfileFragmentState extends State<ProfileFragment>
+    with AutomaticKeepAliveClientMixin<ProfileFragment> {
+  @override
+  bool get wantKeepAlive => false;
+
   SharedPreferenceProvider _sp = SharedPreferenceProvider();
   AccountProvider _accountProvider = AccountProvider();
 
@@ -59,6 +63,7 @@ class _ProfileFragmentState extends State<ProfileFragment> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

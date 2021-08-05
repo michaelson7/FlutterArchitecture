@@ -34,6 +34,7 @@ dependencies:
   geolocator: ^7.2.0+1
   geocoder: ^0.2.1
   mockito: ^5.0.13
+  logger: ^1.0.0
 
 flutter_native_splash:
   # run this command to build splash each time app is loaded

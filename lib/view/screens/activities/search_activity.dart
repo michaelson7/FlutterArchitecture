@@ -1,5 +1,6 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
@@ -8,6 +9,8 @@ import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
+
+import '../../constants/constants.dart';
 
 class SearchActivity extends StatefulWidget {
   static final String id = 'SearchActivity';
@@ -21,12 +24,13 @@ class _SearchActivityState extends State<SearchActivity> {
   ProductsProvider _productsProvider = ProductsProvider();
   late SearchBar searchBar;
   bool isSearching = false;
-  String _toolbarSearchTerm = 'Search Bar Demo';
+  String _toolbarSearchTerm = 'Search Products';
+  Logger logger = Logger();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   _SearchActivityState() {
     searchBar = new SearchBar(
-        inBar: false,
+        inBar: true,
         buildDefaultAppBar: buildAppBar,
         setState: setState,
         onSubmitted: onSubmitted,
@@ -40,16 +44,17 @@ class _SearchActivityState extends State<SearchActivity> {
 
   AppBar buildAppBar(BuildContext context) {
     return new AppBar(
-        title: new Text(_toolbarSearchTerm),
-        actions: [searchBar.getSearchAction(context)]);
+      title: new Text(_toolbarSearchTerm),
+      actions: [searchBar.getSearchAction(context)],
+    );
   }
 
   void onSubmitted(String value) {
     setState(() async {
+      _toolbarSearchTerm = '$value...';
       isSearching = true;
       await _productsProvider.getProducts(
           filter: ProductFilters.search_term, searchTerm: value);
-      _toolbarSearchTerm = '$value...';
     });
   }
 
@@ -71,18 +76,24 @@ class _SearchActivityState extends State<SearchActivity> {
       child: StreamBuilder(
         stream: _productsProvider.getSearchProductsStream,
         builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-          return snapShotBuilder(
-            snapshot: snapshot,
-            widget: ProductCardGrid(
-              snapshot: snapshot,
-            ),
+          if (snapshot.hasData) {
+            if (snapshot.data!.size <= 0) {
+              return noDataPromot();
+            } else {
+              return ProductCardGrid(
+                snapshot: snapshot,
+              );
+            }
+          }
+          return Center(
+            child: CircularProgressIndicator(),
           );
         },
       ),
     );
   }
 
-  Widget searchPromt() {
+  Widget noDataPromot() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -93,13 +104,32 @@ class _SearchActivityState extends State<SearchActivity> {
           ),
           SizedBox(height: 10),
           Text(
-            "Search for products here",
+            "Product Not Found",
             style: kTextStyleFaint,
           ),
         ],
       ),
     );
   }
+}
+
+Widget searchPromt() {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.search,
+          size: 100,
+        ),
+        SizedBox(height: 10),
+        Text(
+          "Search for products here",
+          style: kTextStyleFaint,
+        ),
+      ],
+    ),
+  );
 }
 
 // PaddedContainer(

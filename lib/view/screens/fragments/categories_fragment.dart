@@ -4,6 +4,7 @@ import 'package:virtual_ggroceries/provider/category_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/category_products_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
+import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 
 class CategoryFragment extends StatefulWidget {
@@ -11,7 +12,11 @@ class CategoryFragment extends StatefulWidget {
   _CategoryFragmentState createState() => _CategoryFragmentState();
 }
 
-class _CategoryFragmentState extends State<CategoryFragment> {
+class _CategoryFragmentState extends State<CategoryFragment>
+    with AutomaticKeepAliveClientMixin<CategoryFragment> {
+  @override
+  bool get wantKeepAlive => true;
+
   CategoryProvider _categoryProvider = CategoryProvider();
 
   void initProviders() async {
@@ -24,27 +29,27 @@ class _CategoryFragmentState extends State<CategoryFragment> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _categoryProvider.endStream();
-    super.dispose();
+  Future<Null> _refresh() async {
+    initProviders();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: StreamBuilder(
+    super.build(context);
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: Container(
+        child: StreamBuilder(
           stream: _categoryProvider.getStream,
           builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
-            if (snapshot.hasData) {
-              return CategoryGrid(snapshot);
-            } else if (snapshot.hasError) {
-              return Text(snapshot.error.toString());
-            }
-            return Center(
-              child: CircularProgressIndicator(),
+            return snapShotBuilder(
+              snapshot: snapshot,
+              shimmer: productCardGridShimmer(),
+              widget: CategoryGrid(snapshot),
             );
-          }),
+          },
+        ),
+      ),
     );
   }
 }
