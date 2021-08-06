@@ -7,6 +7,7 @@ import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
+import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 
 import '../../../provider/shared_pereferences_provider.dart';
@@ -41,6 +42,9 @@ class _WishListFragmentState extends State<WishListFragment>
     //check if signed in
     var isLoggedIn = await _sp.isLoggedIn();
     if (isLoggedIn) {
+      setState(() {
+        isSignedIn = true;
+      });
       logger.i('IS SIGNED IN');
       var userId = await _accountProvider.getUserId();
       await _productsProvider.getProducts(
@@ -48,9 +52,11 @@ class _WishListFragmentState extends State<WishListFragment>
         userId: userId,
       );
     } else {
+      setState(() {
+        isSignedIn = false;
+      });
       logger.e('IS NOT SIGNED IN');
     }
-    isSignedIn = isLoggedIn;
   }
 
   Future<Null> _refresh() async {
@@ -60,6 +66,7 @@ class _WishListFragmentState extends State<WishListFragment>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    logger.i('SIGNED STATE: $isSignedIn');
     return Container(
       child: isSignedIn ? wishListBuilder() : signInPromte(),
     );
@@ -73,6 +80,7 @@ class _WishListFragmentState extends State<WishListFragment>
         builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
           return snapShotBuilder(
             snapshot: snapshot,
+            shimmer: productCardGridShimmer(),
             widget: ProductCardGrid(
               snapshot: snapshot,
               shouldScroll: false,

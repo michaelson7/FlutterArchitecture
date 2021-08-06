@@ -10,31 +10,37 @@ GridView productCardGridShimmer() {
       mainAxisSpacing: 8.0,
       crossAxisSpacing: 8.0,
     ),
-    itemCount: 4,
+    itemCount: 5,
     shrinkWrap: true,
     itemBuilder: (BuildContext context, int index) {
-      return Container(
-        height: 200,
-        width: 200,
-        color: kCardBackground,
+      return Card(
+        child: Container(
+          height: 200,
+          width: 200,
+          color: kCardBackground,
+        ),
       );
     },
   );
 }
 
 Widget tabbedButtonShimmer() {
-  return Container(
-    height: 10,
-    width: 200,
-    color: kCardBackground,
+  return Card(
+    child: Container(
+      height: 10,
+      width: 200,
+      color: kCardBackground,
+    ),
   );
 }
 
 Widget horizontalProductCard() {
-  return Container(
-    height: 200,
-    width: double.infinity,
-    color: kCardBackground,
+  return Card(
+    child: Container(
+      height: 200,
+      width: double.infinity,
+      color: kCardBackground,
+    ),
   );
 }
 

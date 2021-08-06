@@ -6,8 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
    <application
-        android:label="virtual_ggroceries"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Virtual Groceries"
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
