@@ -1,15 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 
 class CartProvider extends ChangeNotifier {
   List<ProductsModelList> _list = [];
   List<ProductsModelList> get list => _list;
+  Logger logger = Logger();
+
+  bool alreadyExists(int id) {
+    try {
+      _list.firstWhere((element) => element.id == id);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   bool addToCart(ProductsModelList model) {
     try {
-      _list.add(model);
-      notifyListeners();
-      print('Added ${model.name} to cart ${getItemSize()}');
+      //adding if doesnt exist
+      if (!alreadyExists(model.id)) {
+        _list.add(model);
+        notifyListeners();
+      } else {
+        //updating if exists
+        _list.firstWhere((element) {
+          if (element.id == model.id) {
+            logger.i("had data");
+            element.quantity = 5555555555;
+            return true;
+          } else {
+            logger.e("had data");
+            return false;
+          }
+        });
+      }
       return true;
     } catch (e) {
       print('Error while adding to cart: $e');

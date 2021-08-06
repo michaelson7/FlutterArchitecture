@@ -1,6 +1,7 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:virtual_ggroceries/view/constants/app_icons.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/screens/activities/cart_activity.dart';
 import 'package:virtual_ggroceries/view/screens/activities/search_activity.dart';
@@ -75,29 +76,37 @@ class _InitActivityState extends State<InitActivity> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.boxes),
-              label: 'Category',
-            ),
-            BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.solidHeart),
-              label: 'Wishlist',
-            ),
-            BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.userAlt),
-              label: 'Profile',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: kAccentColor,
-          unselectedItemColor: Colors.grey,
-          onTap: _onItemTapped,
+        bottomNavigationBar: Theme(
+          data: Theme.of(context).copyWith(
+            canvasColor: kCardBackground,
+          ),
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(
+                  AppIcons.home,
+                  size: 24,
+                ),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: FaIcon(AppIcons.category),
+                label: 'Category',
+              ),
+              BottomNavigationBarItem(
+                icon: FaIcon(AppIcons.heart),
+                label: 'Wishlist',
+              ),
+              BottomNavigationBarItem(
+                icon: FaIcon(AppIcons.user),
+                label: 'Profile',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: kAccentColor,
+            unselectedItemColor: Colors.grey,
+            onTap: _onItemTapped,
+          ),
         ),
       ),
     );

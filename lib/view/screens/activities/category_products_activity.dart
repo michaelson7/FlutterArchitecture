@@ -19,14 +19,6 @@ import 'package:virtual_ggroceries/view/widgets/tabbed_buttons.dart';
 
 import '../../constants/constants.dart';
 
-SubCategoryProvider _categoryProvider = SubCategoryProvider();
-ProductsProvider _productsProvider = ProductsProvider();
-Logger logger = Logger();
-int currentIndex = 0;
-int streamIndex = 0;
-bool fetchSubCategories = false;
-bool isLoading = false;
-
 class CategoryProducts extends StatefulWidget {
   final CategoryModelList _categoryModel;
   CategoryProducts(this._categoryModel);
@@ -39,6 +31,13 @@ class CategoryProducts extends StatefulWidget {
 class _CategoryProductsState extends State<CategoryProducts> {
   final CategoryModelList _categoryModel;
   bool isLoading = false;
+  SubCategoryProvider _categoryProvider = SubCategoryProvider();
+  ProductsProvider _productsProvider = ProductsProvider();
+  Logger logger = Logger();
+  int currentIndex = 0;
+  int streamIndex = 0;
+  bool fetchSubCategories = false;
+
   _CategoryProductsState(this._categoryModel);
 
   void initProviders() async {
@@ -46,16 +45,13 @@ class _CategoryProductsState extends State<CategoryProducts> {
       isLoading = false;
     });
     await _productsProvider.getProducts(
-        filter: ProductFilters.cat_prod, categoryId: _categoryModel.id);
-    await _categoryProvider.getSubCategories(categoryId: _categoryModel.id);
+      filter: ProductFilters.cat_prod,
+      categoryId: _categoryModel.id,
+    );
+    await _categoryProvider.getSubCategories(
+      categoryId: _categoryModel.id,
+    );
   }
-
-  // @override
-  // void dispose() {
-  //   _productsProvider.dispose();
-  //   _productsProvider.endStream();
-  //   super.dispose();
-  // }
 
   @override
   void initState() {
@@ -67,49 +63,36 @@ class _CategoryProductsState extends State<CategoryProducts> {
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: Scaffold(
-        body: StreamBuilder(
-          stream: _productsProvider.getCategoryProductsStream,
-          builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-            return snapShotBuilder(
-              snapshot: snapshot,
-              widget: MainInterface(
-                categoryModel: _categoryModel,
-                snapshot: snapshot,
-              ),
-            );
-          },
+        body: Container(
+          child: StreamBuilder(
+            stream: _productsProvider.getCategoryProductsStream,
+            builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+              if (snapshot.hasData) {
+                return mainInterface(
+                  categoryModel: _categoryModel,
+                  snapshot: snapshot,
+                );
+              }
+              return Center(child: CircularProgressIndicator());
+            },
+          ),
         ),
       ),
     );
   }
-}
 
-class MainInterface extends StatefulWidget {
-  const MainInterface({
-    Key? key,
+  mainInterface({
     required CategoryModelList categoryModel,
-    required this.snapshot,
-  })   : _categoryModel = categoryModel,
-        super(key: key);
-
-  final CategoryModelList _categoryModel;
-  final AsyncSnapshot<ProductsModel> snapshot;
-
-  @override
-  _MainInterfaceState createState() => _MainInterfaceState();
-}
-
-class _MainInterfaceState extends State<MainInterface> {
-  @override
-  Widget build(BuildContext context) {
+    required AsyncSnapshot<ProductsModel> snapshot,
+  }) {
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
           pinned: true,
           expandedHeight: 400.0,
           flexibleSpace: FlexibleSpaceBar(
-            title: Text(widget._categoryModel.title),
-            background: SlideShowWidget(snapshot: widget.snapshot),
+            title: Text(categoryModel.title),
+            background: SlideShowWidget(snapshot: snapshot),
           ),
         ),
         SliverToBoxAdapter(

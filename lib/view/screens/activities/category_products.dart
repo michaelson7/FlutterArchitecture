@@ -25,8 +25,8 @@ class _CategoryProductsState extends State<CategoryProducts> {
 
   @override
   void initState() {
-    initProviders();
     super.initState();
+    initProviders();
   }
 
   @override

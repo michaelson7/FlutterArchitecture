@@ -184,48 +184,6 @@ class _CartActivityState extends State<CartActivity> {
     );
   }
 
-  // shippingDetailsContainer() {
-  //   var provider = Provider.of<CartProvider>(context, listen: true);
-  //   return PaddedContainer(
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         horizontalEvenlySpacedWrapWidget(
-  //           leftWidget: Text(
-  //             'Shipping Address:',
-  //             style: kTextStyleSubHeader,
-  //           ),
-  //           rightWidget: Text(addressData!.addressLine),
-  //         ),
-  //         horizontalEvenlySpacedWrapWidget(
-  //           isSpaced: false,
-  //           leftWidget: Text(
-  //             '#Items Shipping:',
-  //             style: kTextStyleSubHeader,
-  //           ),
-  //           rightWidget: Text(provider.getItemSize().toString()),
-  //         ),
-  //         horizontalEvenlySpacedWrapWidget(
-  //           leftWidget: Text(
-  //             'Transport Type:',
-  //             style: kTextStyleSubHeader,
-  //           ),
-  //           rightWidget: isBike
-  //               ? Text("Bike @ a rate of ZMK 16 per extra KM")
-  //               : Text("Car @ a rate of ZMK 36 per extra KM"),
-  //         ),
-  //         horizontalEvenlySpacedWrapWidget(
-  //           leftWidget: Text(
-  //             'Distance between location and pick up point:',
-  //             style: kTextStyleSubHeader,
-  //           ),
-  //           rightWidget: Text('KM ${_gpsProvider.distance}'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   discountContainer() {
     changeLoadingStae() {
       setState(() {
@@ -539,7 +497,12 @@ class _CartActivityState extends State<CartActivity> {
                         Text(data.name),
                         SizedBox(height: 10),
                         Text(
-                          'ZMW ${data.price} $index',
+                          'ZMW ${data.price}',
+                          style: kTextStyleFaint,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'qty: ${data.quantity}',
                           style: kTextStyleFaint,
                         ),
                       ],
@@ -573,13 +536,6 @@ class _CartActivityState extends State<CartActivity> {
     }
   }
 
-  Padding paddedDivider() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Divider(color: Color(0xfffffff)),
-    );
-  }
-
   void _getCoordinates() async {
     var cartSize =
         Provider.of<CartProvider>(context, listen: false).getItemSize();
@@ -597,5 +553,12 @@ class _CartActivityState extends State<CartActivity> {
     setState(() {
       shippingCost = data;
     });
+  }
+
+  Padding paddedDivider() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Divider(color: Color(0xfffffff)),
+    );
   }
 }

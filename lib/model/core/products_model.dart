@@ -31,9 +31,10 @@ class ProductsModel {
 }
 
 class ProductsModelList {
-  final int id, categoryId, quantity;
+  int quantity;
+  final int id, categoryId;
   final String name, imgPath, description, status, timestamp;
-  final dynamic price, rating;
+  dynamic price, rating;
 
   ProductsModelList({
     required this.id,

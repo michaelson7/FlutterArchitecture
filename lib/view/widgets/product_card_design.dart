@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/wishlist_provider.dart';
+import 'package:virtual_ggroceries/view/constants/app_icons.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/product_details_activity.dart';
@@ -32,7 +33,7 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
       margin:
           widget.isGrid ? EdgeInsets.only(right: 0) : EdgeInsets.only(right: 8),
       height: 260,
-      width: 180,
+      width: 190,
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -87,7 +88,7 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
                         child: Icon(
                           widget.isSaved
                               ? FontAwesomeIcons.solidHeart
-                              : FontAwesomeIcons.heart,
+                              : AppIcons.heart,
                           color: widget.isSaved ? kAccentColor : kIconColor,
                         ),
                       ),
@@ -111,7 +112,7 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
       responseHandler(data, 'Added To WIshlist');
     } else {
       bool data = await widget._wishListProvider.wishListHandler(
-        wishListFilters: WishListFilters.add_wish,
+        wishListFilters: WishListFilters.remove_wish,
         prodId: widget.data.id,
       );
       responseHandler(data, ' Removed From Wish List');

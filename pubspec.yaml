@@ -73,5 +73,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: MyFlutterApp
+      fonts:
+        - asset: assets/fonts/AppIcons.ttf
 
 

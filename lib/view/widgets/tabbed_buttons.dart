@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invert_colors/invert_colors.dart';
+import 'package:logger/logger.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 
@@ -25,9 +26,15 @@ class _TabbedButtonsState extends State<TabbedButtons> {
   Widget build(BuildContext context) {
     List<Widget> widgetList = [];
     var currentIndex = 0;
+    bool shouldHighlight = false;
     var modelData = widget.snapshot.data!.categoryModelList;
 
     for (var data in modelData) {
+      if (currentIndex <= 0) {
+        setState(() => shouldHighlight = false);
+      } else {
+        setState(() => shouldHighlight = false);
+      }
       var design = Container(
         margin: EdgeInsets.symmetric(horizontal: 4),
         child: ConstrainedBox(
@@ -35,14 +42,16 @@ class _TabbedButtonsState extends State<TabbedButtons> {
             minWidth: 80,
           ),
           child: Material(
-            color: _colorPicker(
-              currentIndex: currentIndex,
-              selectedIndex: widget.selectedIndex,
-            ),
+            color: shouldHighlight
+                ? kAccentColor
+                : _colorPicker(
+                    currentIndex: data.id,
+                    selectedIndex: widget.selectedIndex,
+                  ),
             borderRadius: BorderRadius.circular(8),
             child: InkWell(
               onTap: () async {
-                _updateSelection(data.id);
+                _updateSelection(data.id, currentIndex);
               },
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -61,12 +70,11 @@ class _TabbedButtonsState extends State<TabbedButtons> {
       widgetList.add(design);
       currentIndex++;
     }
-
     var horizontalList = horizontalWidgetBuilder(widgetList);
     return horizontalList;
   }
 
-  _updateSelection(int index) {
+  _updateSelection(int index, currentIndx) {
     setState(() {
       widget.onSelectionUpdated(index);
     });

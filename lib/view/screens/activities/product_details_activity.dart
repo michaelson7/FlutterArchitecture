@@ -1,5 +1,7 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
@@ -23,11 +25,39 @@ class ProductsDetails extends StatefulWidget {
 }
 
 class _ProductsDetailsState extends State<ProductsDetails> {
+  Logger logger = Logger();
   ProductsProvider _productsProvider = ProductsProvider();
+  int quantity = 1;
+  dynamic price = 0.00;
+  dynamic originalPrice = 0.00;
 
   void initProviders() async {
+    setState(() {
+      price = widget._model.price;
+      originalPrice = price;
+    });
     await _productsProvider.getProducts(
         filter: ProductFilters.cat_prod, categoryId: widget._model.categoryId);
+  }
+
+  addToQuantity() {
+    setState(() {
+      quantity++;
+      price = originalPrice * quantity;
+      widget._model.quantity = quantity;
+      widget._model.price = price;
+    });
+  }
+
+  removeFromQuantity() {
+    if (quantity > 1) {
+      setState(() {
+        quantity--;
+        price = price - originalPrice;
+        widget._model.quantity = quantity;
+        widget._model.price = price;
+      });
+    }
   }
 
   @override
@@ -100,7 +130,7 @@ class _ProductsDetailsState extends State<ProductsDetails> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(
-                'ZMW ${widget._model.price.toString()}',
+                'ZMW ${price.toStringAsFixed(2)}',
                 style: TextStyle(color: kAccentColor),
               ),
               Container(
@@ -114,34 +144,36 @@ class _ProductsDetailsState extends State<ProductsDetails> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_right_alt),
-                      onPressed: () {},
+                      icon: Icon(FontAwesomeIcons.minus),
+                      onPressed: removeFromQuantity,
                     ),
-                    Text("1"),
+                    Text(quantity.toString()),
                     IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () {},
+                      icon: Icon(FontAwesomeIcons.plus),
+                      onPressed: addToQuantity,
                     ),
                   ],
                 ),
               ),
               IconButton(
                 icon: Icon(Icons.shopping_cart),
-                onPressed: () {
-                  var message;
-                  if (Provider.of<CartProvider>(context, listen: false)
-                      .addToCart(widget._model)) {
-                    message = '${widget._model.name}added to cart';
-                  } else {
-                    message = 'error, check logs';
-                  }
-                  snackBarBuilder(message: message, context: context);
-                },
+                onPressed: () => addToCart(context),
               )
             ],
           )
         ],
       ),
     );
+  }
+
+  void addToCart(BuildContext context) {
+    var message;
+    if (Provider.of<CartProvider>(context, listen: false)
+        .addToCart(widget._model)) {
+      message = '${widget._model.name}added to cart';
+    } else {
+      message = 'error, check logs';
+    }
+    snackBarBuilder(message: message, context: context);
   }
 }

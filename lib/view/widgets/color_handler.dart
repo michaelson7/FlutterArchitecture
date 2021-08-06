@@ -8,8 +8,8 @@ class ColorHandler {
   ColorHandler({this.isDarkModee = false});
 
   Color get cardBackground {
-    var darkTheme = Color(0x1bffffff);
-    var lightTheme = Color(0x9AD4D4D4);
+    var darkTheme = Color(0xED1F1F1F);
+    var lightTheme = Color(0xFFD4D4D4);
     return isDarkModee ? darkTheme : lightTheme;
   }
 

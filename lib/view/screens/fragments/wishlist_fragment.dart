@@ -30,33 +30,30 @@ class _WishListFragmentState extends State<WishListFragment>
   AccountProvider _accountProvider = AccountProvider();
   SharedPreferenceProvider _sp = SharedPreferenceProvider();
   bool isSignedIn = false;
+  bool isLoading = false;
   int? userId;
 
   @override
   void initState() {
-    getWishList();
     super.initState();
+    getWishList();
   }
 
   getWishList() async {
     //check if signed in
+    setState(() => isLoading = true);
     var isLoggedIn = await _sp.isLoggedIn();
     if (isLoggedIn) {
-      setState(() {
-        isSignedIn = true;
-      });
-      logger.i('IS SIGNED IN');
       var userId = await _accountProvider.getUserId();
       await _productsProvider.getProducts(
         filter: ProductFilters.wish_list,
         userId: userId,
       );
+      setState(() => isSignedIn = true);
     } else {
-      setState(() {
-        isSignedIn = false;
-      });
-      logger.e('IS NOT SIGNED IN');
+      setState(() => isSignedIn = false);
     }
+    setState(() => isLoading = false);
   }
 
   Future<Null> _refresh() async {
@@ -66,9 +63,12 @@ class _WishListFragmentState extends State<WishListFragment>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    logger.i('SIGNED STATE: $isSignedIn');
     return Container(
-      child: isSignedIn ? wishListBuilder() : signInPromte(),
+      child: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : isSignedIn
+              ? wishListBuilder()
+              : signInPromte(),
     );
   }
 
@@ -81,9 +81,11 @@ class _WishListFragmentState extends State<WishListFragment>
           return snapShotBuilder(
             snapshot: snapshot,
             shimmer: productCardGridShimmer(),
+            emptyMessage: "You have not added any item to wishlist",
             widget: ProductCardGrid(
               snapshot: snapshot,
               shouldScroll: false,
+              isSaved: true,
             ),
           );
         },
