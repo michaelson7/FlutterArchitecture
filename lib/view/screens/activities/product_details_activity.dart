@@ -44,7 +44,7 @@ class _ProductsDetailsState extends State<ProductsDetails> {
     setState(() {
       quantity++;
       price = originalPrice * quantity;
-      widget._model.quantity = quantity;
+      widget._model.orderQuantity = quantity;
       widget._model.price = price;
     });
   }
@@ -54,7 +54,7 @@ class _ProductsDetailsState extends State<ProductsDetails> {
       setState(() {
         quantity--;
         price = price - originalPrice;
-        widget._model.quantity = quantity;
+        widget._model.orderQuantity = quantity;
         widget._model.price = price;
       });
     }

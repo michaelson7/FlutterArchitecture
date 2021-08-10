@@ -26,11 +26,10 @@ class CartProvider extends ChangeNotifier {
         //updating if exists
         _list.firstWhere((element) {
           if (element.id == model.id) {
-            logger.i("had data");
-            element.quantity = 5555555555;
+            element.orderQuantity += 1;
+            element.price += element.originalPrice;
             return true;
           } else {
-            logger.e("had data");
             return false;
           }
         });

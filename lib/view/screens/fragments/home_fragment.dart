@@ -33,9 +33,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   CategoryProvider _categoryProvider = CategoryProvider();
   ProductsProvider _productsProvider = ProductsProvider();
   AdsProvider _adsProvider = AdsProvider();
+  Logger logger = Logger();
 
-  int currentIndex = 0;
-  int streamIndex = 0;
+  int currentIndex = 0, streamIndex = 0, page = 1;
   bool isLoading = true;
   bool loadMoreSubProducts = false;
 
@@ -56,15 +56,20 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
     });
   }
 
+  Future<Null> _refreshHomePage() async {
+    _resetLoading();
+    initProviders();
+  }
+
   _resetLoading() {
     setState(() {
       isLoading = !isLoading;
     });
   }
 
-  Future<Null> _refreshHomePage() async {
-    _resetLoading();
-    initProviders();
+  _loadMore() {
+    //loads more products
+    setState(() => page++);
   }
 
   @override
@@ -74,6 +79,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
         ? Center(child: CircularProgressIndicator())
         : ModalProgressHUD(
             inAsyncCall: loadMoreSubProducts,
+            color: kScaffoldColor,
             child: RefreshIndicator(
               onRefresh: _refreshHomePage,
               child: SingleChildScrollView(

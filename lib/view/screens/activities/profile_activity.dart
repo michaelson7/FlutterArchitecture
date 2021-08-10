@@ -1,9 +1,12 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
+import 'package:virtual_ggroceries/model/core/shared_pereferences_model.dart';
 import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
+import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
 import 'package:virtual_ggroceries/provider/user_orders_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
@@ -22,6 +25,7 @@ class _ProfileActivityState extends State<ProfileActivity> {
   ProductsProvider _productsProvider = ProductsProvider();
   AccountProvider _accountProvider = AccountProvider();
   UserOrdersProvider _userOrdersProvider = UserOrdersProvider();
+  SharedPreferenceProvider sp = SharedPreferenceProvider();
 
   getWishList() async {
     var userId = await _accountProvider.getUserId();
@@ -39,12 +43,53 @@ class _ProfileActivityState extends State<ProfileActivity> {
     super.initState();
   }
 
+  logOutDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = FlatButton(
+      child: Text("Yes"),
+      onPressed: () {
+        sp.logOut();
+        Navigator.of(context).pop();
+      },
+    );
+
+    Widget noButton = FlatButton(
+      child: Text("No"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Logout"),
+      content: Text("Are you sure you want to log out?"),
+      actions: [okButton, noButton],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Account Detailss'),
+          title: Text('Account Details'),
+          actions: [
+            IconButton(
+              onPressed: () {
+                logOutDialog(context);
+              },
+              icon: Icon(Icons.logout),
+            ),
+          ],
         ),
         body: buildSafeArea(),
         floatingActionButton: FloatingActionButton(

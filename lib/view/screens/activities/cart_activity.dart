@@ -502,7 +502,7 @@ class _CartActivityState extends State<CartActivity> {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          'qty: ${data.quantity}',
+                          'qty: ${data.orderQuantity}',
                           style: kTextStyleFaint,
                         ),
                       ],

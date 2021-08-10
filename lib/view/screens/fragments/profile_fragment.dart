@@ -82,13 +82,13 @@ class _ProfileFragmentState extends State<ProfileFragment>
           SizedBox(height: 10),
           interfaceCard(),
           SizedBox(height: 15),
-          Text(
-            'Support',
-            style: kTextStyleFaint.copyWith(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          supportCard(),
-          SizedBox(height: 15),
+          // Text(
+          //   'Support',
+          //   style: kTextStyleFaint.copyWith(fontWeight: FontWeight.bold),
+          // ),
+          // SizedBox(height: 10),
+          // supportCard(),
+          // SizedBox(height: 15),
         ],
       ),
     );

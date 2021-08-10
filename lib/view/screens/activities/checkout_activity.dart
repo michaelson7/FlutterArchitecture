@@ -224,6 +224,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
       if (provider.hasData()) {
         return ListView.builder(
           shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
           itemCount:
               Provider.of<CartProvider>(context, listen: true).getItemSize(),
           itemBuilder: (BuildContext context, int index) {
@@ -252,7 +253,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
                           Text(data.name),
                           SizedBox(height: 10),
                           Text(
-                            data.quantity.toString(),
+                            "Qty: ${data.orderQuantity}",
                             style: kTextStyleFaint,
                           )
                         ],
@@ -261,7 +262,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'ZMW ${data.price} $index',
+                        'ZMW ${data.price}',
                         style: TextStyle(color: kAccentColor),
                       ),
                     ),

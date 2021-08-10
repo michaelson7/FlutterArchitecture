@@ -19,6 +19,7 @@ main() {
       description: 'description',
       status: 'status',
       timestamp: 'timestamp',
+      originalPrice: 5,
     );
 
     _cartProvider.addToCart(modelList);

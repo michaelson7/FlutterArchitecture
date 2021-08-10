@@ -20,6 +20,7 @@ class ProductsModel {
         description: results[i]['description'],
         status: results[i]['status'],
         timestamp: results[i]['timestamp'],
+        originalPrice: results[i]['price'],
       ));
     }
   }
@@ -31,13 +32,15 @@ class ProductsModel {
 }
 
 class ProductsModelList {
-  int quantity;
+  int quantity, orderQuantity;
   final int id, categoryId;
   final String name, imgPath, description, status, timestamp;
-  dynamic price, rating;
+  dynamic price, rating, originalPrice;
 
   ProductsModelList({
+    this.orderQuantity = 1,
     required this.id,
+    required this.originalPrice,
     required this.categoryId,
     required this.quantity,
     required this.price,

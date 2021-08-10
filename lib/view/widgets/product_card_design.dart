@@ -45,8 +45,8 @@ class _ProductCardDesignState extends State<ProductCardDesign> {
         },
         child: Card(
           color: kCardBackground,
-          elevation: 5,
-          shadowColor: Color(0xfffff),
+          elevation: 3,
+          shadowColor: Colors.black,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

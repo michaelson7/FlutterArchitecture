@@ -20,6 +20,7 @@ import 'activities/registration_activity.dart';
 import 'activities/search_activity.dart';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 
+import 'activities/testActivity.dart';
 import 'activities/user_order_activity.dart';
 import 'activities/user_order_details.dart';
 
@@ -84,7 +85,9 @@ class _initScreenState extends State<initScreen> {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             initialRoute: InitActivity.id,
+            // initialRoute: InitActivity.id,
             routes: {
+              TestActivity.id: (context) => TestActivity(),
               InitActivity.id: (context) => InitActivity(),
               CartActivity.id: (context) => CartActivity(),
               SearchActivity.id: (context) => SearchActivity(),
