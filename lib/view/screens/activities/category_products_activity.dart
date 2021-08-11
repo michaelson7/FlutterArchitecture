@@ -1,7 +1,9 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:logger/logger.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/model/core/sub_categories_model.dart';
@@ -10,6 +12,7 @@ import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/provider/sub_category_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
+import 'package:virtual_ggroceries/view/screens/activities/testActivity.dart';
 import 'package:virtual_ggroceries/view/widgets/empty_handler.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
@@ -37,18 +40,24 @@ class _CategoryProductsState extends State<CategoryProducts> {
   int currentIndex = 0;
   int streamIndex = 0;
   bool fetchSubCategories = false;
+  var data;
 
   _CategoryProductsState(this._categoryModel);
 
   void initProviders() async {
     setState(() {
       isLoading = false;
+      fetchSubCategories = false;
     });
-    await _productsProvider.getProducts(
+    await _productsProvider.addToProductsList(
       filter: ProductFilters.cat_prod,
       categoryId: _categoryModel.id,
     );
     await _categoryProvider.getSubCategories(
+      categoryId: _categoryModel.id,
+    );
+    await _productsProvider.getProducts(
+      filter: ProductFilters.cat_prod,
       categoryId: _categoryModel.id,
     );
   }
@@ -59,11 +68,35 @@ class _CategoryProductsState extends State<CategoryProducts> {
     super.initState();
   }
 
+  List<int> verticalData = [];
+  List<int> horizontalData = [];
+
+  final int increment = 10;
+  bool isLoadingVertical = false;
+  bool isLoadingHorizontal = false;
+
+  Future _loadMoreVertical() async {
+    print('loading more');
+    setState(() {
+      isLoadingVertical = true;
+    });
+    // Add in an artificial delay
+    await _productsProvider.addToProductsList(
+      filter: ProductFilters.all_products,
+    );
+    setState(() {
+      isLoadingVertical = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    data = Provider.of<ProductsProvider>(context, listen: true).list;
     return ThemeSwitchingArea(
       child: Scaffold(
-        body: Container(
+        body: LazyLoadScrollView(
+          isLoading: isLoadingVertical,
+          onEndOfPage: () => _loadMoreVertical(),
           child: StreamBuilder(
             stream: _productsProvider.getCategoryProductsStream,
             builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
@@ -96,10 +129,9 @@ class _CategoryProductsState extends State<CategoryProducts> {
           ),
         ),
         SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.all(12),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 15),
                 Container(
@@ -155,25 +187,13 @@ class _CategoryProductsState extends State<CategoryProducts> {
   }
 
   Widget productsGridBuilder() {
-    logger.i("isLoaded: $fetchSubCategories");
+    logger.i(data.length);
+
     return isLoading
         ? productCardGridShimmer()
-        : StreamBuilder(
-            stream: fetchSubCategories
-                ? _productsProvider.getSubCategoryProductsStream
-                : _productsProvider.getCategoryProductsStream,
-            builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
-              fetchSubCategories = false;
-              isLoading = false;
-              return snapShotBuilder(
-                snapshot: snapshot,
-                shimmer: productCardGridShimmer(),
-                widget: ProductCardGrid(
-                  snapshot: snapshot,
-                  shouldScroll: false,
-                ),
-              );
-            },
+        : ProductCardGrid(
+            snapshot: data[0],
+            shouldScroll: false,
           );
   }
 }

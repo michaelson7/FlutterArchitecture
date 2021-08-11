@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
@@ -16,13 +19,16 @@ class ProductsProvider extends ChangeNotifier {
   final _recommendedProductsStream = BehaviorSubject<ProductsModel>();
   final _mostViewedStream = BehaviorSubject<ProductsModel>();
 
+  List<ProductsModel> _list = [];
+  List<ProductsModel> get list => _list;
+
   Stream<ProductsModel> get getStream {
     return _allProductsStream.stream;
   }
 
   get getAllProductsStream => _allProductsStream;
   get getNewProductsStream => _newProductsStream;
-  get getCategoryProductsStream => _categoryProductsStream;
+  get getCategoryProductsStream => _categoryProductsStream.stream;
   get getSubCategoryProductsStream => _subCategoryProductsStream;
   get getSearchProductsStream => _searchProductsStream;
   get getWishListProductsStream => _wishListProductsStream;
@@ -55,9 +61,10 @@ class ProductsProvider extends ChangeNotifier {
         break;
       case ProductFilters.all_products:
         _allProductsStream.add(helperResult);
-        _categoryProductsStream.add(helperResult);
+        _categoryProductsStream.sink.add(helperResult);
         break;
       case ProductFilters.cat_prod:
+        _list.add(helperResult);
         _categoryProductsStream.add(helperResult);
         break;
       case ProductFilters.subProducts:
@@ -70,6 +77,27 @@ class ProductsProvider extends ChangeNotifier {
         _wishListProductsStream.add(helperResult);
         break;
     }
+    notifyListeners();
+  }
+
+  Future<void> addToProductsList({
+    ProductFilters filter = ProductFilters.all_products,
+    int? categoryId,
+    int? subCategoryId,
+    int? userId,
+    int? page,
+    String? searchTerm,
+  }) async {
+    var helperResult = await _apiHelper.getProducts(
+      productFilters: filter,
+      categoryId: categoryId,
+      searchTerm: searchTerm,
+      userId: userId,
+      subCategoryId: subCategoryId,
+    );
+
+    _list.add(helperResult);
+    notifyListeners();
   }
 
   Future<void> refreshProducts() async {
@@ -87,64 +115,3 @@ class ProductsProvider extends ChangeNotifier {
     _mostViewedStream.close();
   }
 }
-
-// class ProductsProvider extends ChangeNotifier {
-//   final _apiHelper = ApiHelper();
-//   final _featuredStreamController = BehaviorSubject<ProductsModel>();
-//   final _recommendedController = BehaviorSubject<ProductsModel>();
-//   final _newController = BehaviorSubject<ProductsModel>();
-//   final _popularController = BehaviorSubject<ProductsModel>();
-//   final _allController = BehaviorSubject<ProductsModel>();
-//
-//   Stream<ProductsModel> get getStream {
-//     return _featuredStreamController.stream;
-//   }
-//
-//   Future<void> getProduct({required ProductFilters filter}) async {
-//     var helperResult = await _apiHelper.getProducts(
-//       productFilters: filter,
-//     );
-//     switch (filter) {
-//       case ProductFilters.recommendation:
-//         _recommendedController.add(helperResult);
-//         break;
-//       case ProductFilters.new_arrival:
-//         _newController.add(helperResult);
-//         break;
-//       case ProductFilters.all_products:
-//         _allController.add(helperResult);
-//         break;
-//       case ProductFilters.cat_prod:
-//         // TODO: Handle this case.
-//         break;
-//       case ProductFilters.user_purchase:
-//         // TODO: Handle this case.
-//         break;
-//       case ProductFilters.subProducts:
-//         // TODO: Handle this case.
-//         break;
-//       case ProductFilters.wish_list:
-//         // TODO: Handle this case.
-//         break;
-//       case ProductFilters.search_term:
-//         // TODO: Handle this case.
-//         break;
-//     }
-//   }
-//
-//   Future<void> searchForProduct({required String searchTerm}) async {
-//     var helperResult = await _apiHelper.getProducts(
-//       productFilters: ProductFilters.search_term,
-//       searchTerm: searchTerm,
-//     );
-//     _featuredStreamController.add(helperResult);
-//   }
-//
-//   Future<void> refreshProducts() async {
-//     await getProduct();
-//   }
-//
-//   void endStream() {
-//     _featuredStreamController.close();
-//   }
-// }

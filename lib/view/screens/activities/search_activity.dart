@@ -81,7 +81,7 @@ class _SearchActivityState extends State<SearchActivity> {
               return noDataPromot();
             } else {
               return ProductCardGrid(
-                snapshot: snapshot,
+                snapshot: snapshot.data,
               );
             }
           }

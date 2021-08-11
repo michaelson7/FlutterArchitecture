@@ -83,7 +83,7 @@ class _WishListFragmentState extends State<WishListFragment>
             shimmer: productCardGridShimmer(),
             emptyMessage: "You have not added any item to wishlist",
             widget: ProductCardGrid(
-              snapshot: snapshot,
+              snapshot: snapshot.data,
               shouldScroll: false,
               isSaved: true,
             ),

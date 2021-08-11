@@ -241,7 +241,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
         return snapShotBuilder(
           snapshot: snapshot,
           shimmer: productCardGridShimmer(),
-          widget: ProductCardGrid(snapshot: snapshot),
+          widget: ProductCardGrid(snapshot: snapshot.data),
         );
       },
     );

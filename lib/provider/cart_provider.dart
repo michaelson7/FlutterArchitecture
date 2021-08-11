@@ -5,6 +5,7 @@ import 'package:virtual_ggroceries/model/core/products_model.dart';
 class CartProvider extends ChangeNotifier {
   List<ProductsModelList> _list = [];
   List<ProductsModelList> get list => _list;
+
   Logger logger = Logger();
 
   bool alreadyExists(int id) {

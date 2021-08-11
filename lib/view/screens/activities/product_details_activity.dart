@@ -114,7 +114,7 @@ class _ProductsDetailsState extends State<ProductsDetails> {
                           snapshot: snapshot,
                           shimmer: productCardGridShimmer(),
                           widget: ProductCardGrid(
-                            snapshot: snapshot,
+                            snapshot: snapshot.data,
                           ),
                         );
                       },

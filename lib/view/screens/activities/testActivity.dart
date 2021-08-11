@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/IncrementallyLoadingListView.dart';
@@ -10,195 +11,139 @@ class TestActivity extends StatefulWidget {
 }
 
 class _TestActivityState extends State<TestActivity> {
-  late List<Item> items;
-  bool? _loadingMore;
-  late bool _hasMoreItems;
-  int _maxItems = 30;
-  int _numItemsPage = 10;
-  Future? _initialLoad;
+  List<int> verticalData = [];
+  List<int> horizontalData = [];
 
-  Future _loadMoreItems() async {
-    final totalItems = items.length;
-    await Future.delayed(Duration(seconds: 3), () {
-      for (var i = 0; i < _numItemsPage; i++) {
-        items.add(Item('Item ${totalItems + i + 1}'));
-      }
-    });
-
-    _hasMoreItems = items.length < _maxItems;
-  }
+  final int increment = 10;
+  bool isLoadingVertical = false;
+  bool isLoadingHorizontal = false;
 
   @override
   void initState() {
+    _loadMoreVertical();
+    _loadMoreHorizontal();
     super.initState();
-    _initialLoad = Future.delayed(Duration(seconds: 3), () {
-      // List items = [];
-      items = <Item>[];
-      for (var i = 0; i < _numItemsPage; i++) {
-        items.add(Item('Item ${i + 1}'));
-      }
-      _hasMoreItems = true;
+  }
+
+  Future _loadMoreVertical() async {
+    print('loading more');
+    setState(() {
+      isLoadingVertical = true;
+    });
+    // Add in an artificial delay
+    await new Future.delayed(const Duration(seconds: 2));
+    verticalData.addAll(
+        List.generate(increment, (index) => verticalData.length + index));
+    setState(() {
+      isLoadingVertical = false;
+    });
+  }
+
+  Future _loadMoreHorizontal() async {
+    print('loading more');
+    setState(() {
+      isLoadingHorizontal = true;
+    });
+    // Add in an artificial delay
+    await new Future.delayed(const Duration(seconds: 2));
+    horizontalData.addAll(
+        List.generate(increment, (index) => horizontalData.length + index));
+    setState(() {
+      isLoadingHorizontal = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kScaffoldColor,
-      body: SafeArea(
-        child: FutureBuilder(
-          future: _initialLoad,
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return Center(child: CircularProgressIndicator());
-              case ConnectionState.done:
-                return IncrementallyLoadingListView(
-                  hasMore: () => _hasMoreItems,
-                  itemCount: () => items.length,
-                  loadMore: () async {
-                    // can shorten to "loadMore: _loadMoreItems" but this syntax is used to demonstrate that
-                    // functions with parameters can also be invoked if needed
-                    print('loading');
-                    await _loadMoreItems();
-                  },
-                  onLoadMore: () {
-                    setState(() {
-                      _loadingMore = true;
-                    });
-                  },
-                  onLoadMoreFinished: () {
-                    setState(() {
-                      _loadingMore = false;
-                    });
-                  },
-                  separatorBuilder: (_, __) => Divider(),
-                  loadMoreOffsetFromBottom: 2,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    if ((_loadingMore ?? false) && index == items.length - 1) {
-                      return Column(
-                        children: <Widget>[
-                          ItemCard(item: item),
-                          PlaceholderItemCard(item: item),
-                        ],
-                      );
-                    }
-                    return Column(
-                      children: [
-                        ItemCard(item: item),
-                      ],
-                    );
-                  },
-                );
-              default:
-                return Text('Something went wrong');
-            }
-          },
+      appBar: AppBar(
+        title: Text("Lorain"),
+      ),
+      body: LazyLoadScrollView(
+        isLoading: isLoadingVertical,
+        onEndOfPage: () => _loadMoreVertical(),
+        child: Scrollbar(
+          child: ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Nested horizontal ListView',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Container(
+                  height: 180,
+                  child: LazyLoadScrollView(
+                      isLoading: isLoadingHorizontal,
+                      scrollDirection: Axis.horizontal,
+                      onEndOfPage: () => _loadMoreHorizontal(),
+                      child: Scrollbar(
+                          child: ListView.builder(
+                              itemCount: horizontalData.length,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, position) {
+                                return DemoItem(position);
+                              })))),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Vertical ListView',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: verticalData.length,
+                itemBuilder: (context, position) {
+                  return DemoItem(position);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class ItemCard extends StatelessWidget {
-  const ItemCard({
+class DemoItem extends StatelessWidget {
+  final int position;
+
+  const DemoItem(
+    this.position, {
     Key? key,
-    required this.item,
   }) : super(key: key);
 
-  final Item item;
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Image.network(item.avatarUrl),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
-                      child: Text(item.name),
-                    ),
-                  )
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
-                child: Text(item.message),
-              )
-            ],
-          ),
-        ),
-      ),
-      onTap: () => {},
-    );
-  }
-}
-
-class PlaceholderItemCard extends StatelessWidget {
-  const PlaceholderItemCard({Key? key, required this.item}) : super(key: key);
-  final Item item;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Column(
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: 60.0,
-                    height: 60.0,
-                    color: Colors.white,
+                    color: Colors.grey,
+                    height: 40.0,
+                    width: 40.0,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
-                    child: Container(
-                      color: Colors.white,
-                      child: Text(
-                        item.name,
-                        style: TextStyle(color: Colors.transparent),
-                      ),
-                    ),
-                  )
+                  SizedBox(width: 8.0),
+                  Text("Item $position"),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
-                child: Container(
-                  color: Colors.white,
-                  child: Text(
-                    item.message,
-                    style: TextStyle(color: Colors.transparent),
-                  ),
-                ),
-              )
+              Text(
+                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque sed vulputate orci. Proin id scelerisque velit. Fusce at ligula ligula. Donec fringilla sapien odio, et faucibus tortor finibus sed. Aenean rutrum ipsum in sagittis auctor. Pellentesque mattis luctus consequat. Sed eget sapien ut nibh rhoncus cursus. Donec eget nisl aliquam, ornare sapien sit amet, lacinia quam."),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-class Item {
-  final String name;
-  final String avatarUrl = 'http://via.placeholder.com/60x60';
-  final String message =
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
-
-  Item(this.name);
 }

@@ -5,13 +5,13 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'product_card_design.dart';
 
 class ProductCardGrid extends StatelessWidget {
-  final AsyncSnapshot<ProductsModel> snapshot;
+  final ProductsModel? snapshot;
   final bool shouldScroll;
   final bool isSaved;
 
   const ProductCardGrid({
     Key? key,
-    required this.snapshot,
+    this.snapshot,
     this.shouldScroll = false,
     this.isSaved = false,
   }) : super(key: key);
@@ -24,7 +24,7 @@ class ProductCardGrid extends StatelessWidget {
         mainAxisSpacing: 8.0,
         crossAxisSpacing: 8.0,
       ),
-      itemCount: snapshot.data!.size,
+      itemCount: snapshot!.size,
       shrinkWrap: true,
       physics: shouldScroll
           ? AlwaysScrollableScrollPhysics()
@@ -32,7 +32,7 @@ class ProductCardGrid extends StatelessWidget {
       padding: const EdgeInsets.all(4.0),
       itemBuilder: (BuildContext context, int index) {
         return ProductCardDesign(
-          data: snapshot.data!.productsModelList[index],
+          data: snapshot!.productsModelList[index],
           isGrid: true,
           isSaved: isSaved,
         );
