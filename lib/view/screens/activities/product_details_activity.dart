@@ -1,6 +1,7 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
@@ -10,6 +11,7 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
 import 'package:get/get.dart';
+import 'package:virtual_ggroceries/view/widgets/empty_handler.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
@@ -26,19 +28,10 @@ class ProductsDetails extends StatefulWidget {
 
 class _ProductsDetailsState extends State<ProductsDetails> {
   Logger logger = Logger();
-  ProductsProvider _productsProvider = ProductsProvider();
-  int quantity = 1;
-  dynamic price = 0.00;
-  dynamic originalPrice = 0.00;
-
-  void initProviders() async {
-    setState(() {
-      price = widget._model.price;
-      originalPrice = price;
-    });
-    await _productsProvider.getProducts(
-        filter: ProductFilters.cat_prod, categoryId: widget._model.categoryId);
-  }
+  late ProductsProvider _productsProvider;
+  int quantity = 1, page = 1;
+  dynamic price = 0.00, originalPrice = 0.00;
+  bool loadMore = false, isLoading = false;
 
   addToQuantity() {
     setState(() {
@@ -60,6 +53,28 @@ class _ProductsDetailsState extends State<ProductsDetails> {
     }
   }
 
+  void initProviders() async {
+    _productsProvider = Provider.of<ProductsProvider>(context, listen: false);
+    setState(() {
+      isLoading = true;
+      price = widget._model.price;
+      originalPrice = price;
+    });
+    await _productsProvider.getProducts(
+        filter: ProductFilters.cat_prod, categoryId: widget._model.categoryId);
+    setState(() => isLoading = false);
+  }
+
+  Future _loadMoreVertical() async {
+    page++;
+    setState(() => loadMore = true);
+    await _productsProvider.addToProductsList(
+        filter: ProductFilters.cat_prod,
+        categoryId: widget._model.categoryId,
+        page: page);
+    setState(() => loadMore = false);
+  }
+
   @override
   void initState() {
     initProviders();
@@ -70,61 +85,62 @@ class _ProductsDetailsState extends State<ProductsDetails> {
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: Scaffold(
-        body: CustomScrollView(
-          slivers: <Widget>[
-            SliverAppBar(
-              pinned: true,
-              expandedHeight: 350.0,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(widget._model.name),
-                background: DarkImageWidget(
-                  imgPath: widget._model.imgPath,
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Container(
-                padding: EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 10),
-                    Text(
-                      '${widget._model.description}',
-                    ),
-                    SizedBox(height: 15),
-                    Text(
-                      '${widget._model.quantity} left',
-                      style: kTextStyleFaint,
-                    ),
-                    SizedBox(height: 30),
-                    Center(
-                      child: Text(
-                        'Similar Products',
-                        style:
-                            kTextStyleSubHeader.copyWith(color: kAccentColor),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : LazyLoadScrollView(
+                onEndOfPage: () => _loadMoreVertical(),
+                child: CustomScrollView(
+                  slivers: <Widget>[
+                    SliverAppBar(
+                      pinned: true,
+                      expandedHeight: 350.0,
+                      flexibleSpace: FlexibleSpaceBar(
+                        title: Text(widget._model.name),
+                        background: DarkImageWidget(
+                          imgPath: widget._model.imgPath,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 15),
-                    StreamBuilder(
-                      stream: _productsProvider.getCategoryProductsStream,
-                      builder:
-                          (context, AsyncSnapshot<ProductsModel> snapshot) {
-                        return snapShotBuilder(
-                          snapshot: snapshot,
-                          shimmer: productCardGridShimmer(),
-                          widget: ProductCardGrid(
-                            snapshot: snapshot.data,
-                          ),
-                        );
-                      },
-                    )
+                    SliverToBoxAdapter(
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 10),
+                            Text(
+                              '${widget._model.description}',
+                            ),
+                            SizedBox(height: 15),
+                            Text(
+                              '${widget._model.quantity} left',
+                              style: kTextStyleFaint,
+                            ),
+                            SizedBox(height: 30),
+                            Center(
+                              child: Text(
+                                'Similar Products',
+                                style: kTextStyleSubHeader.copyWith(
+                                    color: kAccentColor),
+                              ),
+                            ),
+                            SizedBox(height: 15),
+                            productsGridBuilder(),
+                            loadMore
+                                ? Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                : Container()
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
         persistentFooterButtons: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -175,5 +191,12 @@ class _ProductsDetailsState extends State<ProductsDetails> {
       message = 'error, check logs';
     }
     snackBarBuilder(message: message, context: context);
+  }
+
+  productsGridBuilder() {
+    var paginatedList = Provider.of<ProductsProvider>(context, listen: true);
+    return paginatedList.hasData()
+        ? ProductCardGrid(snapshot: paginatedList.list, shouldScroll: false)
+        : emptyHandler(message: "No Products Found");
   }
 }

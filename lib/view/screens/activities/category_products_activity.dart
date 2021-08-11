@@ -33,26 +33,23 @@ class CategoryProducts extends StatefulWidget {
 
 class _CategoryProductsState extends State<CategoryProducts> {
   final CategoryModelList _categoryModel;
-  bool isLoading = false;
+  bool isLoading = false, loadMore = false;
   SubCategoryProvider _categoryProvider = SubCategoryProvider();
-  ProductsProvider _productsProvider = ProductsProvider();
   Logger logger = Logger();
   int currentIndex = 0;
   int streamIndex = 0;
+  int page = 1;
   bool fetchSubCategories = false;
-  var data;
+  var _productsProvider;
 
   _CategoryProductsState(this._categoryModel);
 
   void initProviders() async {
+    _productsProvider = Provider.of<ProductsProvider>(context, listen: false);
     setState(() {
-      isLoading = false;
+      isLoading = true;
       fetchSubCategories = false;
     });
-    await _productsProvider.addToProductsList(
-      filter: ProductFilters.cat_prod,
-      categoryId: _categoryModel.id,
-    );
     await _categoryProvider.getSubCategories(
       categoryId: _categoryModel.id,
     );
@@ -60,6 +57,26 @@ class _CategoryProductsState extends State<CategoryProducts> {
       filter: ProductFilters.cat_prod,
       categoryId: _categoryModel.id,
     );
+    setState(() => isLoading = false);
+  }
+
+  Future _loadMoreVertical() async {
+    page++;
+    setState(() => loadMore = true);
+    fetchSubCategories
+        ? await _productsProvider.addToProductsList(
+            filter: ProductFilters.subProducts,
+            subCategoryId: currentIndex,
+            page: page)
+        : await _productsProvider.addToProductsList(
+            filter: ProductFilters.cat_prod,
+            categoryId: _categoryModel.id,
+            page: page);
+    setState(() => loadMore = false);
+  }
+
+  resetPage() {
+    page = 1;
   }
 
   @override
@@ -68,34 +85,12 @@ class _CategoryProductsState extends State<CategoryProducts> {
     super.initState();
   }
 
-  List<int> verticalData = [];
-  List<int> horizontalData = [];
-
-  final int increment = 10;
-  bool isLoadingVertical = false;
-  bool isLoadingHorizontal = false;
-
-  Future _loadMoreVertical() async {
-    print('loading more');
-    setState(() {
-      isLoadingVertical = true;
-    });
-    // Add in an artificial delay
-    await _productsProvider.addToProductsList(
-      filter: ProductFilters.all_products,
-    );
-    setState(() {
-      isLoadingVertical = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    data = Provider.of<ProductsProvider>(context, listen: true).list;
     return ThemeSwitchingArea(
       child: Scaffold(
         body: LazyLoadScrollView(
-          isLoading: isLoadingVertical,
+          isLoading: loadMore,
           onEndOfPage: () => _loadMoreVertical(),
           child: StreamBuilder(
             stream: _productsProvider.getCategoryProductsStream,
@@ -141,6 +136,14 @@ class _CategoryProductsState extends State<CategoryProducts> {
                 Container(
                   child: productsGridBuilder(),
                 ),
+                loadMore
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : Container()
               ],
             ),
           ),
@@ -169,6 +172,8 @@ class _CategoryProductsState extends State<CategoryProducts> {
                   isLoading = true;
                 },
               );
+              _productsProvider.clearProductList();
+              resetPage();
               await _productsProvider.getProducts(
                 filter: ProductFilters.subProducts,
                 subCategoryId: currentIndex,
@@ -187,13 +192,11 @@ class _CategoryProductsState extends State<CategoryProducts> {
   }
 
   Widget productsGridBuilder() {
-    logger.i(data.length);
-
+    var paginatedList = Provider.of<ProductsProvider>(context, listen: true);
     return isLoading
         ? productCardGridShimmer()
-        : ProductCardGrid(
-            snapshot: data[0],
-            shouldScroll: false,
-          );
+        : paginatedList.hasData()
+            ? ProductCardGrid(snapshot: paginatedList.list, shouldScroll: false)
+            : emptyHandler(message: "No Products Found");
   }
 }

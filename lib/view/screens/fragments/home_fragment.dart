@@ -1,7 +1,9 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/model/core/ads_model.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
@@ -31,13 +33,13 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   bool get wantKeepAlive => true;
 
   CategoryProvider _categoryProvider = CategoryProvider();
-  ProductsProvider _productsProvider = ProductsProvider();
+  late ProductsProvider _productsProvider;
   AdsProvider _adsProvider = AdsProvider();
   Logger logger = Logger();
 
   int currentIndex = 0, streamIndex = 0, page = 1;
   bool isLoading = true;
-  bool loadMoreSubProducts = false;
+  bool loadMoreSubProducts = false, loadMore = false;
 
   @override
   void initState() {
@@ -46,14 +48,13 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   }
 
   void initProviders() async {
+    _productsProvider = Provider.of<ProductsProvider>(context, listen: false);
     await _categoryProvider.getCategories();
     await _productsProvider.getProducts();
     await _productsProvider.getProducts(filter: ProductFilters.new_arrival);
     await _adsProvider.getAds();
     await _productsProvider.getProducts(filter: ProductFilters.recommendation);
-    setState(() {
-      isLoading = false;
-    });
+    setState(() => isLoading = false);
   }
 
   Future<Null> _refreshHomePage() async {
@@ -64,12 +65,15 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   _resetLoading() {
     setState(() {
       isLoading = !isLoading;
+      page = 1;
     });
   }
 
-  _loadMore() {
-    //loads more products
-    setState(() => page++);
+  Future _loadMoreVertical() async {
+    page++;
+    setState(() => loadMore = true);
+    await _productsProvider.addToProductsList(page: page);
+    setState(() => loadMore = false);
   }
 
   @override
@@ -80,102 +84,113 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
         : ModalProgressHUD(
             inAsyncCall: loadMoreSubProducts,
             color: kScaffoldColor,
-            child: RefreshIndicator(
-              onRefresh: _refreshHomePage,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome to\nVirtual Groceries',
-                      style: kTextStyleHeader,
-                    ),
-                    SizedBox(height: 15),
-                    //search field
-                    Material(
-                      color: kCardBackground,
-                      borderRadius: kBorderRadiusCircular,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, SearchActivity.id);
-                        },
-                        child: ListTile(
-                          leading: Icon(Icons.search),
-                          title: Text(
-                            "Search for products...",
-                            style: kTextStyleFaint,
+            child: LazyLoadScrollView(
+              onEndOfPage: () => _loadMoreVertical(),
+              child: RefreshIndicator(
+                onRefresh: _refreshHomePage,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Welcome to\nVirtual Groceries',
+                        style: kTextStyleHeader,
+                      ),
+                      SizedBox(height: 15),
+                      //search field
+                      Material(
+                        color: kCardBackground,
+                        borderRadius: kBorderRadiusCircular,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, SearchActivity.id);
+                          },
+                          child: ListTile(
+                            leading: Icon(Icons.search),
+                            title: Text(
+                              "Search for products...",
+                              style: kTextStyleFaint,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Featured Products',
-                      style: kTextStyleSubHeader,
-                    ),
-                    SizedBox(height: 20),
-                    //category List
-                    Container(
-                      child: categoryBuilder(),
-                    ),
-                    SizedBox(height: 15),
-                    //horizontalCardView
-                    Container(
-                      child: productsBuilder(
-                        stream: _productsProvider.getCategoryProductsStream,
+                      SizedBox(height: 20),
+                      Text(
+                        'Featured Products',
+                        style: kTextStyleSubHeader,
                       ),
-                    ),
-                    SizedBox(height: 15),
-                    //adsCard
-                    Container(
-                      child: adsBuilder(),
-                    ),
-                    SizedBox(height: 15),
-                    //horizontalCardView
-                    Text(
-                      'Recommended',
-                      style: kTextStyleSubHeader,
-                    ),
-                    Container(
-                      child: productsBuilder(
-                        stream: _productsProvider.getRecommndedProductsStream,
+                      SizedBox(height: 20),
+                      //category List
+                      Container(
+                        child: categoryBuilder(),
                       ),
-                    ),
-                    SizedBox(height: 15),
-                    //adsCard
-                    Container(
-                      child: adsBuilder(),
-                    ),
-                    SizedBox(height: 15),
-                    //horizontalCardView
-                    Text(
-                      'New Arrivals',
-                      style: kTextStyleSubHeader,
-                    ),
-                    Container(
-                      child: productsBuilder(
-                        stream: _productsProvider.getNewProductsStream,
+                      SizedBox(height: 15),
+                      //horizontalCardView
+                      Container(
+                        child: productsBuilder(
+                          stream: _productsProvider.getCategoryProductsStream,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 15),
-                    //stacked product card
-                    Text(
-                      'Most Popular',
-                      style: kTextStyleSubHeader,
-                    ),
-                    Container(
-                      child: mostPopularstackedProductCardBuilder(),
-                    ),
-                    SizedBox(height: 15),
-                    //ProductGrid
-                    Text(
-                      'All Products',
-                      style: kTextStyleSubHeader,
-                    ),
-                    Container(
-                      child: productCardGridBuilder(),
-                    ),
-                  ],
+                      SizedBox(height: 15),
+                      //adsCard
+                      Container(
+                        child: adsBuilder(),
+                      ),
+                      SizedBox(height: 15),
+                      //horizontalCardView
+                      Text(
+                        'Recommended',
+                        style: kTextStyleSubHeader,
+                      ),
+                      Container(
+                        child: productsBuilder(
+                          stream: _productsProvider.getRecommndedProductsStream,
+                        ),
+                      ),
+                      SizedBox(height: 15),
+                      //adsCard
+                      Container(
+                        child: adsBuilder(),
+                      ),
+                      SizedBox(height: 15),
+                      //horizontalCardView
+                      Text(
+                        'New Arrivals',
+                        style: kTextStyleSubHeader,
+                      ),
+                      Container(
+                        child: productsBuilder(
+                          stream: _productsProvider.getNewProductsStream,
+                        ),
+                      ),
+                      SizedBox(height: 15),
+                      //stacked product card
+                      Text(
+                        'Most Popular',
+                        style: kTextStyleSubHeader,
+                      ),
+                      Container(
+                        child: mostPopularstackedProductCardBuilder(),
+                      ),
+                      SizedBox(height: 15),
+                      //ProductGrid
+                      Text(
+                        'All Products',
+                        style: kTextStyleSubHeader,
+                      ),
+                      Container(
+                        child: productCardGridBuilder(),
+                      ),
+                      loadMore
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : Container()
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -92,12 +92,13 @@ class _TabbedButtonsState extends State<TabbedButtons> {
       {required int currentIndex,
       required int selectedIndex,
       required String title}) {
-    if (currentIndex == selectedIndex) {
-      return InvertColors(
-        child: Text(title),
-      );
-    } else {
-      return Text(title);
-    }
+    return Text(title);
+    // if (currentIndex == selectedIndex) {
+    //   return InvertColors(
+    //     child: Text(title),
+    //   );
+    // } else {
+    //   return Text(title);
+    // }
   }
 }

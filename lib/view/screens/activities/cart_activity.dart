@@ -272,6 +272,7 @@ class _CartActivityState extends State<CartActivity> {
 
   PaddedContainer costSection() {
     var provider = Provider.of<CartProvider>(context, listen: true);
+
     productCost = provider.getTotalCost();
     absoluteCost = productCost + shippingCost;
 

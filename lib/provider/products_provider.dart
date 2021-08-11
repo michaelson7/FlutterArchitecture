@@ -19,8 +19,8 @@ class ProductsProvider extends ChangeNotifier {
   final _recommendedProductsStream = BehaviorSubject<ProductsModel>();
   final _mostViewedStream = BehaviorSubject<ProductsModel>();
 
-  List<ProductsModel> _list = [];
-  List<ProductsModel> get list => _list;
+  ProductsModel? _paginatedProductList;
+  ProductsModel? get list => _paginatedProductList;
 
   Stream<ProductsModel> get getStream {
     return _allProductsStream.stream;
@@ -43,12 +43,12 @@ class ProductsProvider extends ChangeNotifier {
       int? page,
       String? searchTerm}) async {
     var helperResult = await _apiHelper.getProducts(
-      productFilters: filter,
-      categoryId: categoryId,
-      searchTerm: searchTerm,
-      userId: userId,
-      subCategoryId: subCategoryId,
-    );
+        productFilters: filter,
+        categoryId: categoryId,
+        searchTerm: searchTerm,
+        userId: userId,
+        subCategoryId: subCategoryId,
+        page: page);
 
     switch (filter) {
       case ProductFilters.mostPopular:
@@ -60,14 +60,16 @@ class ProductsProvider extends ChangeNotifier {
         _newProductsStream.add(helperResult);
         break;
       case ProductFilters.all_products:
+        addToPaginatedList(helperResult);
         _allProductsStream.add(helperResult);
         _categoryProductsStream.sink.add(helperResult);
         break;
       case ProductFilters.cat_prod:
-        _list.add(helperResult);
+        addToPaginatedList(helperResult);
         _categoryProductsStream.add(helperResult);
         break;
       case ProductFilters.subProducts:
+        addToPaginatedList(helperResult);
         _subCategoryProductsStream.add(helperResult);
         break;
       case ProductFilters.search_term:
@@ -77,7 +79,6 @@ class ProductsProvider extends ChangeNotifier {
         _wishListProductsStream.add(helperResult);
         break;
     }
-    notifyListeners();
   }
 
   Future<void> addToProductsList({
@@ -89,29 +90,35 @@ class ProductsProvider extends ChangeNotifier {
     String? searchTerm,
   }) async {
     var helperResult = await _apiHelper.getProducts(
-      productFilters: filter,
-      categoryId: categoryId,
-      searchTerm: searchTerm,
-      userId: userId,
-      subCategoryId: subCategoryId,
-    );
+        productFilters: filter,
+        categoryId: categoryId,
+        searchTerm: searchTerm,
+        userId: userId,
+        subCategoryId: subCategoryId,
+        page: page);
 
-    _list.add(helperResult);
+    for (var data in helperResult.productsModelList) {
+      _paginatedProductList!.productsModelList.add(data);
+    }
+    ;
+
     notifyListeners();
   }
 
-  Future<void> refreshProducts() async {
-    await getProducts();
+  clearProductList() {
+    _paginatedProductList = null;
   }
 
-  void endStream() {
-    _allProductsStream.close();
-    _newProductsStream.close();
-    _categoryProductsStream.close();
-    _subCategoryProductsStream.close();
-    _searchProductsStream.close();
-    _wishListProductsStream.close();
-    _recommendedProductsStream.close();
-    _mostViewedStream.close();
+  hasData() {
+    if (_paginatedProductList!.size > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void addToPaginatedList(ProductsModel helperResult) {
+    _paginatedProductList = helperResult;
+    notifyListeners();
   }
 }
