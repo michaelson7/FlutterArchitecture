@@ -34,7 +34,7 @@ class _ProfileActivityState extends State<ProfileActivity> {
       filter: ProductFilters.wish_list,
       userId: userId,
     );
-    await _userOrdersProvider.getUserOrders(userId: userId!);
+    await _userOrdersProvider.getUserTransaction(userId: userId!);
   }
 
   @override

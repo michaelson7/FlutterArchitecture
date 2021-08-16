@@ -15,10 +15,10 @@ import 'package:virtual_ggroceries/view/screens/activities/checkout_activity.dar
 import 'package:virtual_ggroceries/view/widgets/custome_input_form.dart';
 import 'package:virtual_ggroceries/view/widgets/get_location.dart';
 import 'package:virtual_ggroceries/view/widgets/horizontal_evenly_spaced_widget.dart';
+import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:geocoder/geocoder.dart';
 
 class CartActivity extends StatefulWidget {
@@ -37,12 +37,23 @@ class _CartActivityState extends State<CartActivity> {
   var locationController = TextEditingController(),
       namesController = TextEditingController(),
       discountController = TextEditingController(),
+      countryController = TextEditingController(),
+      provinceController = TextEditingController(),
+      cityController = TextEditingController(),
       emailController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   final _discountKey = GlobalKey<FormState>();
+  final _shippingKey = GlobalKey<FormState>();
 
-  String discountCode = "";
+  String discountCode = "",
+      userLocation = "",
+      country = "Zambia",
+      province = "Lusaka",
+      city = "Lusaka",
+      address1 = "",
+      phoneNumber = "",
+      address2 = "";
   Address? addressData;
   late int userId;
   late double shippingCost = 0, productCost = 0, absoluteCost = 0;
@@ -56,7 +67,6 @@ class _CartActivityState extends State<CartActivity> {
   @override
   void initState() {
     _getUserData();
-    _getUserLocation();
     super.initState();
   }
 
@@ -71,14 +81,13 @@ class _CartActivityState extends State<CartActivity> {
 
     setState(() {
       isSignedIn = signedData;
-      namesController.text = tempName!;
+      namesController.text = tempName;
       emailController.text = tempEmail;
       userId = tempId;
+      countryController.text = "Zambia";
+      cityController.text = "Lusaka";
+      provinceController.text = "Lusaka";
     });
-  }
-
-  _getUserLocation() async {
-    _getCoordinates();
   }
 
   @override
@@ -116,6 +125,15 @@ class _CartActivityState extends State<CartActivity> {
                     ),
                     SizedBox(height: 20),
                     Text(
+                      'Shipping Details',
+                      style: kTextStyleSubHeader,
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      child: shippingContainer(),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
                       'Discount Code',
                       style: kTextStyleSubHeader,
                     ),
@@ -147,24 +165,31 @@ class _CartActivityState extends State<CartActivity> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (addressData == null) {
-                            snackBarBuilder(
-                                context: context,
-                                message: 'Please select location');
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CheckOutActivity(
-                                  addressData: addressData!,
-                                  deliverCost: shippingCost,
-                                  productCost: productCost,
-                                  absoluteCost: absoluteCost,
-                                  hasDiscount: hasDiscount,
-                                  discountPrice: discountCalculation,
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate() &&
+                              _shippingKey.currentState!.validate()) {
+                            if (await _getCoordinates()) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CheckOutActivity(
+                                    deliverCost: shippingCost,
+                                    productCost: productCost,
+                                    absoluteCost: absoluteCost,
+                                    hasDiscount: hasDiscount,
+                                    discountPrice: discountCalculation,
+                                    phoneNumber: phoneNumber,
+                                    shippingAddress:
+                                        '$address1 ,$address2 ,$city ,$province ,$country',
+                                    country: country,
+                                  ),
                                 ),
-                              ),
+                              );
+                            }
+                          } else {
+                            snackBarBuilder(
+                              context: context,
+                              message: "Please fill in all required fields",
                             );
                           }
                         },
@@ -179,6 +204,70 @@ class _CartActivityState extends State<CartActivity> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  shippingContainer() {
+    return PaddedContainer(
+      child: Form(
+        key: _shippingKey,
+        child: Column(
+          children: [
+            customCardDesign(
+              controller: countryController,
+              title: "Country",
+              hintText: 'Country',
+              errorText: 'Please enter country',
+              returnedValue: (value) {
+                country = value;
+              },
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: customCardDesign(
+                    controller: provinceController,
+                    title: "Province",
+                    hintText: 'Province',
+                    errorText: 'Please enter province',
+                    returnedValue: (value) {
+                      province = value;
+                    },
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: customCardDesign(
+                    controller: cityController,
+                    title: "City",
+                    hintText: 'City',
+                    errorText: 'Please enter city',
+                    returnedValue: (value) {
+                      city = value;
+                    },
+                  ),
+                ),
+              ],
+            ),
+            customCardDesign(
+              title: "Address 1",
+              hintText: 'e.g Woodlands',
+              errorText: 'Please enter address 1',
+              returnedValue: (value) {
+                address1 = value;
+              },
+            ),
+            customCardDesign(
+              title: "Address 2",
+              hintText: 'e.g Plot 3256, chantumbu road',
+              errorText: 'Please enter address 2',
+              returnedValue: (value) {
+                address2 = value;
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -348,7 +437,7 @@ class _CartActivityState extends State<CartActivity> {
 
     absoluteCostWidget = Row(
       children: [
-        Text('Overall Cost: ZMW ${finalAbsoluteCost.toStringAsFixed(2)}'),
+        Text('Total Cost: ZMW ${finalAbsoluteCost.toStringAsFixed(2)}'),
         SizedBox(width: 30),
         Text(
           'ZMW ${baseAbsoluteCost.toStringAsFixed(2)}',
@@ -384,7 +473,7 @@ class _CartActivityState extends State<CartActivity> {
           isProductDiscount
               ? absoluteCostWidget
               : Text(
-                  'Overall Cost: ZMW ${finalAbsoluteCost.toStringAsFixed(2)}',
+                  'Total Cost: ZMW ${finalAbsoluteCost.toStringAsFixed(2)}',
                 )
         ],
       ),
@@ -426,37 +515,13 @@ class _CartActivityState extends State<CartActivity> {
               ),
             ),
             SizedBox(height: 10),
-            Text(
-              'Location',
-              style: kTextStyleFaint,
-            ),
-            SizedBox(height: 5),
-            Row(
-              children: [
-                Expanded(
-                  child: materialCard(
-                    child: CustomInputForm(
-                      hintText: 'Enter Location',
-                      errorText: 'Please enter location',
-                      controller: locationController,
-                      returnedParameter: (value) {},
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Material(
-                    color: kCardBackground,
-                    borderRadius: kBorderRadiusCircular,
-                    child: IconButton(
-                      onPressed: () async {
-                        _getCoordinates();
-                      },
-                      icon: Icon(Icons.my_location),
-                    ),
-                  ),
-                )
-              ],
+            customCardDesign(
+              title: "Phone Number",
+              hintText: "Enter Phone Number",
+              errorText: "Please Enter Phone Number",
+              returnedValue: (value) {
+                phoneNumber = value;
+              },
             )
           ],
         ),
@@ -537,23 +602,64 @@ class _CartActivityState extends State<CartActivity> {
     }
   }
 
-  void _getCoordinates() async {
-    var cartSize =
-        Provider.of<CartProvider>(context, listen: false).getItemSize();
+  Column customCardDesign({
+    TextEditingController? controller,
+    required title,
+    required hintText,
+    required errorText,
+    required Function(String) returnedValue,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: kTextStyleFaint,
+        ),
+        SizedBox(height: 5),
+        materialCard(
+          child: CustomInputForm(
+            controller: controller,
+            hintText: hintText,
+            errorText: errorText,
+            returnedParameter: (value) {
+              returnedValue(value);
+            },
+          ),
+        ),
+        SizedBox(height: 10),
+      ],
+    );
+  }
+
+  _getCoordinates() async {
+    setState(() => isloading = true);
+    var userAddress = '$address1 ,$city ,$province ,$country';
+    var cartSize = Provider.of<CartProvider>(
+      context,
+      listen: false,
+    ).getItemSize();
     if (cartSize > 20) {
       isBike = false;
     }
-    print("ISBIKE: $isBike");
     _gpsProvider.setBike(isBike);
 
-    var coordinates = await _gpsProvider.getCoordinates();
-    var location = await _gpsProvider.getSpecificLocation(coordinates);
-    locationController.text = location.addressLine;
-    addressData = location;
-    var data = await _gpsProvider.getShippingCharge(coordinates);
-    setState(() {
-      shippingCost = data;
-    });
+    try {
+      var coordinates = await _gpsProvider.getCoordinates(
+        address: userAddress,
+      );
+      var location = await _gpsProvider.getSpecificLocation(coordinates);
+      addressData = location;
+      var data = await _gpsProvider.getShippingCharge(coordinates);
+      setState(() => shippingCost = data);
+      setState(() => isloading = false);
+      return true;
+    } catch (e) {
+      snackBarBuilder(context: context, message: "$e");
+      loggerInfo(message: "EXCEPTION: $e");
+      setState(() => isloading = false);
+      return false;
+    }
   }
 
   Padding paddedDivider() {

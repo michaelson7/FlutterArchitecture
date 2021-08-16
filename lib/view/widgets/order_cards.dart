@@ -7,81 +7,83 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 class OrderCards extends StatelessWidget {
   const OrderCards({
     Key? key,
-    required this.productData,
-    required this.purchaseData,
+    this.productData,
     required this.function,
   }) : super(key: key);
 
-  final ProductsModelList productData;
-  final UserOrderModelList purchaseData;
+  final ProductsModel? productData;
   final Function function;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () {
-              function();
-            },
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: kBorderRadiusCircular,
-                  child: CachedNetworkImage(
-                    imageUrl: productData.imgPath,
-                    fit: BoxFit.cover,
-                    width: 120,
-                    height: 120,
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            purchaseData.status,
-                            style: kTextStyleHeader,
-                          ),
-                          Text(
-                            productData.name,
-                            style: kTextStyleFaint,
-                          ),
-                          SizedBox(height: 10),
-                          Row(
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: productData!.size,
+      itemBuilder: (BuildContext context, int index) {
+        var data = productData!.productsModelList[index];
+        return Container(
+          child: Column(
+            children: [
+              InkWell(
+                onTap: () {
+                  function();
+                },
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: kBorderRadiusCircular,
+                      child: CachedNetworkImage(
+                        imageUrl: data.imgPath,
+                        fit: BoxFit.cover,
+                        width: 80,
+                        height: 80,
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  'ZMK ${purchaseData.total}',
-                                  style: kTextStyleSubHeader,
-                                ),
+                              Text(
+                                data.name,
+                                style: kTextStyleSubHeader,
                               ),
                               Text(
-                                purchaseData.timeStamp,
+                                "qty: ${data.quantity.toString()}",
                                 style: kTextStyleFaint,
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'ZMK ${data.price}',
+                                      style: kTextStyleSubHeader,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(1.0),
+                child: Divider(
+                  color: kCardBackground,
+                ),
+              )
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Divider(
-              color: kCardBackground,
-            ),
-          )
-        ],
-      ),
+        );
+      },
     );
   }
 }

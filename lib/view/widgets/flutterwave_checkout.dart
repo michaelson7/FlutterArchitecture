@@ -9,6 +9,7 @@ import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/provider/payment_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:intl/intl.dart';
+import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class FlutterWaveCheckout {
@@ -58,13 +59,13 @@ class FlutterWaveCheckout {
           await flutterwave.initializeForUiPayments();
       if (response == null) {
         // user didn't complete the transaction. Payment wasn't successful.
-        print('TRANSACTION Incomplete');
+        loggerError(message: 'TRANSACTION Incomplete');
         snackBarBuilder(context: context, message: "Transaction Incomplete");
       } else {
         final isSuccessful = checkPaymentIsSuccessful(response);
         if (isSuccessful) {
           //if transaction successful
-          print('TRANSACTION COMPLETE');
+          loggerInfo(message: 'TRANSACTION COMPLETE');
           _paymentProvider.updateUserPurchase(
             userId: userId,
             distId: distId,
@@ -79,19 +80,21 @@ class FlutterWaveCheckout {
           _confirmationDialog();
         } else {
           // check message
-          print('FLUTTERERROR: ${response.message}');
+          loggerError(message: 'FLUTTERERROR: ${response.message}');
 
           // check status
-          print('FLUTTER ERROR ${response.status}');
+          loggerError(message: 'FLUTTER ERROR ${response.status}');
 
           // check processor error
-          print('FLUTTER ERROR: ${response.data!.processorResponse}');
+          loggerError(
+              message: 'FLUTTER ERROR: ${response.data!.processorResponse}');
         }
       }
     } catch (error, stacktrace) {
       // handleError(error);
       print(stacktrace);
-      print('FLUTTER ERROR: ${error}');
+      loggerError(message: 'FLUTTER ERROR: ${error}');
+      throw ('FLUTTER ERROR: ${error}');
     }
   }
 
@@ -200,7 +203,7 @@ class FlutterWaveCheckout {
               child: Column(
                 children: [
                   Text(
-                    'Your items will be delived to:',
+                    'Your items will be delivered to:',
                     textScaleFactor: 1,
                     style: TextStyle(
                       color: Colors.white,
@@ -208,6 +211,7 @@ class FlutterWaveCheckout {
                   ),
                   Text(
                     address,
+                    textAlign: TextAlign.center,
                     textScaleFactor: 1,
                     style: TextStyle(
                       color: Colors.white,

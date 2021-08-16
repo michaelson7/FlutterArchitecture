@@ -49,7 +49,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.5.0"
+    version: "2.6.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -261,27 +261,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.1"
-  geolocator:
+  geocoding:
     dependency: "direct main"
     description:
-      name: geolocator
+      name: geocoding
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.2.0+1"
-  geolocator_platform_interface:
+    version: "1.0.5"
+  geocoding_platform_interface:
     dependency: transitive
     description:
-      name: geolocator_platform_interface
+      name: geocoding_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.0"
-  geolocator_web:
-    dependency: transitive
-    description:
-      name: geolocator_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.3"
+    version: "1.0.1+1"
   get:
     dependency: "direct main"
     description:
@@ -449,7 +442,7 @@ packages:
       name: path_provider_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.0"
   path_provider_windows:
     dependency: transitive
     description:
@@ -484,7 +477,7 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "1.0.3"
   process:
     dependency: transitive
     description:
@@ -587,7 +580,7 @@ packages:
       name: source_span
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.0"
+    version: "1.8.1"
   sqflite:
     dependency: transitive
     description:
@@ -643,7 +636,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.19"
+    version: "0.3.0"
   tripledes:
     dependency: transitive
     description:
@@ -665,6 +658,48 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.4"
+  url_launcher:
+    dependency: transitive
+    description:
+      name: url_launcher
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.7.10"
+  url_launcher_linux:
+    dependency: transitive
+    description:
+      name: url_launcher_linux
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1+4"
+  url_launcher_macos:
+    dependency: transitive
+    description:
+      name: url_launcher_macos
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1+9"
+  url_launcher_platform_interface:
+    dependency: transitive
+    description:
+      name: url_launcher_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.9"
+  url_launcher_web:
+    dependency: transitive
+    description:
+      name: url_launcher_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.5+3"
+  url_launcher_windows:
+    dependency: transitive
+    description:
+      name: url_launcher_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1+3"
   uuid:
     dependency: transitive
     description:

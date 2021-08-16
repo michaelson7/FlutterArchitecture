@@ -9,12 +9,14 @@ class UserOrderModel {
       try {
         _userModelList.add(
           UserOrderModelList(
+            userId: int.parse(results[i]['user_id']),
             transId: results[i]['trans_id'],
             total: results[i]['total'],
-            status: results[i]['PurchaseStatus'],
-            timeStamp: results[i]['purchaseTime'],
+            status: results[i]['status'],
+            timeStamp: results[i]['timestamp'],
             address: results[i]['address'],
-            productsModel: ProductsModel.fromJson(jsonResponse),
+            orderCount: results[i]['orderCount'],
+            thumbnail: results[i]['img_path'],
           ),
         );
       } catch (e) {
@@ -28,16 +30,18 @@ class UserOrderModel {
 }
 
 class UserOrderModelList {
-  final String transId, status, timeStamp, address;
-  final dynamic total;
-  final ProductsModel productsModel;
+  final String transId, status, timeStamp, address, thumbnail;
+  final dynamic total, orderCount;
+  final int userId;
 
   UserOrderModelList({
+    required this.userId,
     required this.transId,
-    required this.total,
     required this.status,
     required this.timeStamp,
     required this.address,
-    required this.productsModel,
+    required this.thumbnail,
+    required this.total,
+    required this.orderCount,
   });
 }

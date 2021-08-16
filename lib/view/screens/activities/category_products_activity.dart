@@ -4,6 +4,7 @@ import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:logger/logger.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/model/core/sub_categories_model.dart';
@@ -40,12 +41,11 @@ class _CategoryProductsState extends State<CategoryProducts> {
   int streamIndex = 0;
   int page = 1;
   bool fetchSubCategories = false;
-  var _productsProvider;
+  ProductsProvider _productsProvider = ProductsProvider();
 
   _CategoryProductsState(this._categoryModel);
 
   void initProviders() async {
-    _productsProvider = Provider.of<ProductsProvider>(context, listen: false);
     setState(() {
       isLoading = true;
       fetchSubCategories = false;
@@ -64,11 +64,11 @@ class _CategoryProductsState extends State<CategoryProducts> {
     page++;
     setState(() => loadMore = true);
     fetchSubCategories
-        ? await _productsProvider.addToProductsList(
+        ? await _productsProvider.updatePaginatedList(
             filter: ProductFilters.subProducts,
             subCategoryId: currentIndex,
             page: page)
-        : await _productsProvider.addToProductsList(
+        : await _productsProvider.updatePaginatedList(
             filter: ProductFilters.cat_prod,
             categoryId: _categoryModel.id,
             page: page);
@@ -77,6 +77,12 @@ class _CategoryProductsState extends State<CategoryProducts> {
 
   resetPage() {
     page = 1;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _productsProvider.dispose();
   }
 
   @override
@@ -101,7 +107,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
                   snapshot: snapshot,
                 );
               }
-              return Center(child: CircularProgressIndicator());
+              return productShimmerLayout();
             },
           ),
         ),
@@ -192,11 +198,24 @@ class _CategoryProductsState extends State<CategoryProducts> {
   }
 
   Widget productsGridBuilder() {
-    var paginatedList = Provider.of<ProductsProvider>(context, listen: true);
     return isLoading
         ? productCardGridShimmer()
-        : paginatedList.hasData()
-            ? ProductCardGrid(snapshot: paginatedList.list, shouldScroll: false)
-            : emptyHandler(message: "No Products Found");
+        : StreamBuilder(
+            stream: fetchSubCategories
+                ? _productsProvider.getSubCategoryProductsStream
+                : _productsProvider.getCategoryProductsStream,
+            builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+              fetchSubCategories = false;
+              isLoading = false;
+              return snapShotBuilder(
+                snapshot: snapshot,
+                shimmer: productCardGridShimmer(),
+                widget: ProductCardGrid(
+                  snapshot: snapshot.data,
+                  shouldScroll: false,
+                ),
+              );
+            },
+          );
   }
 }

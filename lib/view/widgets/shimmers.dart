@@ -3,17 +3,30 @@ import 'package:shimmer/shimmer.dart';
 import '../constants/constants.dart';
 import 'horizontal_widget.dart';
 
-GridView productCardGridShimmer() {
+shimmerLayout({required Widget child}) {
+  return Shimmer.fromColors(
+    baseColor: kCardBackground,
+    highlightColor: kCardBackgroundFaint,
+    child: Material(
+      borderRadius: kBorderRadiusCircular,
+      child: Card(
+        child: child,
+      ),
+    ),
+  );
+}
+
+GridView productCardGridShimmer({bool displayTwo = false}) {
   return GridView.builder(
     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,
       mainAxisSpacing: 8.0,
       crossAxisSpacing: 8.0,
     ),
-    itemCount: 5,
+    itemCount: displayTwo ? 2 : 5,
     shrinkWrap: true,
     itemBuilder: (BuildContext context, int index) {
-      return Card(
+      return shimmerLayout(
         child: Container(
           height: 200,
           width: 200,
@@ -25,7 +38,7 @@ GridView productCardGridShimmer() {
 }
 
 Widget tabbedButtonShimmer() {
-  return Card(
+  return shimmerLayout(
     child: Container(
       height: 10,
       width: 200,
@@ -35,7 +48,7 @@ Widget tabbedButtonShimmer() {
 }
 
 Widget horizontalProductCard() {
-  return Card(
+  return shimmerLayout(
     child: Container(
       height: 200,
       width: double.infinity,
@@ -44,32 +57,45 @@ Widget horizontalProductCard() {
   );
 }
 
-class CustomWidget extends StatelessWidget {
-  final double width;
-  final double height;
-  final ShapeBorder shapeBorder;
-
-  const CustomWidget.rectangular(
-      {this.width = double.infinity, required this.height})
-      : this.shapeBorder = const RoundedRectangleBorder();
-
-  const CustomWidget.circular(
-      {this.width = double.infinity,
-      required this.height,
-      this.shapeBorder = const CircleBorder()});
-
-  @override
-  Widget build(BuildContext context) => Shimmer.fromColors(
-        baseColor: Colors.red,
-        highlightColor: Colors.grey[300]!,
-        period: Duration(seconds: 2),
-        child: Container(
-          width: width,
-          height: height,
-          decoration: ShapeDecoration(
-            color: Colors.grey[400]!,
-            shape: shapeBorder,
+Widget productShimmerLayout() {
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        shimmerLayout(
+          child: Container(
+            height: 300,
+            width: double.infinity,
           ),
         ),
-      );
+        SizedBox(height: 20),
+        tabbedButtonShimmer(),
+        productCardGridShimmer()
+      ],
+    ),
+  );
+}
+
+homePageShimmerLayout() {
+  return SingleChildScrollView(
+    physics: NeverScrollableScrollPhysics(),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        tabbedButtonShimmer(),
+        SizedBox(height: 20),
+        shimmerLayout(
+          child: Container(
+            height: 20,
+            width: double.infinity,
+          ),
+        ),
+        SizedBox(height: 20),
+        tabbedButtonShimmer(),
+        SizedBox(height: 20),
+        productCardGridShimmer(displayTwo: true),
+        SizedBox(height: 20),
+        horizontalProductCard()
+      ],
+    ),
+  );
 }

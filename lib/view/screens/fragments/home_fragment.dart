@@ -1,6 +1,7 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,7 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/search_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/ads_card.dart';
+import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/products_card_horizontal.dart';
 import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
@@ -33,7 +35,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   bool get wantKeepAlive => true;
 
   CategoryProvider _categoryProvider = CategoryProvider();
-  late ProductsProvider _productsProvider;
+  ProductsProvider _productsProvider = ProductsProvider();
   AdsProvider _adsProvider = AdsProvider();
   Logger logger = Logger();
 
@@ -48,12 +50,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   }
 
   void initProviders() async {
-    _productsProvider = Provider.of<ProductsProvider>(context, listen: false);
     await _categoryProvider.getCategories();
     await _productsProvider.getProducts();
     await _productsProvider.getProducts(filter: ProductFilters.new_arrival);
     await _adsProvider.getAds();
     await _productsProvider.getProducts(filter: ProductFilters.recommendation);
+
     setState(() => isLoading = false);
   }
 
@@ -72,7 +74,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   Future _loadMoreVertical() async {
     page++;
     setState(() => loadMore = true);
-    await _productsProvider.addToProductsList(page: page);
+    await _productsProvider.updatePaginatedList(page: page);
     setState(() => loadMore = false);
   }
 
@@ -80,7 +82,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   Widget build(BuildContext context) {
     super.build(context);
     return isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? homePageShimmerLayout()
         : ModalProgressHUD(
             inAsyncCall: loadMoreSubProducts,
             color: kScaffoldColor,
@@ -134,7 +136,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                       SizedBox(height: 15),
                       //adsCard
                       Container(
-                        child: adsBuilder(),
+                        child: adsBuilder(pageCount: 0),
                       ),
                       SizedBox(height: 15),
                       //horizontalCardView
@@ -150,7 +152,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                       SizedBox(height: 15),
                       //adsCard
                       Container(
-                        child: adsBuilder(),
+                        child: adsBuilder(pageCount: 1),
                       ),
                       SizedBox(height: 15),
                       //horizontalCardView
@@ -240,9 +242,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,
-          shimmer: horizontalProductCard(),
+          shimmer: productCardGridShimmer(displayTwo: true),
           widget: loadMoreSubProducts
-              ? horizontalProductCard()
+              ? productCardGridShimmer(displayTwo: true)
               : ProductsCardHorizontal(snapshot),
         );
       },
@@ -276,20 +278,15 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
     );
   }
 
-  StreamBuilder<AdsModel> adsBuilder({
-    Function? function,
-    bool hasFunction = false,
-  }) {
-    if (hasFunction) {
-      function!();
-    }
+  StreamBuilder<AdsModel> adsBuilder(
+      {bool hasFunction = false, required int pageCount}) {
     return StreamBuilder(
       stream: _adsProvider.getStream,
       builder: (context, AsyncSnapshot<AdsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,
           shimmer: productCardGridShimmer(),
-          widget: AdsCard(snapshot),
+          widget: AdsCard(snapshot: snapshot.data, page: pageCount),
         );
       },
     );

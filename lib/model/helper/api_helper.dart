@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:virtual_ggroceries/model/core/account_model.dart';
 import 'package:virtual_ggroceries/model/core/ads_model.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
@@ -11,6 +12,7 @@ import '../service/api.dart';
 
 class ApiHelper {
   Api _api = Api();
+  Logger logger = Logger();
 
   Future<AccountModel> loginUsers({
     required String email,
@@ -138,13 +140,33 @@ class ApiHelper {
   }
 
   //user order
-  Future<UserOrderModel> getUserOrders({required int userId}) async {
+  Future<ProductsModel> getUserOrders(
+      {required int userId, required String transactionId}) async {
     try {
-      var response = await _api.getUserOrders(userId: userId);
+      var response = await _api.getUserOrders(
+        userId: userId,
+        src: "getOrders",
+        trans_id: transactionId,
+      );
+      ProductsModel finalModel = ProductsModel.fromJson(response);
+      return finalModel;
+    } catch (e) {
+      throw Exception('Error while passing to getUserOrders model: $e');
+    }
+  }
+
+  Future<UserOrderModel> getUserTransactions(
+      {required int userId, int page = 1}) async {
+    try {
+      var response = await _api.getUserOrders(
+        userId: userId,
+        page: page,
+        src: "getTransactions",
+      );
       UserOrderModel finalModel = UserOrderModel.fromJson(response);
       return finalModel;
     } catch (e) {
-      throw Exception('Error while passing to getUSerOrder model: $e');
+      throw Exception('Error while passing to getUserTransactions model: $e');
     }
   }
 

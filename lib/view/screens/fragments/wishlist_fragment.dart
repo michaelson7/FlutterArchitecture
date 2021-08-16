@@ -8,6 +8,7 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
+import 'package:virtual_ggroceries/view/widgets/sign_in_promt.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 
 import '../../../provider/shared_pereferences_provider.dart';
@@ -65,10 +66,10 @@ class _WishListFragmentState extends State<WishListFragment>
     super.build(context);
     return Container(
       child: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? productCardGridShimmer()
           : isSignedIn
               ? wishListBuilder()
-              : signInPromte(),
+              : signInPromte(message: "Please sign in to view wishlist"),
     );
   }
 
@@ -89,26 +90,6 @@ class _WishListFragmentState extends State<WishListFragment>
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget signInPromte() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.verified_user,
-            size: 100,
-            color: kAccentColor,
-          ),
-          SizedBox(height: 10),
-          Text(
-            "Please sign in to view wishlist",
-            style: kTextStyleFaint,
-          ),
-        ],
       ),
     );
   }

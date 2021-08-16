@@ -9,24 +9,27 @@ import 'package:virtual_ggroceries/provider/payment_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/flutterwave_checkout.dart';
 import 'package:virtual_ggroceries/view/widgets/horizontal_evenly_spaced_widget.dart';
+import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class CheckOutActivity extends StatefulWidget {
   static final String id = "CheckOutActivity";
-  final Address addressData;
+  final String country, shippingAddress, phoneNumber;
   final double productCost, absoluteCost, deliverCost;
   final bool hasDiscount;
   final dynamic discountPrice;
 
   const CheckOutActivity({
     Key? key,
-    required this.addressData,
     required this.productCost,
     required this.absoluteCost,
     required this.deliverCost,
     this.hasDiscount = false,
     this.discountPrice = 0,
+    required this.country,
+    required this.shippingAddress,
+    required this.phoneNumber,
   }) : super(key: key);
 
   @override
@@ -133,6 +136,30 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
     );
   }
 
+  switchStepsType() {
+    setState(() => stepperType == StepperType.vertical
+        ? stepperType = StepperType.horizontal
+        : stepperType = StepperType.vertical);
+  }
+
+  tapped(int step) {
+    setState(() => _currentStep = step);
+  }
+
+  continued() async {
+    if (_currentStep < 1) {
+      if (_formKey.currentState!.validate()) {
+        setState(() => _currentStep += 1);
+      }
+    } else if (_currentStep == 1) {
+      await initFlutterWave();
+    }
+  }
+
+  cancel() {
+    _currentStep > 0 ? setState(() => _currentStep -= 1) : null;
+  }
+
   Container shippingContainer() {
     return Container(
       child: Form(
@@ -165,8 +192,9 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
             SizedBox(height: 8),
             borderCard(
               title: 'Phone Number',
-              controller: null,
+              initialValue: widget.phoneNumber,
               errorText: 'please enter phoneNumber',
+              controller: null,
               returnedParameter: (value) {
                 phoneNumber = value;
               },
@@ -181,7 +209,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
               title: 'Address',
               controller: null,
               errorText: 'please enter address',
-              initialValue: widget.addressData.addressLine,
+              initialValue: widget.shippingAddress,
               returnedParameter: (value) {
                 address = value;
               },
@@ -193,7 +221,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
                   child: borderCard(
                     title: 'Country',
                     controller: null,
-                    initialValue: widget.addressData.countryName,
+                    initialValue: widget.country,
                     errorText: 'please enter province',
                     returnedParameter: (value) {
                       province = value;
@@ -205,7 +233,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
                   child: borderCard(
                     title: 'ZIP CODE',
                     controller: null,
-                    initialValue: widget.addressData.postalCode,
+                    initialValue: "0000",
                     errorText: 'please enter zip code',
                     returnedParameter: (value) {},
                   ),
@@ -338,26 +366,6 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
     );
   }
 
-  switchStepsType() {
-    setState(() => stepperType == StepperType.vertical
-        ? stepperType = StepperType.horizontal
-        : stepperType = StepperType.vertical);
-  }
-
-  tapped(int step) {
-    setState(() => _currentStep = step);
-  }
-
-  continued() async {
-    if (_currentStep < 1) {
-      if (_formKey.currentState!.validate()) {
-        setState(() => _currentStep += 1);
-      }
-    } else if (_currentStep == 1) {
-      await initFlutterWave();
-    }
-  }
-
   Future<void> initFlutterWave() async {
     var provider = Provider.of<CartProvider>(context, listen: false);
     FlutterWaveCheckout _flutterCheckout = FlutterWaveCheckout(
@@ -371,11 +379,12 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
       distId: 2,
       address: address,
     );
-    await _flutterCheckout.beginPayment();
-  }
-
-  cancel() {
-    _currentStep > 0 ? setState(() => _currentStep -= 1) : null;
+    try {
+      await _flutterCheckout.beginPayment();
+    } catch (e) {
+      snackBarBuilder(context: context, message: e.toString());
+      loggerError(message: e.toString());
+    }
   }
 
   Container borderCard(

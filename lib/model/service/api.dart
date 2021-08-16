@@ -1,6 +1,7 @@
 import 'package:logger/logger.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
+import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 import 'data_access.dart';
 
 class Api {
@@ -8,6 +9,7 @@ class Api {
   // String urlPath = "/web_clientProjects/virtualgroceries/api/API.php";
   String baseUrl = "virtualgroceries.net";
   String urlPath = "/api/API.php";
+  Logger logger = Logger();
 
   Future<dynamic> loginUsers({required String email}) async {
     final requestParameters = {
@@ -170,24 +172,39 @@ class Api {
       "email": email,
     };
 
+    //pass product id and selected quantity
     int num = 0;
     for (var data in productList) {
       body['productId($num)'] = data.id.toString();
+      body['productQuantity($num)'] = data.orderQuantity.toString();
       num++;
     }
 
-    print('requestParameters: $requestParameters \nbody: $body');
+    //pass which delivery type to use
+    if (productList.length > 20) {
+      body['deliveryType'] = "CAR";
+    } else {
+      body['deliveryType'] = "BIKE";
+    }
+
+    loggerInfo(message: 'requestParameters: $requestParameters \nbody: $body');
 
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
     return await postResponse(uri, body);
   }
 
   //get user orders
-  Future<dynamic> getUserOrders({required int userId}) async {
+  Future<dynamic> getUserOrders(
+      {required int userId,
+      required String src,
+      String? trans_id,
+      int page = 1}) async {
     final requestParameters = {
       "apicall": "fetchUserOrders",
       "user_id": userId.toString(),
-      "src": 'fetchUserOrders',
+      "trans_id": trans_id,
+      "src": src,
+      "page": page.toString()
     };
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
     return await getResponse(uri);

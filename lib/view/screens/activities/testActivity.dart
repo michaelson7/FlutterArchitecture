@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
-import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
-import 'package:virtual_ggroceries/view/widgets/IncrementallyLoadingListView.dart';
 
 class TestActivity extends StatefulWidget {
   static String id = "TestActivity";
@@ -32,7 +29,7 @@ class _TestActivityState extends State<TestActivity> {
 
   Future<void> init() async {
     productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-    await productsProvider.addToProductsList(
+    await productsProvider.updatePaginatedList(
       filter: ProductFilters.all_products,
     );
     Logger logger = Logger();

@@ -1,9 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/model/helper/api_helper.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
@@ -20,7 +16,6 @@ class ProductsProvider extends ChangeNotifier {
   final _mostViewedStream = BehaviorSubject<ProductsModel>();
 
   ProductsModel? _paginatedProductList;
-  ProductsModel? get list => _paginatedProductList;
 
   Stream<ProductsModel> get getStream {
     return _allProductsStream.stream;
@@ -62,7 +57,7 @@ class ProductsProvider extends ChangeNotifier {
       case ProductFilters.all_products:
         addToPaginatedList(helperResult);
         _allProductsStream.add(helperResult);
-        _categoryProductsStream.sink.add(helperResult);
+        _categoryProductsStream.add(helperResult);
         break;
       case ProductFilters.cat_prod:
         addToPaginatedList(helperResult);
@@ -81,7 +76,7 @@ class ProductsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addToProductsList({
+  Future<void> updatePaginatedList({
     ProductFilters filter = ProductFilters.all_products,
     int? categoryId,
     int? subCategoryId,
@@ -96,12 +91,9 @@ class ProductsProvider extends ChangeNotifier {
         userId: userId,
         subCategoryId: subCategoryId,
         page: page);
-
     for (var data in helperResult.productsModelList) {
       _paginatedProductList!.productsModelList.add(data);
     }
-    ;
-
     notifyListeners();
   }
 

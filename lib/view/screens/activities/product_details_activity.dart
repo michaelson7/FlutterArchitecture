@@ -28,7 +28,7 @@ class ProductsDetails extends StatefulWidget {
 
 class _ProductsDetailsState extends State<ProductsDetails> {
   Logger logger = Logger();
-  late ProductsProvider _productsProvider;
+  ProductsProvider _productsProvider = ProductsProvider();
   int quantity = 1, page = 1;
   dynamic price = 0.00, originalPrice = 0.00;
   bool loadMore = false, isLoading = false;
@@ -54,7 +54,6 @@ class _ProductsDetailsState extends State<ProductsDetails> {
   }
 
   void initProviders() async {
-    _productsProvider = Provider.of<ProductsProvider>(context, listen: false);
     setState(() {
       isLoading = true;
       price = widget._model.price;
@@ -68,7 +67,7 @@ class _ProductsDetailsState extends State<ProductsDetails> {
   Future _loadMoreVertical() async {
     page++;
     setState(() => loadMore = true);
-    await _productsProvider.addToProductsList(
+    await _productsProvider.updatePaginatedList(
         filter: ProductFilters.cat_prod,
         categoryId: widget._model.categoryId,
         page: page);
@@ -82,11 +81,17 @@ class _ProductsDetailsState extends State<ProductsDetails> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _productsProvider.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: Scaffold(
         body: isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? productShimmerLayout()
             : LazyLoadScrollView(
                 onEndOfPage: () => _loadMoreVertical(),
                 child: CustomScrollView(
@@ -194,9 +199,18 @@ class _ProductsDetailsState extends State<ProductsDetails> {
   }
 
   productsGridBuilder() {
-    var paginatedList = Provider.of<ProductsProvider>(context, listen: true);
-    return paginatedList.hasData()
-        ? ProductCardGrid(snapshot: paginatedList.list, shouldScroll: false)
-        : emptyHandler(message: "No Products Found");
+    return StreamBuilder(
+      stream: _productsProvider.getCategoryProductsStream,
+      builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+        return snapShotBuilder(
+          snapshot: snapshot,
+          shimmer: productCardGridShimmer(),
+          emptyMessage: "No Products Found",
+          widget: ProductCardGrid(
+            snapshot: snapshot.data,
+          ),
+        );
+      },
+    );
   }
 }

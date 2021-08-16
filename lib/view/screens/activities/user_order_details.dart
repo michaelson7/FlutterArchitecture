@@ -1,16 +1,49 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/model/core/user_order_model.dart';
+import 'package:virtual_ggroceries/provider/products_provider.dart';
+import 'package:virtual_ggroceries/provider/user_orders_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/order_cards.dart';
+import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 
-class UserOrderDetails extends StatelessWidget {
+class UserOrderDetails extends StatefulWidget {
   static String id = 'UserOrderDetails';
-  final UserOrderModelList purchaseData;
-  final ProductsModelList productData;
+  final UserOrderModelList transactionData;
+  UserOrderDetails({required this.transactionData});
 
-  UserOrderDetails({required this.purchaseData, required this.productData});
+  @override
+  _UserOrderDetailsState createState() => _UserOrderDetailsState();
+}
+
+class _UserOrderDetailsState extends State<UserOrderDetails> {
+  UserOrdersProvider _userOrdersProvider = UserOrdersProvider();
+  bool transitStatus = false, clearedStatus = false;
+
+  getUserOrders() async {
+    //check delivery status
+    if (widget.transactionData.status == "transit") {
+      setState(() => transitStatus = true);
+    } else if (widget.transactionData.status == "cleared") {
+      setState(() {
+        transitStatus = true;
+        clearedStatus = true;
+      });
+    }
+
+    await _userOrdersProvider.getUserOrder(
+      userId: widget.transactionData.userId,
+      transactionId: widget.transactionData.transId,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getUserOrders();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +87,10 @@ class UserOrderDetails extends StatelessWidget {
               title,
               style: kTextStyleFaint,
             ),
-            Text(
-              date,
-              style: kTextStyleFaint,
-            )
+            // Text(
+            //   date,
+            //   style: kTextStyleFaint,
+            // )
           ],
         ),
       );
@@ -78,7 +111,7 @@ class UserOrderDetails extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   deliveryStatusInterface(
-                    title: 'Paid',
+                    title: 'Processing',
                     date: '14 June',
                     isTrue: true,
                   ),
@@ -87,16 +120,16 @@ class UserOrderDetails extends StatelessWidget {
                     color: Colors.green,
                   )),
                   deliveryStatusInterface(
-                    title: 'In Transit',
-                    date: '14 June',
-                  ),
+                      title: 'In Transit',
+                      date: '14 June',
+                      isTrue: transitStatus),
                   Expanded(
                     child: Divider(color: Colors.grey),
                   ),
                   deliveryStatusInterface(
-                    title: 'Delivered',
-                    date: '25 June',
-                  ),
+                      title: 'Delivered',
+                      date: '25 June',
+                      isTrue: clearedStatus),
                 ],
               ),
             ),
@@ -111,11 +144,13 @@ class UserOrderDetails extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.all(4.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text(
-              '$title: ',
-              style: kTextStyleFaint,
+            Expanded(
+              child: Text(
+                '$title: ',
+                style: kTextStyleFaint,
+              ),
             ),
             Text(value)
           ],
@@ -136,15 +171,15 @@ class UserOrderDetails extends StatelessWidget {
           ),
           orderInfoDetails(
             title: 'Time Bought',
-            value: purchaseData.timeStamp,
+            value: widget.transactionData.timeStamp,
           ),
           orderInfoDetails(
             title: 'Transaction ID',
-            value: purchaseData.transId,
+            value: widget.transactionData.transId,
           ),
           orderInfoDetails(
             title: 'Total Cost',
-            value: 'ZMK ${purchaseData.total.toString()}',
+            value: 'ZMK ${widget.transactionData.total.toString()}',
           )
         ],
       ),
@@ -161,10 +196,18 @@ class UserOrderDetails extends StatelessWidget {
             style: kTextStyleHeader,
           ),
           SizedBox(height: 10),
-          OrderCards(
-            productData: productData,
-            purchaseData: purchaseData,
-            function: () {},
+          StreamBuilder(
+            stream: _userOrdersProvider.ordersStream,
+            builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
+              return snapShotBuilder(
+                snapshot: snapshot,
+                emptyMessage: "No items",
+                widget: OrderCards(
+                  productData: snapshot.data,
+                  function: () {},
+                ),
+              );
+            },
           )
         ],
       ),

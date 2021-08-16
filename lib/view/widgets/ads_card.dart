@@ -6,22 +6,22 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/dark_img_widget.dart';
 
 class AdsCard extends StatelessWidget {
-  final AsyncSnapshot<AdsModel> snapshot;
-  AdsCard(this.snapshot);
+  final AdsModel? snapshot;
+  int page;
+  AdsCard({this.snapshot, required this.page});
 
   @override
   Widget build(BuildContext context) {
-    var modelData = snapshot.data!.adsModelList;
-
+    var modelData = snapshot!.adsModelList[page];
     return ListView.builder(
       physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: modelData.length,
+      itemCount: 1,
       itemBuilder: (BuildContext context, int index) {
         return DarkImageWidget(
           height: 250,
           width: double.infinity,
-          imgPath: modelData[index].imgPath,
+          imgPath: modelData.imgPath,
           borderRadius: kBorderRadiusCircular,
           child: Column(
             children: [
@@ -32,14 +32,14 @@ class AdsCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        modelData[index].header,
+                        modelData.header,
                         style: kTextStyleHeader.copyWith(
                           color: Colors.white,
                         ),
                       ),
                       SizedBox(height: 10),
                       Text(
-                        modelData[index].subHeader,
+                        modelData.subHeader,
                         style: TextStyle(color: Colors.white),
                       ),
                     ],

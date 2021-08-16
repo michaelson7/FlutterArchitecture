@@ -17,6 +17,7 @@ dynamic snapShotBuilder({
   } else if (snapshot.hasError) {
     return emptyHandler(message: snapshot.error.toString());
   }
+
   if (shimmer == null) {
     return Center(
       child: Center(child: CircularProgressIndicator()),

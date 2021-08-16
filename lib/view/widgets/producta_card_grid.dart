@@ -18,11 +18,16 @@ class ProductCardGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    final double itemHeight = 260;
+    final double itemWidth = size.width / 2;
+
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 8.0,
         crossAxisSpacing: 8.0,
+        childAspectRatio: (itemWidth / itemHeight),
       ),
       itemCount: snapshot!.size,
       shrinkWrap: true,

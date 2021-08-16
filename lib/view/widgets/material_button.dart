@@ -6,7 +6,7 @@ Material materialCard({required Widget child}) {
     color: kCardBackgroundFaint,
     borderRadius: kBorderRadiusCircular,
     child: Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: child,
     ),
   );
