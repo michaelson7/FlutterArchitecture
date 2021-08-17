@@ -22,7 +22,7 @@ class CustomInputForm extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      initialValue: hasLabel ? labelText : null,
+      initialValue: labelText,
       decoration: InputDecoration(
         border: InputBorder.none,
         hintText: hintText,

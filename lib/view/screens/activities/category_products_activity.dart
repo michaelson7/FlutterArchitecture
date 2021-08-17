@@ -83,6 +83,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
   void dispose() {
     super.dispose();
     _productsProvider.dispose();
+    _categoryProvider.dispose();
   }
 
   @override
@@ -123,7 +124,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
       slivers: <Widget>[
         SliverAppBar(
           pinned: true,
-          expandedHeight: 400.0,
+          expandedHeight: 350.0,
           flexibleSpace: FlexibleSpaceBar(
             title: Text(categoryModel.title),
             background: SlideShowWidget(snapshot: snapshot),

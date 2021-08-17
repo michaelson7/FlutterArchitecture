@@ -6,7 +6,7 @@ import 'dart:math' show cos, sqrt, asin;
 import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 
 class GPSProvider {
-  double centralLatitude = -15.398910, centralLongitude = 28.308830;
+  double centralLatitude = -15.427331, centralLongitude = 28.279809;
   bool _isBike = false;
 
   setBike(bool value) {
@@ -20,7 +20,10 @@ class GPSProvider {
   //get specific location
   Future<Address> getSpecificLocation(Location userCoordinates) async {
     var actualLocation = await getActualLocation(userCoordinates);
-    loggerInfo(message: "USER SPECIFIC LOCATION: $actualLocation");
+    loggerInfo(
+      message:
+          "USER SPECIFIC LOCATION: ${actualLocation.addressLine} , ${actualLocation.countryName}",
+    );
     return actualLocation;
   }
 
@@ -60,12 +63,12 @@ class GPSProvider {
       loggerInfo(
           message: "DIFFERENCE IN DISTANCE: KM $differenceBetweenPoints");
       if (_isBike) {
-        loggerInfo(message: "TRANSPORT TYPE: Bike @ ZMK 16 +4/KM");
         var additionalCharge = (differenceBetweenPoints * 4) + 16.0;
+        loggerInfo(message: "TRANSPORT TYPE: Bike || PRICE: $additionalCharge");
         return additionalCharge;
       } else {
-        loggerInfo(message: "TRANSPORT TYPE: Car @ ZMK 36 +6/KM");
         var additionalCharge = (differenceBetweenPoints * 6) + 36.0;
+        loggerInfo(message: "TRANSPORT TYPE: Car || PRICE: $additionalCharge");
         return additionalCharge;
       }
     }

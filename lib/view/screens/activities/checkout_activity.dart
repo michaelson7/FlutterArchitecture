@@ -1,7 +1,6 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoder/geocoder.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
@@ -11,6 +10,7 @@ import 'package:virtual_ggroceries/view/widgets/flutterwave_checkout.dart';
 import 'package:virtual_ggroceries/view/widgets/horizontal_evenly_spaced_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
+import 'package:virtual_ggroceries/view/widgets/outlines_textformfield.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class CheckOutActivity extends StatefulWidget {
@@ -58,6 +58,12 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
     _getUserData();
     _calculateDiscountPrice();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _accountProvider.dispose();
   }
 
   _getUserData() async {
@@ -172,7 +178,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
               style: kTextStyleSubHeader,
             ),
             SizedBox(height: 10),
-            borderCard(
+            outlinedTextFormField(
               title: 'Email Address',
               controller: emailController,
               errorText: 'please enter email',
@@ -181,7 +187,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
               },
             ),
             SizedBox(height: 8),
-            borderCard(
+            outlinedTextFormField(
               title: 'Name',
               controller: namesController,
               errorText: 'please enter name',
@@ -190,7 +196,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
               },
             ),
             SizedBox(height: 8),
-            borderCard(
+            outlinedTextFormField(
               title: 'Phone Number',
               initialValue: widget.phoneNumber,
               errorText: 'please enter phoneNumber',
@@ -205,7 +211,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
               style: kTextStyleSubHeader,
             ),
             SizedBox(height: 10),
-            borderCard(
+            outlinedTextFormField(
               title: 'Address',
               controller: null,
               errorText: 'please enter address',
@@ -218,7 +224,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
             Row(
               children: [
                 Expanded(
-                  child: borderCard(
+                  child: outlinedTextFormField(
                     title: 'Country',
                     controller: null,
                     initialValue: widget.country,
@@ -230,7 +236,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
                 ),
                 SizedBox(width: 8),
                 Expanded(
-                  child: borderCard(
+                  child: outlinedTextFormField(
                     title: 'ZIP CODE',
                     controller: null,
                     initialValue: "0000",
@@ -385,39 +391,5 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
       snackBarBuilder(context: context, message: e.toString());
       loggerError(message: e.toString());
     }
-  }
-
-  Container borderCard(
-      {required String title,
-      required String errorText,
-      String? initialValue,
-      required Function(String) returnedParameter,
-      required final controller}) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: kBorderRadiusCircular,
-        border: Border.all(
-          color: kCardBackground,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: TextFormField(
-            controller: controller,
-            initialValue: initialValue,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              labelText: title,
-            ),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return errorText;
-              } else {
-                returnedParameter(value);
-              }
-              return null;
-            }),
-      ),
-    );
   }
 }

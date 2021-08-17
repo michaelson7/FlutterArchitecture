@@ -15,12 +15,18 @@ class CategoryFragment extends StatefulWidget {
 class _CategoryFragmentState extends State<CategoryFragment>
     with AutomaticKeepAliveClientMixin<CategoryFragment> {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 
   CategoryProvider _categoryProvider = CategoryProvider();
 
   void initProviders() async {
     await _categoryProvider.getCategories();
+  }
+
+  @override
+  void dispose() {
+    _categoryProvider.dispose();
+    super.dispose();
   }
 
   @override
@@ -38,17 +44,18 @@ class _CategoryFragmentState extends State<CategoryFragment>
     super.build(context);
     return RefreshIndicator(
       onRefresh: _refresh,
-      child: Container(
-        child: StreamBuilder(
-          stream: _categoryProvider.getStream,
-          builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
-            return snapShotBuilder(
-              snapshot: snapshot,
-              shimmer: productCardGridShimmer(),
-              widget: CategoryGrid(snapshot),
-            );
-          },
-        ),
+      child: StreamBuilder(
+        stream: _categoryProvider.getStream,
+        builder: (context, AsyncSnapshot<CategoryModel> snapshot) {
+          return snapShotBuilder(
+            snapshot: snapshot,
+            shimmer: productCardGridShimmer(),
+            widget: Container(
+              margin: EdgeInsets.only(top: 20),
+              child: CategoryGrid(snapshot),
+            ),
+          );
+        },
       ),
     );
   }

@@ -1,9 +1,8 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
-import 'package:virtual_ggroceries/model/core/shared_pereferences_model.dart';
+import 'package:virtual_ggroceries/model/core/user_order_activity_model.dart';
 import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/provider/products_provider.dart';
 import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
@@ -12,6 +11,7 @@ import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/profile_update_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/products_card_horizontal.dart';
+import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
 
 class ProfileActivity extends StatefulWidget {
@@ -26,21 +26,35 @@ class _ProfileActivityState extends State<ProfileActivity> {
   AccountProvider _accountProvider = AccountProvider();
   UserOrdersProvider _userOrdersProvider = UserOrdersProvider();
   SharedPreferenceProvider sp = SharedPreferenceProvider();
+  bool isLoading = true;
 
-  getWishList() async {
+  getData() async {
     var userId = await _accountProvider.getUserId();
-
+    await _userOrdersProvider.getUserOrder(
+      userId: userId!,
+      transactionId: '',
+      filter: UserOrders.fetchUserOrders,
+    );
     await _productsProvider.getProducts(
       filter: ProductFilters.wish_list,
       userId: userId,
     );
-    await _userOrdersProvider.getUserTransaction(userId: userId!);
+    await _userOrdersProvider.getCustomerData(userId: userId);
+    setState(() => isLoading = false);
   }
 
   @override
   void initState() {
-    getWishList();
+    getData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _accountProvider.dispose();
+    _productsProvider.dispose();
+    _userOrdersProvider.dispose();
   }
 
   logOutDialog(BuildContext context) {
@@ -91,7 +105,9 @@ class _ProfileActivityState extends State<ProfileActivity> {
             ),
           ],
         ),
-        body: buildSafeArea(),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : buildSafeArea(),
         floatingActionButton: FloatingActionButton(
           elevation: 0.0,
           child: new Icon(Icons.edit),
@@ -115,7 +131,7 @@ class _ProfileActivityState extends State<ProfileActivity> {
               SizedBox(height: 15),
               reviewSection(),
               SizedBox(height: 30),
-              userInfomrationCard(),
+              userInformationCard(),
               SizedBox(height: 30),
               recentlyPurchasedItems(),
               SizedBox(height: 30),
@@ -161,7 +177,10 @@ class _ProfileActivityState extends State<ProfileActivity> {
     Column reviewTabs({required String header, required String subHeader}) {
       return Column(
         children: [
-          Text(header),
+          Text(
+            header,
+            style: kTextStyleSubHeader,
+          ),
           SizedBox(height: 10),
           Text(
             subHeader,
@@ -171,35 +190,51 @@ class _ProfileActivityState extends State<ProfileActivity> {
       );
     }
 
-    return Container(
-      child: Material(
-        color: kCardBackground,
-        borderRadius: kBorderRadiusCircular,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              reviewTabs(
-                header: 'Orders made',
-                subHeader: '5',
+    cardBuilder(AsyncSnapshot<CustomerDataModal> snapshot) {
+      if (snapshot.data != null) {
+        var modal = snapshot.data!.accountModelList;
+        return Container(
+          child: Material(
+            color: kCardBackground,
+            borderRadius: kBorderRadiusCircular,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  reviewTabs(
+                    header: 'Transactions',
+                    subHeader: modal!.transactionCount,
+                  ),
+                  reviewTabs(
+                    header: 'Orders',
+                    subHeader: modal.ordersCount,
+                  ),
+                  reviewTabs(
+                    header: 'Wish-list',
+                    subHeader: modal.wishlistCount,
+                  ),
+                ],
               ),
-              reviewTabs(
-                header: 'Review Made',
-                subHeader: '55',
-              ),
-              reviewTabs(
-                header: 'Wishlist Items',
-                subHeader: '59',
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      }
+    }
+
+    return StreamBuilder(
+      stream: _userOrdersProvider.customerDataStream,
+      builder: (context, AsyncSnapshot<CustomerDataModal> snapshot) {
+        return snapShotBuilder(
+          snapshot: snapshot,
+          shimmer: productCardGridShimmer(displayTwo: true),
+          widget: cardBuilder(snapshot),
+        );
+      },
     );
   }
 
-  userInfomrationCard() {
+  userInformationCard() {
     Row rowDesign({required String header, required String subHeader}) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -285,6 +320,7 @@ class _ProfileActivityState extends State<ProfileActivity> {
           builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
             return snapShotBuilder(
               snapshot: snapshot,
+              shimmer: productCardGridShimmer(displayTwo: true),
               widget: ProductsCardHorizontal(snapshot),
             );
           },
@@ -305,10 +341,11 @@ class _ProfileActivityState extends State<ProfileActivity> {
           height: 10,
         ),
         StreamBuilder(
-          stream: _productsProvider.getWishListProductsStream,
+          stream: _userOrdersProvider.ordersStream,
           builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
             return snapShotBuilder(
               snapshot: snapshot,
+              shimmer: productCardGridShimmer(displayTwo: true),
               widget: ProductsCardHorizontal(snapshot),
             );
           },

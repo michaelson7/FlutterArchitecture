@@ -36,6 +36,7 @@ class _UserOrderActivityState extends State<UserOrderActivity> {
   void dispose() {
     super.dispose();
     _userOrdersProvider.dispose();
+    _accountProvider.dispose();
   }
 
   @override

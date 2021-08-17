@@ -34,26 +34,19 @@ class _CartActivityState extends State<CartActivity> {
   DiscountProvider _discountProvider = DiscountProvider();
   AccountProvider _accountProvider = AccountProvider();
 
-  var locationController = TextEditingController(),
-      namesController = TextEditingController(),
-      discountController = TextEditingController(),
-      countryController = TextEditingController(),
-      provinceController = TextEditingController(),
-      cityController = TextEditingController(),
-      emailController = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
   final _discountKey = GlobalKey<FormState>();
   final _shippingKey = GlobalKey<FormState>();
 
-  String discountCode = "",
-      userLocation = "",
-      country = "Zambia",
-      province = "Lusaka",
-      city = "Lusaka",
-      address1 = "",
-      phoneNumber = "",
-      address2 = "";
+  String? userName,
+      userEmail,
+      discountCode,
+      userPhoneNumber,
+      shippingCountry,
+      shippingProvince,
+      shippingCity,
+      shippingAddress1,
+      shippingAddress2;
   Address? addressData;
   late int userId;
   late double shippingCost = 0, productCost = 0, absoluteCost = 0;
@@ -61,8 +54,46 @@ class _CartActivityState extends State<CartActivity> {
       isBike = true,
       isProductDiscount = false,
       hasDiscount = false,
-      isloading = false;
+      isLoading = true,
+      loadMore = false;
   dynamic discountCalculation = 0;
+
+  _getUserData() async {
+    var signedData = await _accountProvider.isSignedIn();
+    var tempName,
+        tempEmail,
+        tempId,
+        tempUserAddress1,
+        tempPhone,
+        tempCountry,
+        tempProvince,
+        tempCity,
+        tempAddress2;
+    if (signedData) {
+      tempName = await _accountProvider.getUserName();
+      tempEmail = await _accountProvider.getUserEmail();
+      tempId = await _accountProvider.getUserId();
+      tempUserAddress1 = await _accountProvider.getAddress1();
+      tempPhone = await _accountProvider.getUserPhoneNumber();
+      tempCountry = await _accountProvider.getCountry();
+      tempProvince = await _accountProvider.getShippingProvince();
+      tempCity = await _accountProvider.getCity();
+      tempAddress2 = await _accountProvider.getAddress2();
+    }
+    setState(() {
+      isSignedIn = signedData;
+      userId = tempId;
+      userEmail = tempEmail;
+      userName = tempName;
+      userPhoneNumber = tempPhone;
+      shippingAddress1 = tempUserAddress1;
+      shippingAddress2 = tempAddress2;
+      shippingCountry = tempCountry;
+      shippingProvince = tempProvince;
+      shippingCity = tempCity;
+    });
+    setState(() => isLoading = false);
+  }
 
   @override
   void initState() {
@@ -70,140 +101,130 @@ class _CartActivityState extends State<CartActivity> {
     super.initState();
   }
 
-  _getUserData() async {
-    var signedData = await _accountProvider.isSignedIn();
-    var tempName, tempEmail, tempId;
-    if (signedData) {
-      tempName = await _accountProvider.getUserName();
-      tempEmail = await _accountProvider.getUserEmail();
-      tempId = await _accountProvider.getUserId();
-    }
-
-    setState(() {
-      isSignedIn = signedData;
-      namesController.text = tempName;
-      emailController.text = tempEmail;
-      userId = tempId;
-      countryController.text = "Zambia";
-      cityController.text = "Lusaka";
-      provinceController.text = "Lusaka";
-    });
+  @override
+  void dispose() {
+    _discountProvider.dispose();
+    _accountProvider.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: ModalProgressHUD(
-        inAsyncCall: isloading,
+        inAsyncCall: loadMore,
         child: Scaffold(
           appBar: AppBar(
             title: Text('Cart'),
           ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Selected Items',
-                      style: kTextStyleSubHeader,
-                    ),
-                    SizedBox(height: 10),
-                    PaddedContainer(
-                      child: cartItemList(context),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Personal Information',
-                      style: kTextStyleSubHeader,
-                    ),
-                    SizedBox(height: 10),
-                    PaddedContainer(
-                      child: personalInfoCard(),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Shipping Details',
-                      style: kTextStyleSubHeader,
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      child: shippingContainer(),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Discount Code',
-                      style: kTextStyleSubHeader,
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      child: discountContainer(),
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Checkout',
-                          style: kTextStyleSubHeader,
-                        ),
-                        hasDiscount
-                            ? Text(
-                                "Enjoy ZMW ${discountCalculation} Off your order!",
-                                style: TextStyle(color: kAccentColor),
-                              )
-                            : Container(),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      child: costSection(),
-                    ),
-                    SizedBox(height: 25),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate() &&
-                              _shippingKey.currentState!.validate()) {
-                            if (await _getCoordinates()) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CheckOutActivity(
-                                    deliverCost: shippingCost,
-                                    productCost: productCost,
-                                    absoluteCost: absoluteCost,
-                                    hasDiscount: hasDiscount,
-                                    discountPrice: discountCalculation,
-                                    phoneNumber: phoneNumber,
-                                    shippingAddress:
-                                        '$address1 ,$address2 ,$city ,$province ,$country',
-                                    country: country,
-                                  ),
-                                ),
-                              );
-                            }
-                          } else {
-                            snackBarBuilder(
-                              context: context,
-                              message: "Please fill in all required fields",
-                            );
-                          }
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text('CHECKOUT'),
-                        ),
+          body: isLoading
+              ? Center(child: CircularProgressIndicator())
+              : SafeArea(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Selected Items',
+                            style: kTextStyleSubHeader,
+                          ),
+                          SizedBox(height: 10),
+                          PaddedContainer(
+                            child: cartItemList(context),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Personal Information',
+                            style: kTextStyleSubHeader,
+                          ),
+                          SizedBox(height: 10),
+                          PaddedContainer(
+                            child: personalInfoCard(),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Shipping Details',
+                            style: kTextStyleSubHeader,
+                          ),
+                          SizedBox(height: 10),
+                          Container(
+                            child: shippingContainer(),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Discount Code',
+                            style: kTextStyleSubHeader,
+                          ),
+                          SizedBox(height: 10),
+                          Container(
+                            child: discountContainer(),
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Checkout',
+                                style: kTextStyleSubHeader,
+                              ),
+                              hasDiscount
+                                  ? Text(
+                                      "Enjoy ZMW ${discountCalculation} Off your order!",
+                                      style: TextStyle(color: kAccentColor),
+                                    )
+                                  : Container(),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Container(
+                            child: costSection(),
+                          ),
+                          SizedBox(height: 25),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate() &&
+                                    _shippingKey.currentState!.validate()) {
+                                  if (await _getCoordinates()) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CheckOutActivity(
+                                          deliverCost: shippingCost,
+                                          productCost: productCost,
+                                          absoluteCost: absoluteCost,
+                                          hasDiscount: hasDiscount,
+                                          discountPrice: discountCalculation,
+                                          phoneNumber: '$userPhoneNumber',
+                                          shippingAddress:
+                                              '$shippingAddress1 ,$shippingAddress2 ,$shippingCity ,$shippingProvince ,$shippingCountry',
+                                          country: '$shippingCountry',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  snackBarBuilder(
+                                    context: context,
+                                    message:
+                                        "Please fill in all required fields",
+                                  );
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text('CHECKOUT'),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
         ),
       ),
     );
@@ -216,55 +237,57 @@ class _CartActivityState extends State<CartActivity> {
         child: Column(
           children: [
             customCardDesign(
-              controller: countryController,
               title: "Country",
               hintText: 'Country',
               errorText: 'Please enter country',
+              initialText: shippingCountry,
               returnedValue: (value) {
-                country = value;
+                shippingCountry = value;
               },
             ),
             Row(
               children: [
                 Expanded(
                   child: customCardDesign(
-                    controller: provinceController,
+                    initialText: shippingProvince,
                     title: "Province",
                     hintText: 'Province',
                     errorText: 'Please enter province',
                     returnedValue: (value) {
-                      province = value;
+                      shippingProvince = value;
                     },
                   ),
                 ),
                 SizedBox(width: 10),
                 Expanded(
                   child: customCardDesign(
-                    controller: cityController,
+                    initialText: shippingCity,
                     title: "City",
                     hintText: 'City',
                     errorText: 'Please enter city',
                     returnedValue: (value) {
-                      city = value;
+                      shippingCity = value;
                     },
                   ),
                 ),
               ],
             ),
             customCardDesign(
+              initialText: shippingAddress1,
               title: "Address 1",
               hintText: 'e.g Woodlands',
               errorText: 'Please enter address 1',
               returnedValue: (value) {
-                address1 = value;
+                shippingAddress1 = value;
               },
             ),
             customCardDesign(
+              initialText: shippingAddress2,
               title: "Address 2",
               hintText: 'e.g Plot 3256, chantumbu road',
               errorText: 'Please enter address 2',
               returnedValue: (value) {
-                address2 = value;
+                shippingAddress2 = value;
               },
             ),
           ],
@@ -276,7 +299,7 @@ class _CartActivityState extends State<CartActivity> {
   discountContainer() {
     changeLoadingStae() {
       setState(() {
-        isloading = !isloading;
+        loadMore = !loadMore;
       });
     }
 
@@ -302,7 +325,8 @@ class _CartActivityState extends State<CartActivity> {
         changeLoadingStae();
 
         var data = await _discountProvider.checkDiscountCode(
-            discountCode: discountCode);
+          discountCode: discountCode!,
+        );
         var modelData = data.discountModal;
 
         if (modelData != null) {
@@ -334,7 +358,6 @@ class _CartActivityState extends State<CartActivity> {
                 child: CustomInputForm(
                   hintText: 'Discount Code',
                   errorText: 'Please enter code',
-                  controller: discountController,
                   returnedParameter: (value) {
                     discountCode = value;
                   },
@@ -494,9 +517,9 @@ class _CartActivityState extends State<CartActivity> {
             SizedBox(height: 5),
             materialCard(
               child: CustomInputForm(
+                labelText: userName!,
                 hintText: 'Enter Names',
                 errorText: 'Please enter Names',
-                controller: namesController,
                 returnedParameter: (value) {},
               ),
             ),
@@ -510,17 +533,18 @@ class _CartActivityState extends State<CartActivity> {
               child: CustomInputForm(
                 hintText: 'Enter Names',
                 errorText: 'Please enter Email',
-                controller: emailController,
+                labelText: userEmail!,
                 returnedParameter: (value) {},
               ),
             ),
             SizedBox(height: 10),
             customCardDesign(
+              initialText: userPhoneNumber,
               title: "Phone Number",
               hintText: "Enter Phone Number",
               errorText: "Please Enter Phone Number",
               returnedValue: (value) {
-                phoneNumber = value;
+                userPhoneNumber = value;
               },
             )
           ],
@@ -602,39 +626,10 @@ class _CartActivityState extends State<CartActivity> {
     }
   }
 
-  Column customCardDesign({
-    TextEditingController? controller,
-    required title,
-    required hintText,
-    required errorText,
-    required Function(String) returnedValue,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: kTextStyleFaint,
-        ),
-        SizedBox(height: 5),
-        materialCard(
-          child: CustomInputForm(
-            controller: controller,
-            hintText: hintText,
-            errorText: errorText,
-            returnedParameter: (value) {
-              returnedValue(value);
-            },
-          ),
-        ),
-        SizedBox(height: 10),
-      ],
-    );
-  }
-
   _getCoordinates() async {
-    setState(() => isloading = true);
-    var userAddress = '$address1 ,$city ,$province ,$country';
+    setState(() => loadMore = true);
+    var userAddress =
+        '$shippingAddress1 ,$shippingCity ,$shippingProvince ,$shippingCountry';
     var cartSize = Provider.of<CartProvider>(
       context,
       listen: false,
@@ -652,12 +647,12 @@ class _CartActivityState extends State<CartActivity> {
       addressData = location;
       var data = await _gpsProvider.getShippingCharge(coordinates);
       setState(() => shippingCost = data);
-      setState(() => isloading = false);
+      setState(() => loadMore = false);
       return true;
     } catch (e) {
       snackBarBuilder(context: context, message: "$e");
       loggerInfo(message: "EXCEPTION: $e");
-      setState(() => isloading = false);
+      setState(() => loadMore = false);
       return false;
     }
   }
@@ -666,6 +661,38 @@ class _CartActivityState extends State<CartActivity> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Divider(color: Color(0xfffffff)),
+    );
+  }
+
+  Column customCardDesign({
+    TextEditingController? controller,
+    required title,
+    required hintText,
+    required errorText,
+    required initialText,
+    required Function(String) returnedValue,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: kTextStyleFaint,
+        ),
+        SizedBox(height: 5),
+        materialCard(
+          child: CustomInputForm(
+            labelText: initialText,
+            controller: controller,
+            hintText: hintText,
+            errorText: errorText,
+            returnedParameter: (value) {
+              returnedValue(value);
+            },
+          ),
+        ),
+        SizedBox(height: 10),
+      ],
     );
   }
 }

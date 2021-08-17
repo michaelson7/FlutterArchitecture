@@ -46,6 +46,12 @@ class _UserOrderDetailsState extends State<UserOrderDetails> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _userOrdersProvider.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: Scaffold(

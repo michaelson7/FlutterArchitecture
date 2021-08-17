@@ -106,10 +106,6 @@ class Api {
     };
 
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
-
-    if (productFilters == ProductFilters.wish_list) {
-      print(uri);
-    }
     return await getResponse(uri);
   }
 
@@ -194,17 +190,33 @@ class Api {
   }
 
   //get user orders
-  Future<dynamic> getUserOrders(
-      {required int userId,
-      required String src,
-      String? trans_id,
-      int page = 1}) async {
+  Future<dynamic> getUserOrders({
+    required int userId,
+    required UserOrders src,
+    String? trans_id,
+    int page = 1,
+  }) async {
+    String filterValue = getEnumValue(src);
+
     final requestParameters = {
       "apicall": "fetchUserOrders",
       "user_id": userId.toString(),
       "trans_id": trans_id,
-      "src": src,
+      "src": filterValue,
       "page": page.toString()
+    };
+    Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
+    return await getResponse(uri);
+  }
+
+  //get customer data
+  Future<dynamic> getCustomerData({
+    required int userId,
+  }) async {
+    final requestParameters = {
+      "apicall": "fetchUserOrders",
+      "user_id": userId.toString(),
+      "src": "getCustomerData",
     };
     Uri uri = Uri.http(baseUrl, urlPath, requestParameters);
     return await getResponse(uri);

@@ -49,12 +49,22 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _categoryProvider.dispose();
+    _productsProvider.dispose();
+    _adsProvider.dispose();
+  }
+
   void initProviders() async {
     await _categoryProvider.getCategories();
     await _productsProvider.getProducts();
     await _productsProvider.getProducts(filter: ProductFilters.new_arrival);
-    await _adsProvider.getAds();
     await _productsProvider.getProducts(filter: ProductFilters.recommendation);
+    await _productsProvider.getProducts(filter: ProductFilters.recommendation);
+    await _productsProvider.getProducts(filter: ProductFilters.mostPopular);
+    await _adsProvider.getAds();
 
     setState(() => isLoading = false);
   }
@@ -72,33 +82,39 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   }
 
   Future _loadMoreVertical() async {
-    page++;
-    setState(() => loadMore = true);
-    await _productsProvider.updatePaginatedList(page: page);
-    setState(() => loadMore = false);
+    if (page <= 4) {
+      page++;
+      setState(() => loadMore = true);
+      await _productsProvider.updatePaginatedList(page: page);
+      setState(() => loadMore = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return isLoading
-        ? homePageShimmerLayout()
-        : ModalProgressHUD(
-            inAsyncCall: loadMoreSubProducts,
-            color: kScaffoldColor,
-            child: LazyLoadScrollView(
-              onEndOfPage: () => _loadMoreVertical(),
-              child: RefreshIndicator(
-                onRefresh: _refreshHomePage,
-                child: SingleChildScrollView(
+    return ModalProgressHUD(
+      inAsyncCall: loadMoreSubProducts,
+      color: kScaffoldColor,
+      child: LazyLoadScrollView(
+        onEndOfPage: () => _loadMoreVertical(),
+        scrollOffset: 70,
+        child: RefreshIndicator(
+          onRefresh: _refreshHomePage,
+          child: isLoading
+              ? homePageShimmerLayout()
+              : SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Welcome to\nVirtual Groceries',
-                        style: kTextStyleHeader,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                        child: Text(
+                          'Welcome to\nVirtual Groceries',
+                          style: kTextStyleHeader,
+                          textScaleFactor: 1,
+                        ),
                       ),
-                      SizedBox(height: 15),
                       //search field
                       Material(
                         color: kCardBackground,
@@ -146,7 +162,8 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                       ),
                       Container(
                         child: productsBuilder(
-                          stream: _productsProvider.getRecommndedProductsStream,
+                          stream:
+                              _productsProvider.getRecommendedProductsStream,
                         ),
                       ),
                       SizedBox(height: 15),
@@ -172,7 +189,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                         style: kTextStyleSubHeader,
                       ),
                       Container(
-                        child: mostPopularstackedProductCardBuilder(),
+                        child: mostPopularStackedProductCardBuilder(),
                       ),
                       SizedBox(height: 15),
                       //ProductGrid
@@ -194,9 +211,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                     ],
                   ),
                 ),
-              ),
-            ),
-          );
+        ),
+      ),
+    );
   }
 
   StreamBuilder<CategoryModel> categoryBuilder() {
@@ -210,22 +227,18 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
             snapshot: snapshot,
             onSelectionUpdated: (index) async {
               setState(() => currentIndex = index);
-              resetBoolState();
+              setState(() => loadMoreSubProducts = !loadMoreSubProducts);
               await _productsProvider.getProducts(
                 filter: ProductFilters.cat_prod,
                 categoryId: index,
               );
-              resetBoolState();
+              setState(() => loadMoreSubProducts = !loadMoreSubProducts);
             },
             selectedIndex: currentIndex,
           ),
         );
       },
     );
-  }
-
-  resetBoolState() {
-    setState(() => loadMoreSubProducts = !loadMoreSubProducts);
   }
 
   // product Cards
@@ -264,10 +277,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
     );
   }
 
-  //TODO: create get most popular function in api
-  StreamBuilder<ProductsModel> mostPopularstackedProductCardBuilder() {
+  StreamBuilder<ProductsModel> mostPopularStackedProductCardBuilder() {
     return StreamBuilder(
-      stream: _productsProvider.getRecommndedProductsStream,
+      stream: _productsProvider.getMostPopularStream,
       builder: (context, AsyncSnapshot<ProductsModel> snapshot) {
         return snapShotBuilder(
           snapshot: snapshot,

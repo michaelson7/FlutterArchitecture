@@ -25,6 +25,19 @@ enum UserDetails {
   userName,
   userEmail,
   userId,
+  userPhoneNumber,
+  shippingCountry,
+  shippingProvince,
+  shippingCity,
+  shippingAddress1,
+  shippingAddress2
+}
+
+enum UserOrders {
+  getOrders,
+  fetchUserOrders,
+  getTransactions,
+  getCustomerData,
 }
 
 String getEnumValue(var enumValue) {

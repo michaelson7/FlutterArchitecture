@@ -46,7 +46,7 @@ class AccountProvider extends ChangeNotifier {
     if (helperResult.hasError) {
       return false;
     } else {
-      _sp.addUserDetails(helperResult.accountModelList!);
+      await _sp.addUserDetails(helperResult.accountModelList!);
       return true;
     }
   }
@@ -65,6 +65,29 @@ class AccountProvider extends ChangeNotifier {
     );
   }
 
+  //update shared prefrences
+  Future<void> updateStoredUserData({
+    required String userName,
+    required userEmail,
+    required userPhoneNumber,
+    required shippingCountry,
+    required shippingProvince,
+    required shippingCity,
+    required shippingAddress1,
+    required shippingAddress2,
+  }) async {
+    await _sp.updateStoredUserData(
+      userName: userName,
+      userEmail: userEmail,
+      userPhoneNumber: userPhoneNumber,
+      shippingCountry: shippingCountry,
+      shippingProvince: shippingProvince,
+      shippingCity: shippingCity,
+      shippingAddress1: shippingAddress1,
+      shippingAddress2: shippingAddress2,
+    );
+  }
+
   Future<bool> isSignedIn() async {
     var signedData = await _sp.isLoggedIn();
     return signedData;
@@ -75,11 +98,19 @@ class AccountProvider extends ChangeNotifier {
     return name;
   }
 
-  Future<String?> getUserEmail() async {
-    return await _sp.getStringValue(_userEmailEnum);
-  }
-
-  Future<int?> getUserId() async {
-    return await _sp.getIntValue(_userIdEnum);
-  }
+  Future<String?> getUserEmail() async =>
+      await _sp.getStringValue(_userEmailEnum);
+  Future<int?> getUserId() async => await _sp.getIntValue(_userIdEnum);
+  Future<String?> getUserPhoneNumber() async =>
+      await _sp.getStringValue(getEnumValue(UserDetails.userPhoneNumber));
+  Future<String?> getCountry() async =>
+      await _sp.getStringValue(getEnumValue(UserDetails.shippingCountry));
+  Future<String?> getShippingProvince() async =>
+      await _sp.getStringValue(getEnumValue(UserDetails.shippingProvince));
+  Future<String?> getCity() async =>
+      await _sp.getStringValue(getEnumValue(UserDetails.shippingCity));
+  Future<String?> getAddress1() async =>
+      await _sp.getStringValue(getEnumValue(UserDetails.shippingAddress1));
+  Future<String?> getAddress2() async =>
+      await _sp.getStringValue(getEnumValue(UserDetails.shippingAddress2));
 }

@@ -27,7 +27,7 @@ class ProductsProvider extends ChangeNotifier {
   get getSubCategoryProductsStream => _subCategoryProductsStream;
   get getSearchProductsStream => _searchProductsStream;
   get getWishListProductsStream => _wishListProductsStream;
-  get getRecommndedProductsStream => _recommendedProductsStream;
+  get getRecommendedProductsStream => _recommendedProductsStream;
   get getMostPopularStream => _mostViewedStream;
 
   Future<void> getProducts(
@@ -47,9 +47,10 @@ class ProductsProvider extends ChangeNotifier {
 
     switch (filter) {
       case ProductFilters.mostPopular:
-      case ProductFilters.recommendation:
-        getRecommndedProductsStream.add(helperResult);
         _mostViewedStream.add(helperResult);
+        break;
+      case ProductFilters.recommendation:
+        getRecommendedProductsStream.add(helperResult);
         break;
       case ProductFilters.new_arrival:
         _newProductsStream.add(helperResult);

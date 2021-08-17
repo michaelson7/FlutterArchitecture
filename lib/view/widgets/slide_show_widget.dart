@@ -10,8 +10,12 @@ class SlideShowWidget extends StatelessWidget {
 
   SlideShowWidget({required this.snapshot}) {
     var data = snapshot.data!.productsModelList;
+    int i = 0;
     for (var imgData in data) {
-      imgList.add(imgData.imgPath);
+      if (i < 5) {
+        imgList.add(imgData.imgPath);
+        i++;
+      }
     }
   }
 
@@ -19,7 +23,7 @@ class SlideShowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return CarouselSlider(
       options: CarouselOptions(
-        height: 450,
+        height: 400,
         viewportFraction: 0.9,
         enableInfiniteScroll: true,
         autoPlay: true,

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:virtual_ggroceries/model/core/account_model.dart';
 import 'package:virtual_ggroceries/model/core/shared_pereferences_model.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
+import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 
 class SharedPreferenceProvider extends ChangeNotifier {
   SharedPreferenceModel sharedPreferenceModel = SharedPreferenceModel();
@@ -53,6 +54,43 @@ class SharedPreferenceProvider extends ChangeNotifier {
     }
   }
 
+  //update data
+  updateStoredUserData({
+    required String userName,
+    required userEmail,
+    required userPhoneNumber,
+    required shippingCountry,
+    required shippingProvince,
+    required shippingCity,
+    required shippingAddress1,
+    required shippingAddress2,
+  }) async {
+    try {
+      var userNameEnum = getEnumValue(UserDetails.userName),
+          userEmailEnum = getEnumValue(UserDetails.userEmail),
+          userPhoneNumberEnum = getEnumValue(UserDetails.userPhoneNumber),
+          shippingCountryEnum = getEnumValue(UserDetails.shippingCountry),
+          shippingProvinceEnum = getEnumValue(UserDetails.shippingProvince),
+          shippingCityEnum = getEnumValue(UserDetails.shippingCity),
+          shippingAddress1Enum = getEnumValue(UserDetails.shippingAddress1),
+          shippingAddress2Enum = getEnumValue(UserDetails.shippingAddress2);
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString(userNameEnum, userName);
+      prefs.setString(userEmailEnum, userEmail);
+      prefs.setString(userPhoneNumberEnum, userPhoneNumber);
+      prefs.setString(shippingCountryEnum, shippingCountry);
+      prefs.setString(shippingProvinceEnum, shippingProvince);
+      prefs.setString(shippingCityEnum, shippingCity);
+      prefs.setString(shippingAddress1Enum, shippingAddress1);
+      prefs.setString(shippingAddress2Enum, shippingAddress2);
+      print("Shared Preferences Updated");
+      notifyListeners();
+    } catch (e) {
+      loggerError(message: "Error on sharedPreferences: $e");
+    }
+  }
+
 //check if signed in
   Future<bool> isLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -73,7 +111,7 @@ class SharedPreferenceProvider extends ChangeNotifier {
       String? spItem = prefs.getString(value);
       return spItem;
     } catch (e) {
-      print("Error on sharedPreferences [getStringValue]: $e");
+      loggerError(message: 'Error on sharedPreferences [getStringValue]: $e');
     }
   }
 
@@ -83,7 +121,7 @@ class SharedPreferenceProvider extends ChangeNotifier {
       int? spItem = prefs.getInt(value);
       return spItem;
     } catch (e) {
-      print("Error on sharedPreferences [getStringValue]: $e");
+      loggerError(message: 'Error on sharedPreferences [getStringValue]: $e');
     }
   }
 

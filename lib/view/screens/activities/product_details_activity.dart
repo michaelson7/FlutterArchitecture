@@ -17,6 +17,7 @@ import 'package:virtual_ggroceries/view/widgets/producta_card_grid.dart';
 import 'package:virtual_ggroceries/view/widgets/shimmers.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 import 'package:virtual_ggroceries/view/widgets/snapshot_handler.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 
 class ProductsDetails extends StatefulWidget {
   final ProductsModelList _model;
@@ -116,7 +117,7 @@ class _ProductsDetailsState extends State<ProductsDetails> {
                             Text(
                               '${widget._model.description}',
                             ),
-                            SizedBox(height: 15),
+                            SizedBox(height: 10),
                             Text(
                               '${widget._model.quantity} left',
                               style: kTextStyleFaint,
@@ -165,12 +166,12 @@ class _ProductsDetailsState extends State<ProductsDetails> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(FontAwesomeIcons.minus),
+                      icon: Icon(MaterialIcons.remove),
                       onPressed: removeFromQuantity,
                     ),
                     Text(quantity.toString()),
                     IconButton(
-                      icon: Icon(FontAwesomeIcons.plus),
+                      icon: Icon(MaterialIcons.add),
                       onPressed: addToQuantity,
                     ),
                   ],

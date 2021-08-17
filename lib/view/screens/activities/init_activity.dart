@@ -48,6 +48,7 @@ class _InitActivityState extends State<InitActivity> {
               SliverAppBar(
                 title: Text('Virtual Groceries'),
                 floating: true,
+                snap: true,
                 actions: [
                   IconButton(
                     onPressed: () {
@@ -65,14 +66,12 @@ class _InitActivityState extends State<InitActivity> {
               ),
             ];
           },
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: PageView(
-                physics: NeverScrollableScrollPhysics(),
-                controller: _pageController,
-                children: fragments,
-              ),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: PageView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: _pageController,
+              children: fragments,
             ),
           ),
         ),

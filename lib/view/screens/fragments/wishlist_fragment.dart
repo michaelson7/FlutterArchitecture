@@ -40,6 +40,13 @@ class _WishListFragmentState extends State<WishListFragment>
     getWishList();
   }
 
+  @override
+  void dispose() {
+    _productsProvider.dispose();
+    _accountProvider.dispose();
+    super.dispose();
+  }
+
   getWishList() async {
     //check if signed in
     setState(() => isLoading = true);
@@ -83,10 +90,13 @@ class _WishListFragmentState extends State<WishListFragment>
             snapshot: snapshot,
             shimmer: productCardGridShimmer(),
             emptyMessage: "You have not added any item to wishlist",
-            widget: ProductCardGrid(
-              snapshot: snapshot.data,
-              shouldScroll: false,
-              isSaved: true,
+            widget: Container(
+              margin: EdgeInsets.only(top: 20),
+              child: ProductCardGrid(
+                snapshot: snapshot.data,
+                shouldScroll: false,
+                isSaved: true,
+              ),
             ),
           );
         },

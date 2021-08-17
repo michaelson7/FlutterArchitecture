@@ -33,10 +33,9 @@ Future<Location> getUserCoordinates(String address) async {
 
   try {
     locations = await locationFromAddress("$address , Lusaka Zambia");
-
     loggerInfo(
       message:
-          "COORDINATES: ${locations.first.longitude} ${locations.first.longitude} \n LOCATION: $address",
+          "COORDINATES: ${locations.first.latitude} ${locations.first.longitude} \n LOCATION: $address",
     );
   } catch (e) {
     throw e;

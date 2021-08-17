@@ -28,6 +28,12 @@ class _SearchActivityState extends State<SearchActivity> {
   Logger logger = Logger();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  @override
+  void dispose() {
+    super.dispose();
+    _productsProvider.dispose();
+  }
+
   _SearchActivityState() {
     searchBar = new SearchBar(
         inBar: true,

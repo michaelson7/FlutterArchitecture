@@ -23,6 +23,12 @@ class _RegistrationActivityState extends State<RegistrationActivity> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void dispose() {
+    super.dispose();
+    _accountProvider.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: ModalProgressHUD(

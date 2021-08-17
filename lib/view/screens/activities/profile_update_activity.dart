@@ -5,6 +5,8 @@ import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
 import 'package:virtual_ggroceries/view/widgets/custome_input_form.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
+import 'package:virtual_ggroceries/view/widgets/outlines_textformfield.dart';
+import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
 class ProfileUpdateActivity extends StatefulWidget {
   static String id = 'ProfileUpdateActivity';
@@ -15,30 +17,54 @@ class ProfileUpdateActivity extends StatefulWidget {
 
 class _ProfileUpdateActivityState extends State<ProfileUpdateActivity> {
   AccountProvider _accountProvider = AccountProvider();
-  var namesController = TextEditingController(),
-      emailController = TextEditingController(),
-      addressController = TextEditingController();
   int? userId;
-  String? userName, userAddress, userContact;
-  final _formKey = GlobalKey<FormState>();
+  String? userName,
+      userEmail,
+      userPhoneNumber,
+      shippingCountry,
+      shippingProvince,
+      shippingCity,
+      shippingAddress1,
+      shippingAddress2;
+  final _personalInfoKey = GlobalKey<FormState>();
+  final _shippingAddressKey = GlobalKey<FormState>();
+  bool isLoading = true;
 
   getUserData() async {
-    var tempName, tempEmail, tempUserId, tempUserAddress;
+    var tempName,
+        tempEmail,
+        tempUserId,
+        tempUserAddress1,
+        tempPhone,
+        tempCountry,
+        tempProvince,
+        tempCity,
+        tempAddress2;
     bool isSigned = await _accountProvider.isSignedIn();
 
     if (isSigned) {
       tempEmail = await _accountProvider.getUserEmail();
       tempName = await _accountProvider.getUserName();
       tempUserId = await _accountProvider.getUserId();
-      tempUserAddress = 'woodlands Chalalaa';
-
+      tempUserAddress1 = await _accountProvider.getAddress1();
+      tempPhone = await _accountProvider.getUserPhoneNumber();
+      tempCountry = await _accountProvider.getCountry();
+      tempProvince = await _accountProvider.getShippingProvince();
+      tempCity = await _accountProvider.getCity();
+      tempAddress2 = await _accountProvider.getAddress2();
       setState(() {
-        emailController.text = tempEmail;
-        namesController.text = tempName;
         userId = tempUserId;
-        addressController.text = tempUserAddress;
+        userEmail = tempEmail;
+        userName = tempName;
+        userPhoneNumber = tempPhone;
+        shippingAddress1 = tempUserAddress1;
+        shippingAddress2 = tempAddress2;
+        shippingCountry = tempCountry;
+        shippingProvince = tempProvince;
+        shippingCity = tempCity;
       });
     }
+    setState(() => isLoading = false);
   }
 
   @override
@@ -48,27 +74,52 @@ class _ProfileUpdateActivityState extends State<ProfileUpdateActivity> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _accountProvider.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ThemeSwitchingArea(
       child: Scaffold(
         appBar: AppBar(
           title: Text('Profile Update'),
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                child: mainInterface(),
-              ),
-            ),
-          ),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : buildSafeArea(),
+      ),
+    );
+  }
+
+  SafeArea buildSafeArea() {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: mainInterface(),
         ),
       ),
     );
   }
 
-  Widget mainInterface() {
+  mainInterface() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          personalInformationCard(),
+          SizedBox(height: 20),
+          shippingAddressCard(),
+          SizedBox(height: 20),
+          submitButton()
+        ],
+      ),
+    );
+  }
+
+  personalInformationCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -77,70 +128,40 @@ class _ProfileUpdateActivityState extends State<ProfileUpdateActivity> {
           style: kTextStyleHeader,
         ),
         SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: materialCard(
-            child: Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    boxInputContainer(
-                      customeWidget: CustomInputForm(
-                        hintText: 'Enter Name',
-                        errorText: 'please enter name',
-                        labelText: 'Full Names',
-                        controller: namesController,
-                        returnedParameter: (value) {
-                          userName = value;
-                        },
-                      ),
-                    ),
-                    boxInputContainer(
-                      customeWidget: CustomInputForm(
-                        hintText: 'Enter Email',
-                        errorText: 'please enter email',
-                        controller: emailController,
-                        returnedParameter: (value) {},
-                      ),
-                    ),
-                    boxInputContainer(
-                      customeWidget: CustomInputForm(
-                        hintText: 'Enter Phone',
-                        errorText: 'please enter phone',
-                        returnedParameter: (value) {
-                          userContact = value;
-                        },
-                      ),
-                    ),
-                    boxInputContainer(
-                      customeWidget: CustomInputForm(
-                        hintText: 'Enter Address',
-                        errorText: 'please enter address',
-                        controller: addressController,
-                        returnedParameter: (value) {
-                          userAddress = value;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: kBorderRadiusCircular,
+            color: kCardBackgroundFaint,
           ),
-        ),
-        SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {}
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Text('UPDATE'),
+          child: Form(
+            key: _personalInfoKey,
+            child: Column(
+              children: [
+                outlinedTextFormField(
+                  title: 'Name',
+                  errorText: 'Please input name',
+                  initialValue: userName,
+                  returnedParameter: (value) {
+                    userName = value;
+                  },
+                ),
+                outlinedTextFormField(
+                  title: 'Email',
+                  errorText: 'Please input name',
+                  initialValue: userEmail,
+                  returnedParameter: (value) {
+                    userEmail = value;
+                  },
+                ),
+                outlinedTextFormField(
+                  title: 'Phone',
+                  errorText: 'Please input name',
+                  initialValue: userPhoneNumber,
+                  returnedParameter: (value) {
+                    userPhoneNumber = value;
+                  },
+                ),
+              ],
             ),
           ),
         )
@@ -148,19 +169,104 @@ class _ProfileUpdateActivityState extends State<ProfileUpdateActivity> {
     );
   }
 
-  Padding boxInputContainer({required Widget customeWidget}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: kBorderRadiusCircular,
-          border: Border.all(
-            color: kCardBackground,
-          ),
+  shippingAddressCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Shipping Address',
+          style: kTextStyleHeader,
         ),
+        SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: kBorderRadiusCircular,
+            color: kCardBackgroundFaint,
+          ),
+          child: Form(
+            key: _shippingAddressKey,
+            child: Column(
+              children: [
+                outlinedTextFormField(
+                  title: 'Country',
+                  errorText: 'Please input country',
+                  initialValue: shippingCountry,
+                  returnedParameter: (value) {
+                    shippingCountry = value;
+                  },
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: outlinedTextFormField(
+                        title: 'Province',
+                        errorText: 'Please input province',
+                        initialValue: shippingProvince,
+                        returnedParameter: (value) {
+                          shippingProvince = value;
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: outlinedTextFormField(
+                        title: 'City',
+                        errorText: 'Please input city',
+                        initialValue: shippingCity,
+                        returnedParameter: (value) {
+                          shippingCity = value;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                outlinedTextFormField(
+                  title: 'Address 1',
+                  errorText: 'Please input address1',
+                  initialValue: shippingAddress1,
+                  returnedParameter: (value) {
+                    shippingAddress1 = value;
+                  },
+                ),
+                outlinedTextFormField(
+                  title: 'Address 2',
+                  errorText: 'Please input address 2',
+                  initialValue: shippingAddress2,
+                  returnedParameter: (value) {
+                    shippingAddress2 = value;
+                  },
+                ),
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  submitButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () async {
+          if (_personalInfoKey.currentState!.validate() &&
+              _shippingAddressKey.currentState!.validate()) {
+            //TODO: update database
+            await _accountProvider.updateStoredUserData(
+              userName: userName ?? '',
+              userEmail: userEmail,
+              userPhoneNumber: userPhoneNumber,
+              shippingCountry: shippingCountry,
+              shippingProvince: shippingProvince,
+              shippingCity: shippingCity,
+              shippingAddress1: shippingAddress1,
+              shippingAddress2: shippingAddress2,
+            );
+            snackBarBuilder(context: context, message: 'Account Updated');
+          }
+        },
         child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: customeWidget,
+          padding: const EdgeInsets.all(8.0),
+          child: Text('SUBMIT'),
         ),
       ),
     );

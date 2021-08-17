@@ -40,6 +40,12 @@ class _ProfileFragmentState extends State<ProfileFragment>
     _checkState();
   }
 
+  @override
+  void dispose() {
+    _accountProvider.dispose();
+    super.dispose();
+  }
+
   _checkState() async {
     var themData = await _sp.isDarkMode();
     var signedData = await _sp.isLoggedIn();

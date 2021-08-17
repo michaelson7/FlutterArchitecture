@@ -5,6 +5,7 @@ import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/discount_modal.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';
 import 'package:virtual_ggroceries/model/core/sub_categories_model.dart';
+import 'package:virtual_ggroceries/model/core/user_order_activity_model.dart';
 import 'package:virtual_ggroceries/model/core/user_order_model.dart';
 import 'package:virtual_ggroceries/provider/shared_pereferences_provider.dart';
 import 'package:virtual_ggroceries/view/constants/enums.dart';
@@ -140,12 +141,15 @@ class ApiHelper {
   }
 
   //user order
-  Future<ProductsModel> getUserOrders(
-      {required int userId, required String transactionId}) async {
+  Future<ProductsModel> getUserOrders({
+    required int userId,
+    required String transactionId,
+    UserOrders filter = UserOrders.getOrders,
+  }) async {
     try {
       var response = await _api.getUserOrders(
         userId: userId,
-        src: "getOrders",
+        src: filter,
         trans_id: transactionId,
       );
       ProductsModel finalModel = ProductsModel.fromJson(response);
@@ -161,12 +165,24 @@ class ApiHelper {
       var response = await _api.getUserOrders(
         userId: userId,
         page: page,
-        src: "getTransactions",
+        src: UserOrders.getTransactions,
       );
       UserOrderModel finalModel = UserOrderModel.fromJson(response);
       return finalModel;
     } catch (e) {
       throw Exception('Error while passing to getUserTransactions model: $e');
+    }
+  }
+
+  Future<CustomerDataModal> getCustomerData({required int userId}) async {
+    try {
+      var response = await _api.getCustomerData(
+        userId: userId,
+      );
+      CustomerDataModal finalModel = CustomerDataModal.fromJson(response);
+      return finalModel;
+    } catch (e) {
+      throw Exception('Error while passing to CustomerDataModal model: $e');
     }
   }
 
