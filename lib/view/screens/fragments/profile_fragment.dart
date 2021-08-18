@@ -8,6 +8,7 @@ import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/screens/activities/login_activity.dart';
 import 'package:virtual_ggroceries/view/screens/activities/profile_activity.dart';
 import 'package:virtual_ggroceries/view/screens/activities/user_order_activity.dart';
+import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/color_handler.dart';
@@ -65,6 +66,10 @@ class _ProfileFragmentState extends State<ProfileFragment>
       userName = tempName;
       userId = tempId;
     });
+  }
+
+  refreshProfilePage() {
+    _checkState();
   }
 
   @override
@@ -321,35 +326,41 @@ class _ProfileFragmentState extends State<ProfileFragment>
 
   Container accountCard(BuildContext context) {
     return Container(
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: kCardBackground,
-          borderRadius: kBorderRadiusCircular,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              cardItem(
-                header: isSignedIn ? userName! : 'Not SIgned In',
-                subHeader: isSignedIn ? userEmail! : 'Click to sign in',
-                cardFunction: () {
-                  isSignedIn
-                      ? Navigator.pushNamed(context, ProfileActivity.id)
-                      : Navigator.pushNamed(context, LoginActivity.id);
-                },
-              ),
-              dividerPadded(),
-              cardItem(
-                header: 'My Orders',
-                cardFunction: () {
-                  Navigator.pushNamed(context, UserOrderActivity.id);
-                },
-              ),
-            ],
-          ),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: kCardBackground,
+        borderRadius: kBorderRadiusCircular,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            cardItem(
+              header: isSignedIn ? userName! : 'Not SIgned In',
+              subHeader: isSignedIn ? userEmail! : 'Click to sign in',
+              cardFunction: () async {
+                var signedState;
+                isSignedIn
+                    ? signedState =
+                        await Navigator.pushNamed(context, ProfileActivity.id)
+                    : signedState =
+                        await Navigator.pushNamed(context, LoginActivity.id);
+                try {
+                  if (signedState) {
+                    refreshProfilePage();
+                  }
+                } catch (e) {}
+              },
+            ),
+            dividerPadded(),
+            cardItem(
+              header: 'My Orders',
+              cardFunction: () {
+                Navigator.pushNamed(context, UserOrderActivity.id);
+              },
+            ),
+          ],
         ),
       ),
     );

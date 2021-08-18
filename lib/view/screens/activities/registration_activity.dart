@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/screens/activities/login_activity.dart';
 import 'package:virtual_ggroceries/view/widgets/custome_input_form.dart';
 import 'package:virtual_ggroceries/view/widgets/padded_container.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
@@ -154,7 +155,11 @@ class _RegistrationActivityState extends State<RegistrationActivity> {
                           Text('Already have an account?'),
                           TextButton(
                             onPressed: () {
-                              Navigator.pop(context);
+                              Navigator.pop(context, false);
+                              Navigator.pushNamed(
+                                context,
+                                LoginActivity.id,
+                              );
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
@@ -186,6 +191,7 @@ class _RegistrationActivityState extends State<RegistrationActivity> {
       );
       if (isSignedIn) {
         snackBarBuilder(context: context, message: "Registration Successful");
+        Navigator.pop(context, true);
       } else {
         snackBarBuilder(context: context, message: "Account does not exist");
       }

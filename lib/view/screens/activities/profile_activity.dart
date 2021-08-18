@@ -27,6 +27,11 @@ class _ProfileActivityState extends State<ProfileActivity> {
   UserOrdersProvider _userOrdersProvider = UserOrdersProvider();
   SharedPreferenceProvider sp = SharedPreferenceProvider();
   bool isLoading = true;
+  String? userName,
+      userEmail,
+      userPhoneNumber,
+      shippingAddress1,
+      shippingAddress2;
 
   getData() async {
     var userId = await _accountProvider.getUserId();
@@ -40,6 +45,11 @@ class _ProfileActivityState extends State<ProfileActivity> {
       userId: userId,
     );
     await _userOrdersProvider.getCustomerData(userId: userId);
+    userName = await _accountProvider.getUserName();
+    userEmail = await _accountProvider.getUserEmail();
+    userPhoneNumber = await _accountProvider.getUserPhoneNumber();
+    shippingAddress1 = await _accountProvider.getAddress1();
+    shippingAddress2 = await _accountProvider.getAddress2();
     setState(() => isLoading = false);
   }
 
@@ -64,6 +74,7 @@ class _ProfileActivityState extends State<ProfileActivity> {
       onPressed: () {
         sp.logOut();
         Navigator.of(context).pop();
+        Navigator.pop(context, true);
       },
     );
 
@@ -160,12 +171,12 @@ class _ProfileActivityState extends State<ProfileActivity> {
           ),
           SizedBox(height: 15),
           Text(
-            'UserName',
+            '$userName',
             style: kTextStyleSubHeader,
           ),
           SizedBox(height: 10),
           Text(
-            'Email',
+            '$userEmail',
             style: kTextStyleFaint,
           )
         ],
@@ -271,28 +282,28 @@ class _ProfileActivityState extends State<ProfileActivity> {
                   children: [
                     rowDesign(
                       header: 'Name',
-                      subHeader: 'Michael Nawa',
+                      subHeader: '$userName',
                     ),
                     SizedBox(
                       height: 10,
                     ),
                     rowDesign(
                       header: 'Email',
-                      subHeader: 'Michaelnawa@email.com',
+                      subHeader: '$userEmail',
                     ),
                     SizedBox(
                       height: 10,
                     ),
                     rowDesign(
                       header: 'Phone',
-                      subHeader: '0978905095',
+                      subHeader: userPhoneNumber ?? '',
                     ),
                     SizedBox(
                       height: 10,
                     ),
                     rowDesign(
                       header: 'Address',
-                      subHeader: 'Woodlands Chalala',
+                      subHeader: shippingAddress1 ?? '',
                     ),
                   ],
                 ),

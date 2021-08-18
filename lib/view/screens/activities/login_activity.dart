@@ -152,8 +152,11 @@ class _LoginActivityState extends State<LoginActivity> {
                           Text('Dont have an account?'),
                           TextButton(
                             onPressed: () {
+                              Navigator.pop(context, false);
                               Navigator.pushNamed(
-                                  context, RegistrationActivity.id);
+                                context,
+                                RegistrationActivity.id,
+                              );
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
@@ -184,7 +187,7 @@ class _LoginActivityState extends State<LoginActivity> {
       );
       if (isSignedIn) {
         snackBarBuilder(context: context, message: "Login Successful");
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       } else {
         snackBarBuilder(context: context, message: "Account does not exist");
       }

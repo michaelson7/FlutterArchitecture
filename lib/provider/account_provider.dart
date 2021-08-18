@@ -98,8 +98,7 @@ class AccountProvider extends ChangeNotifier {
     return name;
   }
 
-  Future<String?> getUserEmail() async =>
-      await _sp.getStringValue(_userEmailEnum);
+  Future<String?> getUserEmail() async => _sp.getStringValue(_userEmailEnum);
   Future<int?> getUserId() async => await _sp.getIntValue(_userIdEnum);
   Future<String?> getUserPhoneNumber() async =>
       await _sp.getStringValue(getEnumValue(UserDetails.userPhoneNumber));

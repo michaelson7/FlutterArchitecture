@@ -38,15 +38,16 @@ class _CartActivityState extends State<CartActivity> {
   final _discountKey = GlobalKey<FormState>();
   final _shippingKey = GlobalKey<FormState>();
 
-  String? userName,
-      userEmail,
-      discountCode,
-      userPhoneNumber,
-      shippingCountry,
-      shippingProvince,
-      shippingCity,
-      shippingAddress1,
-      shippingAddress2;
+  String userName = '',
+      userEmail = '',
+      discountCode = '',
+      userPhoneNumber = '',
+      shippingCountry = '',
+      shippingProvince = '',
+      shippingCity = '',
+      shippingAddress1 = '',
+      shippingAddress2 = '';
+
   Address? addressData;
   late int userId;
   late double shippingCost = 0, productCost = 0, absoluteCost = 0;
@@ -325,7 +326,7 @@ class _CartActivityState extends State<CartActivity> {
         changeLoadingStae();
 
         var data = await _discountProvider.checkDiscountCode(
-          discountCode: discountCode!,
+          discountCode: discountCode,
         );
         var modelData = data.discountModal;
 
@@ -517,7 +518,7 @@ class _CartActivityState extends State<CartActivity> {
             SizedBox(height: 5),
             materialCard(
               child: CustomInputForm(
-                labelText: userName!,
+                labelText: userName,
                 hintText: 'Enter Names',
                 errorText: 'Please enter Names',
                 returnedParameter: (value) {},
@@ -533,7 +534,7 @@ class _CartActivityState extends State<CartActivity> {
               child: CustomInputForm(
                 hintText: 'Enter Names',
                 errorText: 'Please enter Email',
-                labelText: userEmail!,
+                labelText: userEmail,
                 returnedParameter: (value) {},
               ),
             ),
