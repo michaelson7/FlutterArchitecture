@@ -71,10 +71,7 @@ class _RegistrationActivityState extends State<RegistrationActivity> {
                               },
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Divider(),
-                          ),
+                          Divider(),
                           ListTile(
                             leading: Icon(FontAwesomeIcons.envelope),
                             title: CustomInputForm(
@@ -85,10 +82,7 @@ class _RegistrationActivityState extends State<RegistrationActivity> {
                               },
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Divider(),
-                          ),
+                          Divider(),
                           ListTile(
                             leading: Icon(FontAwesomeIcons.lock),
                             title: CustomInputForm(

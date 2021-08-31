@@ -392,30 +392,24 @@ class _ProfileFragmentState extends State<ProfileFragment>
     return Container(
       child: InkWell(
         onTap: () => cardFunction(),
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widgetTexts,
-                ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: widgetTexts,
               ),
-              rightWidget
-            ],
-          ),
+            ),
+            rightWidget
+          ],
         ),
       ),
     );
   }
 
-  Padding dividerPadded() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: Divider(
-        color: Colors.grey,
-      ),
+  dividerPadded() {
+    return Divider(
+      color: Colors.grey,
     );
   }
 }

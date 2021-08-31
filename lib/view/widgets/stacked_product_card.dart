@@ -24,7 +24,7 @@ class StackedProductCard extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         return Container(
           width: double.infinity,
-          height: 200,
+          height: 150,
           margin: EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -54,8 +54,8 @@ class StackedProductCard extends StatelessWidget {
                             child: CachedNetworkImage(
                               imageUrl: modelData[index].imgPath,
                               fit: BoxFit.cover,
-                              width: 155,
-                              height: 130,
+                              width: 110,
+                              height: 100,
                             ),
                           ),
                         ),
@@ -86,25 +86,27 @@ class StackedProductCard extends StatelessWidget {
                                       'ZMK ${modelData[index].price.toString()}',
                                     ),
                                   ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      var message;
-                                      if (Provider.of<CartProvider>(context,
-                                              listen: false)
-                                          .addToCart(modelData[index])) {
-                                        message =
-                                            '${modelData[index].name}added to cart';
-                                      } else {
-                                        message = 'error, check logs';
-                                      }
-                                      snackBarBuilder(
-                                          message: message, context: context);
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Text('Add To Cart '),
+                                  Material(
+                                    borderRadius: kBorderRadiusCircular,
+                                    color: kAccentColor,
+                                    child: IconButton(
+                                      icon: Icon(Icons.add_shopping_cart),
+                                      onPressed: () {
+                                        var message;
+                                        if (Provider.of<CartProvider>(
+                                          context,
+                                          listen: false,
+                                        ).addToCart(modelData[index])) {
+                                          message =
+                                              '${modelData[index].name}added to cart';
+                                        } else {
+                                          message = 'error, check logs';
+                                        }
+                                        snackBarBuilder(
+                                            message: message, context: context);
+                                      },
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                             ],

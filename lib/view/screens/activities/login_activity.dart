@@ -65,7 +65,9 @@ class _LoginActivityState extends State<LoginActivity> {
                       child: Column(
                         children: [
                           ListTile(
-                            leading: Icon(FontAwesomeIcons.envelope),
+                            leading: Icon(
+                              FontAwesomeIcons.envelope,
+                            ),
                             title: CustomInputForm(
                               hintText: 'Enter Email',
                               errorText: 'Please enter email',
@@ -74,12 +76,11 @@ class _LoginActivityState extends State<LoginActivity> {
                               },
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Divider(),
-                          ),
+                          Divider(),
                           ListTile(
-                            leading: Icon(FontAwesomeIcons.lock),
+                            leading: Icon(
+                              FontAwesomeIcons.lock,
+                            ),
                             title: CustomInputForm(
                               obscureText: true,
                               hintText: 'Enter Password',
@@ -111,7 +112,7 @@ class _LoginActivityState extends State<LoginActivity> {
                           await _onPressMethod(context);
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(10.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Text('Login'),
                         ),
                       ),

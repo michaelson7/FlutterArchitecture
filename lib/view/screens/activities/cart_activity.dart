@@ -42,9 +42,9 @@ class _CartActivityState extends State<CartActivity> {
       userEmail = '',
       discountCode = '',
       userPhoneNumber = '',
-      shippingCountry = '',
-      shippingProvince = '',
-      shippingCity = '',
+      shippingCountry = 'ZAMBIA',
+      shippingProvince = 'LUSAKA',
+      shippingCity = 'LUSAKA',
       shippingAddress1 = '',
       shippingAddress2 = '';
 
@@ -80,19 +80,20 @@ class _CartActivityState extends State<CartActivity> {
       tempProvince = await _accountProvider.getShippingProvince();
       tempCity = await _accountProvider.getCity();
       tempAddress2 = await _accountProvider.getAddress2();
+
+      setState(() {
+        isSignedIn = signedData;
+        userId = tempId;
+        userEmail = tempEmail;
+        userName = tempName;
+        userPhoneNumber = tempPhone;
+        shippingAddress1 = tempUserAddress1;
+        shippingAddress2 = tempAddress2;
+        shippingCountry = tempCountry;
+        shippingProvince = tempProvince;
+        shippingCity = tempCity;
+      });
     }
-    setState(() {
-      isSignedIn = signedData;
-      userId = tempId;
-      userEmail = tempEmail;
-      userName = tempName;
-      userPhoneNumber = tempPhone;
-      shippingAddress1 = tempUserAddress1;
-      shippingAddress2 = tempAddress2;
-      shippingCountry = tempCountry;
-      shippingProvince = tempProvince;
-      shippingCity = tempCity;
-    });
     setState(() => isLoading = false);
   }
 

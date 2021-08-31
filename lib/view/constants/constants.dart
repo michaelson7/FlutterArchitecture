@@ -18,10 +18,17 @@ Brightness kBrightness =
     _themeData.isDarkMode ? Brightness.dark : Brightness.light;
 
 //other consts
-const kTextStyleHeader = TextStyle(fontSize: 22, fontWeight: FontWeight.bold);
-const kTextStyleSubHeader =
-    TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
-TextStyle kTextStyleFaint = TextStyle(color: _themeData.textFaintColor);
+const kTextStyleHeader = TextStyle(
+  fontSize: 22,
+  fontWeight: FontWeight.bold,
+);
+const kTextStyleSubHeader = TextStyle(
+  fontSize: 18,
+  fontWeight: FontWeight.bold,
+);
+TextStyle kTextStyleFaint = TextStyle(
+  color: _themeData.textFaintColor,
+);
 const kImageRadiusTop = BorderRadius.only(
   topLeft: Radius.circular(8),
   topRight: Radius.circular(8),

@@ -64,20 +64,29 @@ class _initScreenState extends State<initScreen> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (BuildContext context) => AccountProvider()),
-        ChangeNotifierProvider(create: (BuildContext context) => AdsProvider()),
+          create: (BuildContext context) => AccountProvider(),
+        ),
         ChangeNotifierProvider(
-            create: (BuildContext context) => AccountProvider()),
+          create: (BuildContext context) => AdsProvider(),
+        ),
         ChangeNotifierProvider(
-            create: (BuildContext context) => ProductsProvider()),
+          create: (BuildContext context) => AccountProvider(),
+        ),
         ChangeNotifierProvider(
-            create: (BuildContext context) => SharedPreferenceProvider()),
+          create: (BuildContext context) => ProductsProvider(),
+        ),
         ChangeNotifierProvider(
-            create: (BuildContext context) => CartProvider()),
+          create: (BuildContext context) => SharedPreferenceProvider(),
+        ),
         ChangeNotifierProvider(
-            create: (BuildContext context) => PaymentProvider()),
+          create: (BuildContext context) => CartProvider(),
+        ),
         ChangeNotifierProvider(
-            create: (BuildContext context) => UserOrdersProvider()),
+          create: (BuildContext context) => PaymentProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (BuildContext context) => UserOrdersProvider(),
+        ),
       ],
       child: ThemeProvider(
         initTheme: initTheme,
