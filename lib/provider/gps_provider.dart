@@ -1,5 +1,5 @@
 import 'package:geocoder/geocoder.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:virtual_ggroceries/view/widgets/get_location.dart';
 import 'dart:math' show cos, sqrt, asin;
 
@@ -13,12 +13,12 @@ class GPSProvider {
     _isBike = value;
   }
 
-  Future<Location> getCoordinates({required String address}) async {
-    return await getUserCoordinates(address);
+  Future<Position> getCoordinates() async {
+    return await getUserCoordinates();
   }
 
   //get specific location
-  Future<Address> getSpecificLocation(Location userCoordinates) async {
+  Future<Address> getSpecificLocation(Position userCoordinates) async {
     var actualLocation = await getActualLocation(userCoordinates);
     loggerInfo(
       message:
@@ -28,6 +28,7 @@ class GPSProvider {
   }
 
   double calculateDistance(lat1, lon1, lat2, lon2) {
+    // return Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
     var p = 0.017453292519943295;
     var c = cos;
     var a = 0.5 -
@@ -36,7 +37,7 @@ class GPSProvider {
     return 12742 * asin(sqrt(a));
   }
 
-  Future<double> getShippingCharge(Location userCoordinates) async {
+  Future<List<double>> getShippingCharge(Position userCoordinates) async {
     //calculate distance between central point and user location
     var distanceBetweenPoints = calculateDistance(
       centralLatitude,
@@ -49,28 +50,23 @@ class GPSProvider {
     //check distance
     //check if distance is within 4km
     if (distanceBetweenPoints <= 4) {
-      if (_isBike) {
-        //if shipping is via bike
-        return 16.0;
-      } else {
-        //if shipping is via car
-        return 36.0;
-      }
+      return [16.0, 36.0];
     }
+
     //if distance is greater than 4km add an additional charge per km;
     else {
       var differenceBetweenPoints = distanceBetweenPoints - 4;
       loggerInfo(
-          message: "DIFFERENCE IN DISTANCE: KM $differenceBetweenPoints");
-      if (_isBike) {
-        var additionalCharge = (differenceBetweenPoints * 4) + 16.0;
-        loggerInfo(message: "TRANSPORT TYPE: Bike || PRICE: $additionalCharge");
-        return additionalCharge;
-      } else {
-        var additionalCharge = (differenceBetweenPoints * 6) + 36.0;
-        loggerInfo(message: "TRANSPORT TYPE: Car || PRICE: $additionalCharge");
-        return additionalCharge;
-      }
+        message: "DIFFERENCE IN DISTANCE: KM $differenceBetweenPoints",
+      );
+
+      var bikeCharge = (differenceBetweenPoints * 4) + 16.0;
+      loggerInfo(message: "TRANSPORT TYPE: Bike || PRICE: $bikeCharge");
+
+      var carCharge = (differenceBetweenPoints * 6) + 36.0;
+      loggerInfo(message: "TRANSPORT TYPE: Car || PRICE: $carCharge");
+
+      return [bikeCharge, carCharge];
     }
   }
 }

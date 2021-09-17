@@ -1,10 +1,10 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:system_info/system_info.dart';
 import 'package:virtual_ggroceries/model/core/ads_model.dart';
 import 'package:virtual_ggroceries/model/core/categories_model.dart';
 import 'package:virtual_ggroceries/model/core/products_model.dart';

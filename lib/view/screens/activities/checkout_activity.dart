@@ -1,11 +1,18 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_ggroceries/provider/account_provider.dart';
 import 'package:virtual_ggroceries/provider/cart_provider.dart';
+import 'package:virtual_ggroceries/provider/gps_provider.dart';
 import 'package:virtual_ggroceries/provider/payment_provider.dart';
 import 'package:virtual_ggroceries/view/constants/constants.dart';
+import 'package:virtual_ggroceries/view/constants/enums.dart';
 import 'package:virtual_ggroceries/view/widgets/flutterwave_checkout.dart';
 import 'package:virtual_ggroceries/view/widgets/horizontal_evenly_spaced_widget.dart';
 import 'package:virtual_ggroceries/view/widgets/logger_widget.dart';
@@ -13,24 +20,23 @@ import 'package:virtual_ggroceries/view/widgets/material_button.dart';
 import 'package:virtual_ggroceries/view/widgets/outlines_textformfield.dart';
 import 'package:virtual_ggroceries/view/widgets/snack_bar_builder.dart';
 
+enum SingingCharacter { Carrier, Standard }
+
 class CheckOutActivity extends StatefulWidget {
   static final String id = "CheckOutActivity";
-  final String country, shippingAddress, phoneNumber;
-  final double productCost, absoluteCost, deliverCost;
+  final String phoneNumber;
+  final double productCost, absoluteCost;
   final bool hasDiscount;
   final dynamic discountPrice;
 
-  const CheckOutActivity({
-    Key? key,
-    required this.productCost,
-    required this.absoluteCost,
-    required this.deliverCost,
-    this.hasDiscount = false,
-    this.discountPrice = 0,
-    required this.country,
-    required this.shippingAddress,
-    required this.phoneNumber,
-  }) : super(key: key);
+  const CheckOutActivity(
+      {Key? key,
+      required this.productCost,
+      required this.absoluteCost,
+      this.hasDiscount = false,
+      this.discountPrice = 0,
+      required this.phoneNumber})
+      : super(key: key);
 
   @override
   _CheckOutActivityState createState() => _CheckOutActivityState();
@@ -38,25 +44,33 @@ class CheckOutActivity extends StatefulWidget {
 
 class _CheckOutActivityState extends State<CheckOutActivity> {
   final _formKey = GlobalKey<FormState>();
-  double finalAbsoluteCost = 0;
-  int _currentStep = 0;
   StepperType stepperType = StepperType.horizontal;
+  GPSProvider _gpsProvider = GPSProvider();
   AccountProvider _accountProvider = AccountProvider();
   var locationController = TextEditingController(),
       namesController = TextEditingController(),
-      emailController = TextEditingController();
+      emailController = TextEditingController(),
+      displayedDate = TextEditingController();
+  double finalAbsoluteCost = 0,
+      deliverCost = 0,
+      carrierCost = 0,
+      standardCost = 0;
+  int _currentStep = 0, userId = 0;
   String names = '',
       email = '',
       location = '',
       phoneNumber = '',
       province = '',
-      address = '';
-  int userId = 0;
+      address = '',
+      country = '',
+      shippingAddress = '';
+  bool isLoading = true;
+  SingingCharacter? _character = SingingCharacter.Carrier;
+  var deliveryCosts;
 
   @override
   void initState() {
     _getUserData();
-    _calculateDiscountPrice();
     super.initState();
   }
 
@@ -83,13 +97,49 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
       namesController.text = tempName!;
       emailController.text = tempEmail;
     });
+    await _getUserLocation();
   }
 
-  _calculateDiscountPrice() {
+  _getUserLocation() async {
+    bool isBike = false;
+    var cartSize =
+        Provider.of<CartProvider>(context, listen: false).getItemSize();
+    if (cartSize > 20) {
+      isBike = false;
+    }
+    _gpsProvider.setBike(isBike);
+    try {
+      var coordinates = await _gpsProvider.getCoordinates();
+      var location = await _gpsProvider.getSpecificLocation(coordinates);
+      deliveryCosts = await _gpsProvider.getShippingCharge(coordinates);
+      setState(() {
+        shippingAddress = location.addressLine;
+        country = location.countryName;
+        carrierCost = deliveryCosts[0];
+        standardCost = deliveryCosts[1];
+
+        //TODO: if count > 20 switch to car by default
+        deliverCost = carrierCost;
+
+        isLoading = false;
+      });
+      await _calculateDiscountPrice();
+      return true;
+    } catch (e) {
+      setState(() => isLoading = false);
+      snackBarBuilder(context: context, message: "$e");
+      loggerInfo(message: "EXCEPTION: $e");
+      return false;
+    }
+  }
+
+  _calculateDiscountPrice() async {
+    finalAbsoluteCost += deliverCost;
     if (widget.hasDiscount) {
-      finalAbsoluteCost = widget.absoluteCost - widget.discountPrice;
+      setState(() =>
+          finalAbsoluteCost += widget.absoluteCost - widget.discountPrice);
     } else {
-      finalAbsoluteCost = widget.absoluteCost;
+      setState(() => finalAbsoluteCost += widget.absoluteCost);
     }
   }
 
@@ -100,40 +150,9 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
         appBar: AppBar(
           title: Text('Checkout'),
         ),
-        body: Container(
-          child: Column(
-            children: [
-              Expanded(
-                child: Stepper(
-                  type: stepperType,
-                  physics: ScrollPhysics(),
-                  currentStep: _currentStep,
-                  onStepTapped: (step) => tapped(step),
-                  onStepContinue: continued,
-                  onStepCancel: cancel,
-                  steps: <Step>[
-                    Step(
-                      title: Text('Shipping'),
-                      content: shippingContainer(),
-                      isActive: _currentStep == 0,
-                      state: _currentStep >= 0
-                          ? StepState.complete
-                          : StepState.disabled,
-                    ),
-                    Step(
-                      title: Text('Confirm'),
-                      content: confirmationSection(context),
-                      isActive: _currentStep == 1,
-                      state: _currentStep >= 1
-                          ? StepState.complete
-                          : StepState.disabled,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : buildContainer(context),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.list),
           onPressed: switchStepsType,
@@ -142,110 +161,219 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
     );
   }
 
-  switchStepsType() {
-    setState(() => stepperType == StepperType.vertical
-        ? stepperType = StepperType.horizontal
-        : stepperType = StepperType.vertical);
+  //main body
+  Container buildContainer(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Expanded(
+            child: Stepper(
+              type: stepperType,
+              physics: ScrollPhysics(),
+              currentStep: _currentStep,
+              onStepTapped: (step) => tapped(step),
+              onStepContinue: continued,
+              onStepCancel: cancel,
+              steps: <Step>[
+                Step(
+                  title: Text('Shipping'),
+                  content: shippingContainer(),
+                  isActive: _currentStep == 0,
+                  state: _currentStep >= 0
+                      ? StepState.complete
+                      : StepState.disabled,
+                ),
+                Step(
+                  title: Text('Confirm'),
+                  content: confirmationSection(context),
+                  isActive: _currentStep == 1,
+                  state: _currentStep >= 1
+                      ? StepState.complete
+                      : StepState.disabled,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  tapped(int step) {
-    setState(() => _currentStep = step);
-  }
-
-  continued() async {
-    if (_currentStep < 1) {
-      if (_formKey.currentState!.validate()) {
-        setState(() => _currentStep += 1);
-      }
-    } else if (_currentStep == 1) {
-      await initFlutterWave();
-    }
-  }
-
-  cancel() {
-    _currentStep > 0 ? setState(() => _currentStep -= 1) : null;
-  }
-
+  //shipping Tab
   Container shippingContainer() {
+    DateTime now = new DateTime.now();
+    var formatter = new DateFormat('yyyy-MM-dd');
+    String formattedDate = formatter.format(now);
+    displayedDate.text = formattedDate;
+
+    var contentDetailsTab = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'CONTACT DETAILS',
+          style: kTextStyleSubHeader,
+        ),
+        SizedBox(height: 10),
+        outlinedTextFormField(
+          title: 'Email Address',
+          controller: emailController,
+          errorText: 'please enter email',
+          returnedParameter: (value) {
+            email = value;
+          },
+        ),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: outlinedTextFormField(
+                title: 'Name',
+                controller: namesController,
+                errorText: 'please enter name',
+                returnedParameter: (value) {
+                  names = value;
+                },
+              ),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: outlinedTextFormField(
+                title: 'Phone Number',
+                initialValue: widget.phoneNumber,
+                errorText: 'please enter phoneNumber',
+                controller: null,
+                returnedParameter: (value) {
+                  phoneNumber = value;
+                },
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 30),
+      ],
+    );
+    var shippingAddressTab = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Shipping Address',
+          style: kTextStyleSubHeader,
+        ),
+        SizedBox(height: 10),
+        outlinedTextFormField(
+          title: 'Address',
+          controller: null,
+          errorText: 'please enter address',
+          initialValue: shippingAddress,
+          returnedParameter: (value) {
+            address = value;
+          },
+        ),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: outlinedTextFormField(
+                title: 'Country',
+                controller: null,
+                initialValue: country,
+                errorText: 'please enter province',
+                returnedParameter: (value) {
+                  province = value;
+                },
+              ),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: outlinedTextFormField(
+                title: 'ZIP CODE',
+                controller: null,
+                initialValue: "0000",
+                errorText: 'please enter zip code',
+                returnedParameter: (value) {},
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 30),
+      ],
+    );
+    var shippingOptionsTab = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Shipping Options',
+          style: kTextStyleSubHeader,
+        ),
+        SizedBox(height: 10),
+        shippingOptionsContainer(
+          icon: Icons.electric_bike,
+          title: SingingCharacter.Carrier,
+          price: carrierCost.toStringAsFixed(2),
+          onChange: (value) {
+            snackBarBuilder(context: context, message: value.toString());
+          },
+        ),
+        shippingOptionsContainer(
+          icon: FontAwesomeIcons.car,
+          title: SingingCharacter.Standard,
+          price: standardCost.toStringAsFixed(2),
+          onChange: (value) {
+            snackBarBuilder(context: context, message: value.toString());
+          },
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
+          leading: Icon(FontAwesome.calendar),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Schedule',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Text(displayedDate.text),
+              IconButton(
+                icon: Icon(Icons.chevron_right),
+                onPressed: () {
+                  DatePicker.showDatePicker(
+                    context,
+                    showTitleActions: true,
+                    minTime: DateTime(2018, 3, 5),
+                    maxTime: DateTime(2022, 6, 7),
+                    onChanged: (date) {},
+                    onConfirm: (date) {
+                      snackBarBuilder(
+                        context: context,
+                        message:
+                            'Schedule Delivery Set for ${formatter.format(date)}',
+                      );
+                      setState(
+                          () => displayedDate.text = formatter.format(date));
+                    },
+                    currentTime: DateTime.now(),
+                    locale: LocaleType.en,
+                  );
+                },
+              )
+            ],
+          ),
+        )
+      ],
+    );
+
     return Container(
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              'CONTACT DETAILS',
-              style: kTextStyleSubHeader,
-            ),
-            SizedBox(height: 10),
-            outlinedTextFormField(
-              title: 'Email Address',
-              controller: emailController,
-              errorText: 'please enter email',
-              returnedParameter: (value) {
-                email = value;
-              },
-            ),
-            SizedBox(height: 8),
-            outlinedTextFormField(
-              title: 'Name',
-              controller: namesController,
-              errorText: 'please enter name',
-              returnedParameter: (value) {
-                names = value;
-              },
-            ),
-            SizedBox(height: 8),
-            outlinedTextFormField(
-              title: 'Phone Number',
-              initialValue: widget.phoneNumber,
-              errorText: 'please enter phoneNumber',
-              controller: null,
-              returnedParameter: (value) {
-                phoneNumber = value;
-              },
-            ),
-            SizedBox(height: 15),
-            Text(
-              'Shipping Address',
-              style: kTextStyleSubHeader,
-            ),
-            SizedBox(height: 10),
-            outlinedTextFormField(
-              title: 'Address',
-              controller: null,
-              errorText: 'please enter address',
-              initialValue: widget.shippingAddress,
-              returnedParameter: (value) {
-                address = value;
-              },
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: outlinedTextFormField(
-                    title: 'Country',
-                    controller: null,
-                    initialValue: widget.country,
-                    errorText: 'please enter province',
-                    returnedParameter: (value) {
-                      province = value;
-                    },
-                  ),
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: outlinedTextFormField(
-                    title: 'ZIP CODE',
-                    controller: null,
-                    initialValue: "0000",
-                    errorText: 'please enter zip code',
-                    returnedParameter: (value) {},
-                  ),
-                ),
-              ],
-            ),
+            contentDetailsTab,
+            shippingAddressTab,
+            shippingOptionsTab,
           ],
         ),
       ),
@@ -259,11 +387,15 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
         return ListView.builder(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
-          itemCount:
-              Provider.of<CartProvider>(context, listen: true).getItemSize(),
+          itemCount: Provider.of<CartProvider>(
+            context,
+            listen: true,
+          ).getItemSize(),
           itemBuilder: (BuildContext context, int index) {
-            var data =
-                Provider.of<CartProvider>(context, listen: true).list[index];
+            var data = Provider.of<CartProvider>(
+              context,
+              listen: true,
+            ).list[index];
             return Column(
               children: [
                 Row(
@@ -343,7 +475,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
               'Delivery Cost',
               style: kTextStyleFaint,
             ),
-            rightWidget: Text('ZMW ${widget.deliverCost.toStringAsFixed(2)}'),
+            rightWidget: Text('ZMW ${deliverCost.toStringAsFixed(2)}'),
           ),
           widget.hasDiscount
               ? Padding(
@@ -391,5 +523,68 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
       snackBarBuilder(context: context, message: e.toString());
       loggerError(message: e.toString());
     }
+  }
+
+  //Stepper Functions
+  switchStepsType() {
+    setState(() => stepperType == StepperType.vertical
+        ? stepperType = StepperType.horizontal
+        : stepperType = StepperType.vertical);
+  }
+
+  tapped(int step) {
+    setState(() => _currentStep = step);
+  }
+
+  continued() async {
+    if (_currentStep < 1) {
+      if (_formKey.currentState!.validate()) {
+        setState(() => _currentStep += 1);
+      }
+    } else if (_currentStep == 1) {
+      await initFlutterWave();
+    }
+  }
+
+  cancel() {
+    _currentStep > 0 ? setState(() => _currentStep -= 1) : null;
+  }
+
+  Widget shippingOptionsContainer({
+    required IconData icon,
+    required SingingCharacter title,
+    required String price,
+    bool isChecked = false,
+    required Function onChange,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
+      leading: Icon(icon),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              getEnumValue(title),
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Text('ZMW $price'),
+          Radio<SingingCharacter>(
+            value: title,
+            groupValue: _character,
+            onChanged: (SingingCharacter? value) async {
+              setState(() {
+                _character = value;
+                value == SingingCharacter.Carrier
+                    ? deliverCost = deliveryCosts[0]
+                    : deliverCost = deliveryCosts[1];
+                finalAbsoluteCost = 0;
+              });
+              await _calculateDiscountPrice();
+            },
+          )
+        ],
+      ),
+    );
   }
 }

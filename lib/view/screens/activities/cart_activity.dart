@@ -146,15 +146,15 @@ class _CartActivityState extends State<CartActivity> {
                             child: personalInfoCard(),
                           ),
                           SizedBox(height: 20),
-                          Text(
-                            'Shipping Details',
-                            style: kTextStyleSubHeader,
-                          ),
-                          SizedBox(height: 10),
-                          Container(
-                            child: shippingContainer(),
-                          ),
-                          SizedBox(height: 20),
+                          // Text(
+                          //   'Shipping Details',
+                          //   style: kTextStyleSubHeader,
+                          // ),
+                          // SizedBox(height: 10),
+                          // Container(
+                          //   child: shippingContainer(),
+                          // ),
+                          // SizedBox(height: 20),
                           Text(
                             'Discount Code',
                             style: kTextStyleSubHeader,
@@ -188,26 +188,18 @@ class _CartActivityState extends State<CartActivity> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () async {
-                                if (_formKey.currentState!.validate() &&
-                                    _shippingKey.currentState!.validate()) {
-                                  if (await _getCoordinates()) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CheckOutActivity(
-                                          deliverCost: shippingCost,
+                                if (_formKey.currentState!.validate()) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CheckOutActivity(
                                           productCost: productCost,
                                           absoluteCost: absoluteCost,
                                           hasDiscount: hasDiscount,
                                           discountPrice: discountCalculation,
-                                          phoneNumber: '$userPhoneNumber',
-                                          shippingAddress:
-                                              '$shippingAddress1 ,$shippingAddress2 ,$shippingCity ,$shippingProvince ,$shippingCountry',
-                                          country: '$shippingCountry',
-                                        ),
-                                      ),
-                                    );
-                                  }
+                                          phoneNumber: '$userPhoneNumber'),
+                                    ),
+                                  );
                                 } else {
                                   snackBarBuilder(
                                     context: context,
@@ -315,11 +307,7 @@ class _CartActivityState extends State<CartActivity> {
             "Discount Code: '${modelData.title}' Applied ${modelData.discount_price} off",
       );
       discountCalculation = modelData.discount_price;
-      if (modelData.target == "Products") {
-        isProductDiscount = true;
-      } else {
-        isProductDiscount = false;
-      }
+      isProductDiscount = true;
     }
 
     Future _onPressMethod(BuildContext context) async {
@@ -417,7 +405,7 @@ class _CartActivityState extends State<CartActivity> {
         finalAbsoluteCost = newAbsoluteCost;
         finalShippingCost = baseShippingCost;
 
-        costWidget = Row(
+        costWidget = Wrap(
           children: [
             Text('Cart Items: ZMW ${finalProductCost.toStringAsFixed(2)}'),
             SizedBox(width: 30),
@@ -443,8 +431,8 @@ class _CartActivityState extends State<CartActivity> {
 
         costWidget = Row(
           children: [
-            Text('Shipping: ZMW ${finalShippingCost.toStringAsFixed(2)}'),
-            SizedBox(width: 30),
+            // Text('Shipping: ZMW ${finalShippingCost.toStringAsFixed(2)}'),
+            // SizedBox(width: 30),
             Text(
               'ZMW ${baseShippingCost.toStringAsFixed(2)}',
               style: kTextStyleFaint.copyWith(
@@ -460,7 +448,7 @@ class _CartActivityState extends State<CartActivity> {
       finalShippingCost = baseShippingCost;
     }
 
-    absoluteCostWidget = Row(
+    absoluteCostWidget = Wrap(
       children: [
         Text('Total Cost: ZMW ${finalAbsoluteCost.toStringAsFixed(2)}'),
         SizedBox(width: 30),
@@ -480,20 +468,20 @@ class _CartActivityState extends State<CartActivity> {
           isProduct
               ? costWidget
               : Text('Cart Items: ZMW ${finalProductCost.toStringAsFixed(2)}'),
-          paddedDivider(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              isShipping
-                  ? costWidget
-                  : Text(
-                      'Shipping: ZMK ${finalShippingCost.toStringAsFixed(2)}',
-                    ),
-              isBike
-                  ? Icon(Icons.electric_bike_outlined)
-                  : Icon(FontAwesomeIcons.car)
-            ],
-          ),
+          // paddedDivider(),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     isShipping
+          //         ? costWidget
+          //         : Text(
+          //             'Shipping: ZMK ${finalShippingCost.toStringAsFixed(2)}',
+          //           ),
+          //     isBike
+          //         ? Icon(Icons.electric_bike_outlined)
+          //         : Icon(FontAwesomeIcons.car)
+          //   ],
+          // ),
           paddedDivider(),
           isProductDiscount
               ? absoluteCostWidget
@@ -628,36 +616,36 @@ class _CartActivityState extends State<CartActivity> {
     }
   }
 
-  _getCoordinates() async {
-    setState(() => loadMore = true);
-    var userAddress =
-        '$shippingAddress1 ,$shippingCity ,$shippingProvince ,$shippingCountry';
-    var cartSize = Provider.of<CartProvider>(
-      context,
-      listen: false,
-    ).getItemSize();
-    if (cartSize > 20) {
-      isBike = false;
-    }
-    _gpsProvider.setBike(isBike);
-
-    try {
-      var coordinates = await _gpsProvider.getCoordinates(
-        address: userAddress,
-      );
-      var location = await _gpsProvider.getSpecificLocation(coordinates);
-      addressData = location;
-      var data = await _gpsProvider.getShippingCharge(coordinates);
-      setState(() => shippingCost = data);
-      setState(() => loadMore = false);
-      return true;
-    } catch (e) {
-      snackBarBuilder(context: context, message: "$e");
-      loggerInfo(message: "EXCEPTION: $e");
-      setState(() => loadMore = false);
-      return false;
-    }
-  }
+  // _getCoordinates() async {
+  //   setState(() => loadMore = true);
+  //   var userAddress =
+  //       '$shippingAddress1 ,$shippingCity ,$shippingProvince ,$shippingCountry';
+  //   var cartSize = Provider.of<CartProvider>(
+  //     context,
+  //     listen: false,
+  //   ).getItemSize();
+  //   if (cartSize > 20) {
+  //     isBike = false;
+  //   }
+  //   _gpsProvider.setBike(isBike);
+  //
+  //   try {
+  //     var coordinates = await _gpsProvider.getCoordinates(
+  //       address: userAddress,
+  //     );
+  //     var location = await _gpsProvider.getSpecificLocation(coordinates);
+  //     addressData = location;
+  //     var data = await _gpsProvider.getShippingCharge(coordinates);
+  //     setState(() => shippingCost = data);
+  //     setState(() => loadMore = false);
+  //     return true;
+  //   } catch (e) {
+  //     snackBarBuilder(context: context, message: "$e");
+  //     loggerInfo(message: "EXCEPTION: $e");
+  //     setState(() => loadMore = false);
+  //     return false;
+  //   }
+  // }
 
   Padding paddedDivider() {
     return Padding(
