@@ -465,23 +465,7 @@ class _CartActivityState extends State<CartActivity> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          isProduct
-              ? costWidget
-              : Text('Cart Items: ZMW ${finalProductCost.toStringAsFixed(2)}'),
-          // paddedDivider(),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     isShipping
-          //         ? costWidget
-          //         : Text(
-          //             'Shipping: ZMK ${finalShippingCost.toStringAsFixed(2)}',
-          //           ),
-          //     isBike
-          //         ? Icon(Icons.electric_bike_outlined)
-          //         : Icon(FontAwesomeIcons.car)
-          //   ],
-          // ),
+          Text('Cart Items: ZMW ${baseProductCost.toStringAsFixed(2)}'),
           paddedDivider(),
           isProductDiscount
               ? absoluteCostWidget

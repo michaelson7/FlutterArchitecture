@@ -212,12 +212,14 @@ class ApiHelper {
     required String name,
     required String amount,
     required String phoneNumber,
+    required String location,
     required String transId,
   }) async {
     try {
       await _api.updateUserPurchase(
         userId: userId,
         distId: distId,
+        location: location,
         address: address,
         productList: productList,
         email: email,

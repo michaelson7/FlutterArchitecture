@@ -139,19 +139,20 @@ class Api {
     return await getResponse(uri);
   }
 
-  Future<dynamic> updateUserPurchase({
-    required int userId,
-    required int distId,
-    required String address,
-    required List<ProductsModelList> productList,
-    required String email,
-    required String name,
-    required String amount,
-    required String phoneNumber,
-    required String transId,
-  }) async {
+  Future<dynamic> updateUserPurchase(
+      {required int userId,
+      required int distId,
+      required String address,
+      required List<ProductsModelList> productList,
+      required String email,
+      required String name,
+      required String amount,
+      required String phoneNumber,
+      required String transId,
+      required String location}) async {
     //get  product ids
     int size = productList.length;
+
     final requestParameters = {
       "apicall": "update_purchase",
       "array_size": size.toString(),
@@ -161,6 +162,7 @@ class Api {
       "user_id": userId.toString(),
       "total": amount,
       "address": address,
+      "location": location,
       "dist_id": distId.toString(),
       "user_name": name,
       "user_phone": phoneNumber,
@@ -171,6 +173,8 @@ class Api {
     //pass product id and selected quantity
     int num = 0;
     for (var data in productList) {
+      body['productCost($num)'] = data.price.toString();
+      body['productName($num)'] = data.name.toString();
       body['productId($num)'] = data.id.toString();
       body['productQuantity($num)'] = data.orderQuantity.toString();
       num++;

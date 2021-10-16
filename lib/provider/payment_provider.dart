@@ -23,10 +23,12 @@ class PaymentProvider extends ChangeNotifier {
     required String amount,
     required String phoneNumber,
     required String transId,
+    required String location,
   }) async {
     await _apiHelper.updateUserPurchase(
       userId: userId,
       distId: distId,
+      location: location,
       address: address,
       productList: productList,
       email: email,

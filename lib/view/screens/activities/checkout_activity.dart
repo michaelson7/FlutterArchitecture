@@ -47,16 +47,19 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
   StepperType stepperType = StepperType.horizontal;
   GPSProvider _gpsProvider = GPSProvider();
   AccountProvider _accountProvider = AccountProvider();
+
   var locationController = TextEditingController(),
       namesController = TextEditingController(),
       emailController = TextEditingController(),
       displayedDate = TextEditingController();
+
   double finalAbsoluteCost = 0,
       deliverCost = 0,
       carrierCost = 0,
       standardCost = 0;
   int _currentStep = 0, userId = 0;
   String names = '',
+      coordinatesValue = '',
       email = '',
       location = '',
       phoneNumber = '',
@@ -113,6 +116,7 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
       var location = await _gpsProvider.getSpecificLocation(coordinates);
       deliveryCosts = await _gpsProvider.getShippingCharge(coordinates);
       setState(() {
+        coordinatesValue = coordinates.toString();
         shippingAddress = location.addressLine;
         country = location.countryName;
         carrierCost = deliveryCosts[0];
@@ -508,9 +512,10 @@ class _CheckOutActivityState extends State<CheckOutActivity> {
     var provider = Provider.of<CartProvider>(context, listen: false);
     FlutterWaveCheckout _flutterCheckout = FlutterWaveCheckout(
       name: names,
+      location: coordinatesValue,
       email: email,
       phoneNumber: phoneNumber,
-      amount: finalAbsoluteCost.toStringAsFixed(2),
+      amount: '10',
       context: context,
       userId: userId,
       productList: provider.list,

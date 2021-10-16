@@ -45,6 +45,7 @@ dependencies:
 
 #create apk
 # flutter build apk --split-per-abi --no-sound-null-safety
+# flutter build appbundle --no-sound-null-safety
 
 #creates app icon
 # flutter pub get && flutter pub run flutter_launcher_icons:main

@@ -20,6 +20,7 @@ class FlutterWaveCheckout {
       email,
       name,
       address,
+      location,
       amount;
   final BuildContext context;
   final int userId, distId;
@@ -28,6 +29,7 @@ class FlutterWaveCheckout {
   FlutterWaveCheckout({
     required this.userId,
     required this.distId,
+    required this.location,
     required this.address,
     required this.productList,
     required this.email,
@@ -40,14 +42,14 @@ class FlutterWaveCheckout {
   beginPayment() async {
     final Flutterwave flutterwave = Flutterwave.forUIPayment(
       context: context,
-      encryptionKey: "FLWSECK_TESTa83747c7397c",
-      publicKey: "FLWPUBK_TEST-a57bd9375b9aa5bf9422064fc04521bf-X",
+      encryptionKey: "dbbd5e58cd35f22c20af85f2",
+      publicKey: "FLWPUBK-abe07113945d2536840268fb2c97b15b-X",
       currency: currency,
       amount: amount,
       email: email,
       fullName: name,
       txRef: txref,
-      isDebugMode: true,
+      isDebugMode: false,
       phoneNumber: phoneNumber,
       acceptCardPayment: true,
       acceptUSSDPayment: false,
@@ -76,6 +78,7 @@ class FlutterWaveCheckout {
             amount: amount,
             phoneNumber: phoneNumber,
             transId: txref,
+            location: location,
           );
           _confirmationDialog();
         } else {
@@ -89,6 +92,7 @@ class FlutterWaveCheckout {
           loggerError(
               message: 'FLUTTER ERROR: ${response.data!.processorResponse}');
         }
+        throw ('ERROR: ${response.message}');
       }
     } catch (error, stacktrace) {
       // handleError(error);
@@ -96,6 +100,22 @@ class FlutterWaveCheckout {
       loggerError(message: 'FLUTTER ERROR: ${error}');
       throw ('FLUTTER ERROR: ${error}');
     }
+  }
+
+  testUpload() async {
+    await _paymentProvider.updateUserPurchase(
+      userId: userId,
+      distId: distId,
+      address: address,
+      productList: productList,
+      email: email,
+      name: name,
+      amount: amount,
+      phoneNumber: phoneNumber,
+      transId: txref,
+      location: location,
+    );
+    _confirmationDialog();
   }
 
   bool checkPaymentIsSuccessful(final ChargeResponse response) {

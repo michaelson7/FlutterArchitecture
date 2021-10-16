@@ -86,11 +86,9 @@ class StackedProductCard extends StatelessWidget {
                                       'ZMK ${modelData[index].price.toString()}',
                                     ),
                                   ),
-                                  Material(
-                                    borderRadius: kBorderRadiusCircular,
-                                    color: kAccentColor,
-                                    child: IconButton(
-                                      icon: Icon(Icons.add_shopping_cart),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
                                       onPressed: () {
                                         var message;
                                         if (Provider.of<CartProvider>(
@@ -103,8 +101,11 @@ class StackedProductCard extends StatelessWidget {
                                           message = 'error, check logs';
                                         }
                                         snackBarBuilder(
-                                            message: message, context: context);
+                                          message: message,
+                                          context: context,
+                                        );
                                       },
+                                      child: Text('Add to Cart'),
                                     ),
                                   ),
                                 ],
